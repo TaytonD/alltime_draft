@@ -4,8 +4,19 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>All-Time Draft — NBA GM Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800;900&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800;900&display=swap"></noscript>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800;900&display=swap');
+/* Google Font is loaded via a non-blocking <link> in the document head (see
+   head_pre_style.html) instead of a CSS @import here. @import is
+   render-blocking and, in a sandboxed/restricted-network environment, can
+   hang rather than fail fast — stalling the entire page. The head's <link>
+   uses the standard async-load pattern (media="print" swapped to "all" on
+   load), so if the font loads it applies normally; if it hangs or fails,
+   the page is completely unaffected and just uses the system-ui/sans-serif
+   fallback already set on every font-family declaration below. */
 :root{
   /* Dark mode — deep navy dashboard, orange as the primary active color */
   --ink:#111827; --ink2:#161f30; --panel:#1a2540; --panel2:#1f2c4780;
@@ -15,6 +26,7 @@
   --gold:#eab308; --gold-dim:#a17d06;
   --cyan:#06b6d4; --cyan-dim:#0a8ba3;
   --purple:#8b5cf6; --purple-dim:#6d3fd1;
+  --crimson:#e11d48; --crimson-dim:#a51139;
   --clock:#f97316; --chalk:#f8fafc; --chalk-dim:#94a3b8; --chalk-dimmer:#647089;
   --win:#22c55e; --loss:#ef4444; --warn:#f59e0b;
   --glow1:rgba(249,115,22,.10); --glow2:rgba(6,182,212,.12);
@@ -28,6 +40,7 @@
 html[data-mode-accent="cap"]{ --accent: var(--cyan); --accent-dim: var(--cyan-dim); }
 html[data-mode-accent="season"]{ --accent: var(--purple); --accent-dim: var(--purple-dim); }
 html[data-mode-accent="auction"]{ --accent: var(--gold); --accent-dim: var(--gold-dim); }
+html[data-mode-accent="dynasty"]{ --accent: var(--crimson); --accent-dim: var(--crimson-dim); }
 [data-theme="light"]{
   /* Light mode — genuinely white, navy takes over as the primary active color */
   --ink:#f5f6f8; --ink2:#eceef2; --panel:#ffffff; --panel2:#eef0f4;
@@ -37,6 +50,7 @@ html[data-mode-accent="auction"]{ --accent: var(--gold); --accent-dim: var(--gol
   --gold:#a8790a; --gold-dim:#8a6108;
   --cyan:#0e7490; --cyan-dim:#0a5c73;
   --purple:#7c3aed; --purple-dim:#6428c4;
+  --crimson:#be123c; --crimson-dim:#9f1239;
   --clock:#ea6a12; --chalk:#0f1b2d; --chalk-dim:#5b6577; --chalk-dimmer:#8993a3;
   --win:#16a34a; --loss:#dc2626; --warn:#d97706;
   --glow1:rgba(22,48,90,.05); --glow2:rgba(6,182,212,.06);
@@ -160,6 +174,10 @@ h1,h2,h3,h4{margin:0;font-family:'Libre Franklin',sans-serif;font-weight:800;let
 .tag-cpu{background:rgba(159,176,200,.12);color:var(--chalk-dimmer);}
 .team-rating{font-family:'Libre Franklin';font-size:12px;color:var(--chalk-dimmer);margin-bottom:10px;}
 .slot-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(40,52,74,.5);}
+.trade-columns{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
+.trade-col{background:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;}
+.trade-col-label{font-family:'Libre Franklin';font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--chalk-dim);margin-bottom:6px;}
+@media(max-width:560px){.trade-columns{grid-template-columns:1fr;}}
 .slot-row:last-child{border-bottom:none;}
 .slot-pos{font-family:'Libre Franklin';font-weight:600;font-size:13px;letter-spacing:1px;color:var(--accent);width:34px;flex:0 0 auto;}
 .slot-pos.res{color:var(--chalk-dimmer);}
@@ -196,6 +214,7 @@ h1,h2,h3,h4{margin:0;font-family:'Libre Franklin',sans-serif;font-weight:800;let
 .p-main{flex:1;min-width:0;}
 .p-name{font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .p-yr{font-family:'Libre Franklin';font-size:11px;color:var(--chalk-dimmer);}
+.p-scout{font-size:11.5px;color:var(--chalk-dim);font-style:italic;margin-top:2px;}
 .p-stats{font-family:'Libre Franklin';font-size:11.5px;color:var(--chalk-dim);text-align:right;flex:0 0 auto;line-height:1.5;}
 .p-stats b{color:var(--chalk);}
 .slot-choice{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
@@ -483,6 +502,7 @@ h1,h2,h3,h4{margin:0;font-family:'Libre Franklin',sans-serif;font-weight:800;let
   display:grid;place-items:center;}
 .mc-icon-wood{background:radial-gradient(circle at 35% 30%,var(--gold),var(--cost) 85%);}
 .mc-icon-cyan{background:radial-gradient(circle at 35% 30%,var(--cyan),var(--cyan-dim) 85%);}
+.mc-icon-crimson{background:radial-gradient(circle at 35% 30%,var(--crimson),var(--crimson-dim) 85%);}
 .mode-card h3{font-size:21px;letter-spacing:.5px;margin-bottom:7px;color:var(--chalk);}
 .mode-card p{font-size:13.5px;color:var(--chalk-dim);line-height:1.5;margin:0;}
 
@@ -1261,6 +1281,318 @@ function statScore(p){
 function intgAdj(intg){ return 55 + (intg-66)*(52/34); }
 function playerRating(p){ return BLEND_STATS*statScore(p) + BLEND_INTG*intgAdj(p.intg); }
 
+// =====================================================================
+// DYNASTY MODE — rookie generation, potential, and aging/development.
+// Generated rookies use the EXACT same data shape as every hand-authored
+// player (pts/reb/ast/stl/blk/tpm/intg/adv/elig) and go through the exact
+// same playerRating()/costOf()/archetypesOf()/fitScore() machinery —
+// nothing downstream needs to know or care that a player was generated
+// rather than curated. The only "extra" fields are a few underscore-
+// prefixed ones (_age, _peakPotential, _potentialTier) that only Dynasty
+// Mode's own aging logic reads.
+// =====================================================================
+
+const ROOKIE_FIRST_NAMES = [
+  "Marcus","Jalen","Devin","Tyler","Cameron","Isaiah","Xavier","Elijah","Malik","Jaylen",
+  "Andre","DeShawn","Terrence","Kobe","Trey","Darius","Amir","Josiah","Kendrick","Zion",
+  "Chris","Dominic","Miles","Quentin","Reggie","Sean","Trevon","Wesley","Bryce","Cole",
+  "Damian","Eli","Grant","Hunter","Ian","Jordan","Kyle","Lamar","Nate","Omar",
+  "Preston","Rashad","Silas","Tobias","Vaughn","Adrian","Brandon","Corey","Dante","Emmett",
+  "Jacob","Ethan","Ben",
+];
+const ROOKIE_LAST_NAMES = [
+  "Barnett","Coleman","Dawson","Ellison","Fontaine","Grimes","Holloway","Ingram","Jarrett","Kessler",
+  "Lattimore","Marsh","Nkemdi","Osei","Prescott","Quintero","Rourke","Sabatini","Tillman","Ubaka",
+  "Vance","Whitfield","Yancey","Zeigler","Abernathy","Blackwood","Cotter","Delacroix","Ferris","Gantt",
+  "Hargrove","Isley","Jernigan","Kirchner","Larkspur","Mabry","Norwood","Okafor","Peppers","Radcliffe",
+  "Sheridan","Talbot","Underhill","Vasquez","Winslow","Ashby","Broussard","Castellan","Duquette","Everhart",
+  "Hoffman","Santema","McCullough","Davenport","Hughes",
+];
+function generateRookieName(){
+  const first = ROOKIE_FIRST_NAMES[Math.floor(Math.random()*ROOKIE_FIRST_NAMES.length)];
+  const last = ROOKIE_LAST_NAMES[Math.floor(Math.random()*ROOKIE_LAST_NAMES.length)];
+  return first+' '+last;
+}
+
+// Archetype shapes: a REALISTIC baseline box score for a decent
+// rotation-caliber player of that type, plus a matching adv sub-rating
+// profile — keeps generated players reading as a recognizable type (a
+// "big" rebounds and blocks, not just posts a random stat blob) using
+// numbers that actually look like basketball stats. This baseline gets
+// scaled by quality and hard-capped per stat (see generateRookie) rather
+// than derived backward through the rating formula — solving backward let
+// any category with a small formula weight (rebounds especially) blow up
+// into an absurd number for a good rating target.
+const ROOKIE_SHAPES = {
+  scorer:          { pts:17.0, reb:3.6, ast:3.2, stl:0.9, blk:0.3, tpm:1.7,
+                      adv:{sco:88,sho:62,ply:42,pdef:38,idef:28,reb:32,ath:66,iq:52,vers:42} },
+  playmaker:       { pts:11.5, reb:3.4, ast:6.8, stl:1.3, blk:0.2, tpm:1.2,
+                      adv:{sco:52,sho:42,ply:88,pdef:44,idef:24,reb:28,ath:54,iq:70,vers:48} },
+  big:             { pts:12.5, reb:8.2, ast:1.7, stl:0.6, blk:1.3, tpm:0.2,
+                      adv:{sco:48,sho:22,ply:28,pdef:34,idef:78,reb:82,ath:58,iq:48,vers:32} },
+  threeAndDefense: { pts:10.5, reb:4.2, ast:1.9, stl:1.1, blk:0.5, tpm:1.9,
+                      adv:{sco:38,sho:72,ply:32,pdef:80,idef:56,reb:44,ath:70,iq:54,vers:58} },
+  allAround:       { pts:13.5, reb:5.2, ast:4.3, stl:1.0, blk:0.5, tpm:1.4,
+                      adv:{sco:58,sho:54,ply:58,pdef:54,idef:44,reb:48,ath:60,iq:58,vers:68} },
+};
+// Hard per-stat ceilings — no generated rookie's box score can exceed these
+// regardless of archetype or target rating, keeping every stat line looking
+// like something that could plausibly appear in a real box score.
+// Tighter caps for a rookie's FIRST-year (draft-day) stat line specifically
+// — a college draftee shouldn't project to near-elite-veteran assist or
+// rebound totals before ever playing a pro game, even though a fully
+// developed PEAK star years into their career reasonably can (that's what
+// ROOKIE_STAT_CAPS below is for, used once a player has actually grown
+// into their career via aging).
+const ROOKIE_ENTRY_CAPS = { pts:29, reb:12.5, ast:8.2, stl:2.2, blk:2.5, tpm:4.0 };
+// Wider caps for a fully-developed career (used during aging, once a
+// player has had years to grow toward their peak) — still realistic, just
+// allows genuine peak-level numbers a real star can reach.
+const ROOKIE_STAT_CAPS = { pts:34, reb:15.5, ast:11.5, stl:2.6, blk:3.0, tpm:4.6 };
+const ROOKIE_SHAPE_KEYS = Object.keys(ROOKIE_SHAPES);
+// Which shapes make sense for which primary position — a "big" shape at PG
+// would produce a nonsensical stat line, so nomination/generation only
+// pulls from shapes that fit the rolled position.
+const ROOKIE_SHAPES_BY_POS = {
+  PG: ['playmaker','scorer','allAround'],
+  SG: ['scorer','threeAndDefense','allAround'],
+  SF: ['threeAndDefense','allAround','scorer'],
+  PF: ['big','allAround','threeAndDefense'],
+  C:  ['big','allAround'],
+};
+
+// Potential tiers: NOT a promise. The trajectory range is how much a
+// rookie's rating could move (up OR down) from their entry level by the
+// time their development plays out — every tier keeps real bust risk on
+// the table, even the top one. A "Rare Talent" has the widest upside tail,
+// but can still land at the bottom of that range and never pan out; a
+// "Bust Risk" guy can still surprise on the high end of theirs. The tiers
+// shift the ODDS, not the outcome.
+const POTENTIAL_TIERS = {
+  bustRisk:   { label:'Bust Risk',   trajRange:[-9, 7]  },
+  solid:      { label:'Solid',       trajRange:[-3, 11] },
+  highUpside: { label:'High Upside', trajRange:[-11, 21] },
+  rareTalent: { label:'Rare Talent', trajRange:[-13, 30] },
+};
+// Odds of landing each tier, by round — round 1 skews toward the better
+// tiers, round 2 is a real mixed bag (including occasional rare gems, the
+// classic draft-steal story, and honest scrubs, the classic bust-of-a-lottery-
+// -pick-that-slipped or just-plain-role-player story).
+const POTENTIAL_ODDS_ROUND1 = [['bustRisk',0.12],['solid',0.38],['highUpside',0.33],['rareTalent',0.17]];
+const POTENTIAL_ODDS_ROUND2 = [['bustRisk',0.34],['solid',0.42],['highUpside',0.19],['rareTalent',0.05]];
+function rollPotentialTier(round){
+  const odds = round===1 ? POTENTIAL_ODDS_ROUND1 : POTENTIAL_ODDS_ROUND2;
+  const r = Math.random();
+  let acc=0;
+  for(const [key,p] of odds){ acc+=p; if(r<=acc) return key; }
+  return odds[odds.length-1][0];
+}
+
+// Generates one fictional rookie prospect. `round` (1 or 2) skews the
+// entry-rating distribution (round 1 meaningfully better on average, with
+// its own long tail down; round 2 a wider spread including real sleepers)
+// — the potential TIER is rolled independently per round odds above, so a
+// round-2 prospect can still be a Rare Talent (the sleeper story), just
+// less often than a round-1 prospect.
+function generateRookie(round){
+  const pos = POS_LIST[Math.floor(Math.random()*POS_LIST.length)];
+  const shapeKey = ROOKIE_SHAPES_BY_POS[pos][Math.floor(Math.random()*ROOKIE_SHAPES_BY_POS[pos].length)];
+  const shape = ROOKIE_SHAPES[shapeKey];
+
+  // Entry rating target: round 1 centers higher with a tighter floor;
+  // round 2 has a lower center and a wider, flatter spread. This is a
+  // TARGET to scale toward — the actual entry rating below is derived from
+  // the realistic, capped stat line that results, so it may land a little
+  // off this target rather than hit it exactly. That's the point: realistic
+  // stats first, rating derived from them, never the other way around.
+  const base = round===1 ? 66 : 56;
+  const spread = round===1 ? 14 : 18;
+  const ratingTarget = Math.max(42, Math.min(84, base + (Math.random()+Math.random()+Math.random()-1.5)*spread/1.5));
+
+  // Intangibles: correlated with the target with a meaningfully steep
+  // slope (a real prospect billed as elite needs elite intangibles to
+  // actually reach that rating, not just a token bump), plus independent
+  // noise so it's not perfectly predictable from the target alone.
+  const intg = Math.max(38, Math.min(93, 40 + (ratingTarget-42)*1.35 + (Math.random()-0.5)*16));
+
+  // Scale the archetype's realistic baseline box score by how far the
+  // target is from a "solid rotation player" reference point, then hard-cap
+  // every individual stat — guarantees a plausible-looking line regardless
+  // of archetype, instead of solving backward through the rating formula
+  // (which could inflate any low-weight category, rebounds especially,
+  // into an absurd number for a good rating target).
+  const scale = Math.max(0.4, Math.min(2.3, 0.5 + (ratingTarget-42)/25));
+  const jit = () => 0.85 + Math.random()*0.3; // independent per-stat texture, not a uniform scale
+  const stats = {
+    pts: round1(Math.min(ROOKIE_ENTRY_CAPS.pts, shape.pts*scale*jit())),
+    reb: round1(Math.min(ROOKIE_ENTRY_CAPS.reb, shape.reb*scale*jit())),
+    ast: round1(Math.min(ROOKIE_ENTRY_CAPS.ast, shape.ast*scale*jit())),
+    stl: round1(Math.min(ROOKIE_ENTRY_CAPS.stl, shape.stl*scale*jit())),
+    blk: round1(Math.min(ROOKIE_ENTRY_CAPS.blk, shape.blk*scale*jit())),
+    tpm: round1(Math.min(ROOKIE_ENTRY_CAPS.tpm, shape.tpm*scale*jit())),
+  };
+  // The TRUE entry rating, computed from the actual (realistic, capped)
+  // stats and intangibles — not forced to hit ratingTarget exactly.
+  const entryRating = playerRating({...stats, intg});
+
+  const tierKey = rollPotentialTier(round);
+  const tier = POTENTIAL_TIERS[tierKey];
+  const trajBonus = tier.trajRange[0] + Math.random()*(tier.trajRange[1]-tier.trajRange[0]);
+  const peakPotential = Math.max(38, Math.min(99, entryRating + trajBonus));
+
+  // adv sub-ratings: archetype shape's profile, scaled toward entry
+  // quality, each with independent jitter for texture.
+  const qualityScale = 0.55 + (entryRating/100)*0.7;
+  const adv = {};
+  for(const k in shape.adv){ adv[k] = Math.max(15, Math.min(99, Math.round(shape.adv[k]*qualityScale + (Math.random()-0.5)*10))); }
+
+  // Secondary eligibility, like real players — sometimes just one
+  // position, sometimes a natural neighbor position too.
+  const posIdx = POS_LIST.indexOf(pos);
+  const elig = [pos];
+  if(Math.random()<0.4){
+    const neighbor = POS_LIST[posIdx + (Math.random()<0.5?-1:1)];
+    if(neighbor && !elig.includes(neighbor)) elig.push(neighbor);
+  }
+
+  return {
+    id: 'ROOKIE_'+Math.random().toString(36).slice(2,10),
+    n: generateRookieName(),
+    yr: 'Rookie', pos, team: null, elig,
+    pts: stats.pts, reb: stats.reb, ast: stats.ast, stl: Math.max(0,stats.stl), blk: Math.max(0,stats.blk), tpm: Math.max(0,stats.tpm),
+    intg: Math.round(intg), adv,
+    _age: 19 + Math.floor(Math.random()*3), // enters the league 19-21
+    _peakPotential: peakPotential,
+    _potentialTier: tierKey,
+    _archShape: shapeKey,
+  };
+}
+function round1(x){ return Math.round(x*10)/10; }
+
+// Generates one round's prospect pool. Quality is tied to draft position —
+// the earlier you're picking, the better the players still available in
+// the pool, since (narratively) teams picking ahead of you have already
+// taken the best names off the board. `pickPosition` is 1-indexed (1 =
+// best possible slot in that round).
+function generateProspectPool(round, pickPosition, poolSize){
+  poolSize = poolSize||12;
+  const prospects = [];
+  for(let i=0;i<poolSize;i++) prospects.push(generateRookie(round));
+  prospects.sort((a,b)=>b._peakPotential-a._peakPotential || playerRating(b)-playerRating(a));
+  // Picking early: pool is presented as-is (best available). Picking late:
+  // the very best 1-2 names in the pool are "already gone" — trimmed from
+  // what you actually see, so your position genuinely changes your options,
+  // not just a cosmetic label.
+  const trimFromTop = Math.min(prospects.length-6, Math.floor((pickPosition-1)/3));
+  return prospects.slice(trimFromTop);
+}
+
+// Adjusts a player's box-score stats — proportionally, preserving their
+// archetype shape — so their computed rating moves toward a target value.
+// This is how aging actually works: rather than regenerating a player from
+// scratch each year, their existing stat line is scaled up or down to hit
+// the new target, the same way a real player's box score shifts as their
+// game evolves without becoming a different person.
+function adjustPlayerRatingToward(player, targetRating){
+  // If box-score stats alone — even maxed out (statScore=100) — still
+  // couldn't reach the target given this player's CURRENT intangibles,
+  // raise intangibles too. Leadership and feel for the game can grow with
+  // experience the same way physical stats can; without this, a player
+  // generated with modest intangibles could never reach a high peak no
+  // matter how much their box score grew, since stats have a hard ceiling
+  // (statScore caps at 100) that intangibles don't.
+  const maxAchievableWithCurrentIntg = BLEND_STATS*100 + BLEND_INTG*intgAdj(player.intg);
+  if(targetRating > maxAchievableWithCurrentIntg){
+    const neededIntgAdjVal = (targetRating - BLEND_STATS*100) / BLEND_INTG;
+    const neededIntg = 66 + (neededIntgAdjVal-55)*(34/52);
+    player.intg = Math.round(Math.max(player.intg, Math.min(99, neededIntg)));
+  }
+  // Computed directly from the player's actual stats — NOT back-solved
+  // from statScore()'s output, which caps at 100. Back-solving from a
+  // capped value loses information about how far past the cap the
+  // underlying stats actually are, which made this function blind once a
+  // player's raw stats overshot the cap: it could no longer tell "exactly
+  // at the ceiling" from "way past it," and further growth silently froze.
+  const currentRaw = player.pts*W.pts + player.reb*W.reb + player.ast*W.ast + player.stl*W.stl + player.blk*W.blk + player.tpm*W.tpm;
+  const neededSS = Math.max(28, Math.min(100, (targetRating - BLEND_INTG*intgAdj(player.intg)) / BLEND_STATS));
+  const neededRaw = (neededSS-28)/0.92;
+  if(currentRaw < 0.5){ // essentially floored — nudge everything up slightly rather than divide by ~0
+    const bump = neededRaw>currentRaw ? 1.08 : 1;
+    if(isDynastyRookie(player)){
+      player.pts=round1(Math.min(ROOKIE_STAT_CAPS.pts, player.pts*bump));
+      player.reb=round1(Math.min(ROOKIE_STAT_CAPS.reb, player.reb*bump));
+      player.ast=round1(Math.min(ROOKIE_STAT_CAPS.ast, player.ast*bump));
+    } else {
+      player.pts=round1(player.pts*bump); player.reb=round1(player.reb*bump); player.ast=round1(player.ast*bump);
+    }
+    return;
+  }
+  const scale = Math.max(0.7, Math.min(1.3, neededRaw/currentRaw));
+  // Hard-capped for generated rookies the same way initial generation is —
+  // without this, growth compounding across many years of aging can still
+  // drift a fictional player's stat into unrealistic territory even though
+  // a fresh rookie is now generated realistically from the start. Legends
+  // are explicitly EXEMPT: their stats are real historical numbers (Bill
+  // Russell really did average 23.6 rebounds), and clamping them to a
+  // rookie-realism ceiling would corrupt accurate history, not fix a bug.
+  if(isDynastyRookie(player)){
+    player.pts = round1(Math.min(ROOKIE_STAT_CAPS.pts, player.pts*scale));
+    player.reb = round1(Math.min(ROOKIE_STAT_CAPS.reb, player.reb*scale));
+    player.ast = round1(Math.min(ROOKIE_STAT_CAPS.ast, player.ast*scale));
+    player.stl = round1(Math.max(0,Math.min(ROOKIE_STAT_CAPS.stl, player.stl*scale)));
+    player.blk = round1(Math.max(0,Math.min(ROOKIE_STAT_CAPS.blk, player.blk*scale)));
+    player.tpm = round1(Math.max(0,Math.min(ROOKIE_STAT_CAPS.tpm, player.tpm*scale)));
+  } else {
+    player.pts = round1(player.pts*scale);
+    player.reb = round1(player.reb*scale);
+    player.ast = round1(player.ast*scale);
+    player.stl = round1(Math.max(0,player.stl*scale));
+    player.blk = round1(Math.max(0,player.blk*scale));
+    player.tpm = round1(Math.max(0,player.tpm*scale));
+  }
+}
+
+// One dynasty-year of development for a generated (non-legend) player.
+// Rising through their 20s toward their hidden peak potential, a handful
+// of near-peak years, then decline after 32 — with real year-to-year
+// variance layered on at every stage so it never reads as a spreadsheet.
+function developRookieOneYear(player){
+  player._age = (player._age||19) + 1;
+  const age = player._age;
+  const peak = player._peakPotential;
+  const current = playerRating(player);
+  let target;
+  if(age<=26){
+    const gap = peak-current;
+    target = current + gap*(0.30+Math.random()*0.28) + (Math.random()-0.5)*3.5;
+  } else if(age<=32){
+    target = peak + (Math.random()-0.5)*4.5;
+  } else {
+    const declineYears = age-32;
+    target = peak - declineYears*(2.2+Math.random()*2.2);
+  }
+  // Cap how much a rating can move in a single season — even a dramatic
+  // breakout or decline year should read as gradual across a multi-year
+  // arc, not an implausible one-year leap (and large single-year jumps
+  // were also what pushed generated stat lines into unrealistic territory
+  // in the first place).
+  target = Math.max(current-7, Math.min(current+7, target));
+  adjustPlayerRatingToward(player, Math.max(28, Math.min(99, target)));
+  return { retiring: age>=37 || (age>32 && Math.random()<0.06*(age-32)) };
+}
+
+// Legends age gently rather than following the full rookie arc — the
+// point of drafting peak Jordan is that it stays recognizably peak Jordan
+// for most of the run, not a slow slide into a diminished version. A
+// randomized career clock (different every playthrough) determines when
+// they retire; a small annual dip is the only real cost of time passing.
+function assignLegendCareerClock(){ return 3 + Math.floor(Math.random()*6); } // 3-8 dynasty-years remaining
+function ageLegendOneYear(player){
+  const current = playerRating(player);
+  const target = current - (0.8 + Math.random()*1.4);
+  adjustPlayerRatingToward(player, Math.max(45, target));
+}
+
 function teamRating(team){
   const st = ["PG","SG","SF","PF","C"].map(s=>team.slots[s]).filter(Boolean);
   const rs = (team.slots.RES||[]).filter(Boolean);
@@ -1280,6 +1612,425 @@ function teamRating(team){
   const coachKey = team.coachStyle || 'balanced';
   const fit = (typeof S!=='undefined' && S.complexity==='complex') ? computeTeamFit(st, coachKey) : 0;
   return { rating:talent+fit, avg, balanceBonus, fit, cats };
+}
+
+// =====================================================================
+// DYNASTY MODE — roster cap, auto-reoptimizing bench, draft position from
+// record, and CPU trade offers.
+// =====================================================================
+
+// Roster cap scales with how many players the dynasty started with — a
+// bigger initial roster gets more room to carry through the years, always
+// bounded to a believable range.
+function dynastyRosterCap(startingRosterSize){
+  return Math.max(8, Math.min(12, startingRosterSize+3));
+}
+// Total players currently on a dynasty roster (starting five + bench).
+function dynastyRosterCount(team){
+  return POS_LIST.filter(pos=>team.slots[pos]).length + (team.slots.RES||[]).length;
+}
+// Rebuilds a team's starting five + bench from its full flat player list.
+// Called any time the roster changes — a retirement, a cut, a new
+// rookie — so the best available five are always actually fielded,
+// without needing a separate manual lineup-editor UI. Reuses the exact
+// same optimal-assignment logic Season Mode already uses for the 30 real
+// teams, so "who starts" is a solved, tested problem, not new logic.
+function reoptimizeDynastyRoster(team){
+  const flat = [...POS_LIST.map(pos=>team.slots[pos]).filter(Boolean), ...(team.slots.RES||[])];
+  const assigned = assignStarters(flat);
+  const usedIds = new Set(POS_LIST.map(pos=>assigned[pos]?assigned[pos].id:null));
+  POS_LIST.forEach(pos=>{ team.slots[pos] = assigned[pos]||null; });
+  team.slots.RES = flat.filter(p=>!usedIds.has(p.id));
+  team._rating = teamRating(team).rating;
+}
+// Adds new players (e.g. this year's two rookies) to the roster and
+// reoptimizes the lineup around them. Returns how many players, if any,
+// now need to be cut to get back under the cap — the caller is
+// responsible for actually presenting that choice; this just reports it.
+function addPlayersToDynastyRoster(team, newPlayers, rosterCap){
+  team.slots.RES = [...(team.slots.RES||[]), ...newPlayers];
+  reoptimizeDynastyRoster(team);
+  return Math.max(0, dynastyRosterCount(team) - rosterCap);
+}
+// Removes one player (by id) from wherever they are on the roster —
+// starting five or bench — and reoptimizes. Used identically for a
+// user-chosen cut and for a retirement; the removal mechanics are the
+// same either way, only the reason differs.
+function removePlayerFromDynastyRoster(team, playerId){
+  POS_LIST.forEach(pos=>{ if(team.slots[pos] && team.slots[pos].id===playerId) team.slots[pos]=null; });
+  team.slots.RES = (team.slots.RES||[]).filter(p=>p.id!==playerId);
+  reoptimizeDynastyRoster(team);
+}
+// Flat list of every player currently on a dynasty roster, starters and
+// bench together — the natural shape for cut screens, trade screens, and
+// anywhere else the whole roster needs to be considered as one list.
+function dynastyFlatRoster(team){
+  return [...POS_LIST.map(pos=>team.slots[pos]).filter(Boolean), ...(team.slots.RES||[])];
+}
+
+// Maps last season's win percentage to a rookie-draft position (1 = best).
+// Worse records get better ODDS at an early pick, not a guarantee — real
+// lottery-style luck is layered on top of the expected relationship, so
+// tanking is incentivized but never risk-free, and a good season can still
+// occasionally sneak an earlier-than-deserved pick.
+function dynastyDraftPosition(winPct, poolTeamCount){
+  poolTeamCount = poolTeamCount||14;
+  const expected = 1 + winPct*(poolTeamCount-1);
+  const luck = (Math.random()-0.5)*poolTeamCount*0.35;
+  return Math.max(1, Math.min(poolTeamCount, Math.round(expected+luck)));
+}
+
+// CPU trade offers — accept/decline only, no counter-negotiation, in the
+// spirit of Retro Bowl-style trade blocks rather than a full negotiation
+// system. Every offer includes at least one player somewhere in the
+// package (either side) — a pure pick-for-pick swap has no real roster
+// stakes and wouldn't be an interesting decision either way.
+
+// Rough value for one trade asset — a player's rating directly, or a flat
+// estimate for a pick (round 1 worth meaningfully more than round 2, and
+// a future pick discounted slightly for the uncertainty of not knowing
+// exactly what you're getting yet).
+function tradeAssetValue(asset){
+  if(asset.type==='player') return playerRating(asset.player);
+  if(asset.type==='pick') return (asset.round===1 ? 62 : 46) * (asset.when==='next' ? 0.85 : 1);
+  return 0;
+}
+function tradePackageValue(pieces){ return pieces.reduce((s,a)=>s+tradeAssetValue(a),0); }
+
+// Weighted-random selection favoring better players — a real team would
+// plausibly be more interested in your good players than your scrubs, but
+// this still keeps genuine variance (not always your single best asset).
+function weightedPickFromRoster(roster, count){
+  const pool = [...roster].sort((a,b)=>playerRating(b)-playerRating(a));
+  const picked = [];
+  for(let i=0;i<count && pool.length;i++){
+    const idx = Math.min(pool.length-1, Math.floor(Math.pow(Math.random(),1.8)*pool.length));
+    picked.push(pool[idx]);
+    pool.splice(idx,1);
+  }
+  return picked;
+}
+// Short "why do they want this guy" flavor, pattern-matched off a player's
+// archetype signature — not deep team-need modeling, but enough that an
+// ask reads as purposeful rather than arbitrary.
+function tradeReasonFor(player){
+  const a = player.adv;
+  const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+  if(!a) return 'looking to add proven talent';
+  if(a.reb>=65 && a.idef>=60) return pick(['looking to upgrade the frontcourt', 'in need of size and rebounding', 'trying to fix a leaky interior defense']);
+  if(a.ply>=70) return pick(['in the market for a playmaker', 'looking for someone to run the offense', 'wants a better ball-handler in crunch time']);
+  if(a.sho>=65) return pick(['needs shooting on the perimeter', 'trying to open up the floor with more spacing', 'chasing three-point shooting off the bench']);
+  if(Math.max(a.pdef,a.idef)>=68) return pick(['wants to get tougher defensively', 'looking to shore up their perimeter defense', 'tired of getting torched on that end of the floor']);
+  if(a.sco>=75) return pick(['chasing more scoring punch', 'looking for a bucket when the offense stalls', 'wants another shot-creator late in games']);
+  return pick(['looking to add proven talent', 'trying to get younger and more athletic', 'shaking things up after a disappointing stretch']);
+}
+
+// Scouting-report flavor text for a draft prospect, based on their
+// archetype shape — deterministic per player (hashed from their id) so
+// re-rendering the same pool doesn't show a different blurb each time.
+const SCOUTING_BLURBS = {
+  scorer: [
+    "a bucket-getter who can create his own shot off the dribble",
+    "an aggressive scorer who wants the ball in his hands late",
+    "high-volume shooter with real shot-creation upside",
+    "gets to his spots with a tight handle and a quick first step",
+    "a natural killer instinct in isolation situations",
+    "scores in bunches once he gets going, streaky but dangerous",
+    "comfortable pulling up from anywhere on the floor",
+    "relentless downhill driver who draws a lot of contact",
+  ],
+  playmaker: [
+    "a pass-first floor general who sees the whole court",
+    "a crafty ball-handler who sets up teammates first",
+    "a high-IQ playmaker who controls the pace of a game",
+    "elite court vision, the kind of passer who makes everyone around him better",
+    "a steady hand who rarely turns the ball over under pressure",
+    "reads defenses a step ahead and delivers the ball on time",
+    "a true point guard in the traditional sense — pass first, shoot second",
+    "orchestrates an offense with poise beyond his experience",
+  ],
+  big: [
+    "a rugged rebounder who protects the rim",
+    "a physical presence in the paint on both ends",
+    "a true anchor who alters shots inside",
+    "dominant on the offensive glass, always around the ball",
+    "a load to handle in the post with a soft touch around the rim",
+    "sets bone-crushing screens and finishes hard at the basket",
+    "the kind of rim protector who changes an opponent's shot selection",
+    "plays bigger than his height with great timing as a shot-blocker",
+  ],
+  threeAndDefense: [
+    "a versatile wing who can guard multiple positions and stretch the floor",
+    "a 3-and-D specialist with real defensive instincts",
+    "a long, switchable defender whose jumper is coming along",
+    "moves his feet well enough to guard 1 through 4",
+    "a quick-trigger shooter who doesn't need much space to get his shot off",
+    "disruptive hands on defense, generates a lot of deflections",
+    "a glue guy who does the little things that don't show up in a box score",
+    "athletic enough to guard up a position when it matters",
+  ],
+  allAround: [
+    "a well-rounded player without a real hole in his game",
+    "someone who does a little of everything without a standout weakness",
+    "a versatile piece who should fit into any lineup",
+    "no elite tool, but nothing he can't do at a solid level",
+    "a smart, team-first player who impacts winning in quiet ways",
+    "flexible enough to play multiple roles depending on the lineup around him",
+    "steady and dependable, the kind of player coaches trust",
+    "a jack-of-all-trades who just knows how to play the game",
+  ],
+};
+function hashStr(s){ let h=0; for(let i=0;i<s.length;i++){ h=(h*31+s.charCodeAt(i))|0; } return Math.abs(h); }
+function scoutingBlurbFor(rookie){
+  const options = SCOUTING_BLURBS[rookie._archShape] || SCOUTING_BLURBS.allAround;
+  return options[hashStr(rookie.id) % options.length];
+}
+
+// Generates one CPU trade offer for the user's dynasty team, or null if
+// the roster's too thin to safely offer on (protects against a trade
+// gutting a team that barely has enough bodies to field a lineup).
+// `era` should be 'all' or 'modern', matching the dynasty's player pool —
+// the player CPU teams offer back is a real name from that same pool who
+// isn't currently on the user's roster, not a generic placeholder.
+function generateTradeOffer(team, retiredIds, dynastyState){
+  const myRoster = dynastyFlatRoster(team);
+  if(myRoster.length<6) return null;
+
+  // Trade partners are always real Modern NBA players — "the rest of the
+  // league" is the actual current NBA regardless of which era your OWN
+  // team was drafted from, same as how the season simulation itself always
+  // plays you against real Modern opponents. An All-Time dynasty doesn't
+  // trade with other legends; it trades with today's league.
+  const pool = CURRENT_POOL;
+  const myIds = new Set(myRoster.map(p=>p.id));
+  const retiredSet = new Set(retiredIds||[]);
+  const outside = pool.filter(p=>!myIds.has(p.id) && !retiredSet.has(p.id));
+  if(!outside.length) return null;
+
+  // Pick assets are only real, usable things if there's an actual rookie
+  // draft left for them to apply to. In the dynasty's final year, there is
+  // no draft at all (the whole rookie-draft phase is skipped), so neither
+  // "this year's" nor "next year's" pick would ever be spendable — suppress
+  // pick assets entirely rather than offering something that can never be
+  // used. In any other year, "next" is fine; "this" is fine too since the
+  // draft for the CURRENT year hasn't happened yet when trades are offered.
+  const draftsRemain = dynastyState ? dynastyState.yearIdx < dynastyState.totalYears : true;
+  function pickAsset(){ return {type:'pick', round: Math.random()<0.5?1:2, when: Math.random()<0.6?'next':'this'}; }
+
+  // Determine the fairness tier FIRST — this decides which of your players
+  // are even eligible to be asked for. A team offering a genuinely great
+  // return can reasonably covet your best player; a team trying to lowball
+  // you never would — no real front office asks for your franchise
+  // cornerstone while offering a bench piece back, so the worst trades are
+  // restricted to your lesser assets instead of your best ones.
+  const roll = Math.random();
+  const tier = roll<0.28 ? 'favorable' : roll<0.72 ? 'fair' : 'unfavorable';
+  const targetRatio = tier==='favorable' ? 1.25+Math.random()*0.45
+                     : tier==='fair'      ? 0.85+Math.random()*0.3
+                     :                      0.65+Math.random()*0.2; // a real bad deal, not an insulting one
+
+  const sortedByRating = [...myRoster].sort((a,b)=>playerRating(b)-playerRating(a));
+  const eligibleForAsk = tier==='unfavorable' ? sortedByRating.slice(2) : myRoster; // roster is always >=6, so this never empties out
+
+  const wantCount = Math.random()<0.7 ? 1 : 2;
+  const wantsFromYou = weightedPickFromRoster(eligibleForAsk, Math.min(wantCount, eligibleForAsk.length)).map(p=>({type:'player', player:p}));
+  if(!wantsFromYou.length) return null; // roster too thin to safely ask for anyone
+  if(draftsRemain && Math.random()<0.25) wantsFromYou.push(pickAsset());
+  const wantValue = tradePackageValue(wantsFromYou);
+  const askedPlayer = wantsFromYou.find(a=>a.type==='player').player;
+  const partnerAbbr = CURRENT_TEAMS[Math.floor(Math.random()*CURRENT_TEAMS.length)];
+
+  const targetGiveValue = wantValue*targetRatio;
+
+  // Pick randomly from a pool of reasonably-close candidates, not always
+  // the single mathematically-closest match — the closest-match-only
+  // approach collapsed onto the same few elite names constantly, since top
+  // ratings cluster into a small pool (any target value in the "very good"
+  // range has only a handful of real candidates near it, so always taking
+  // the #1 closest means always getting the same one or two names).
+  const byCloseness = [...outside].sort((a,b)=>Math.abs(playerRating(a)-targetGiveValue)-Math.abs(playerRating(b)-targetGiveValue));
+  const candidatePool = byCloseness.slice(0, Math.min(10, byCloseness.length));
+  const offerPlayer = candidatePool[Math.floor(Math.random()*candidatePool.length)];
+  const theyGiveYou = [{type:'player', player: offerPlayer}];
+  const gap = targetGiveValue - playerRating(offerPlayer);
+  if(draftsRemain && (gap>25 || Math.random()<0.2)) theyGiveYou.push(pickAsset());
+
+  return {
+    id: 'trade_'+Math.random().toString(36).slice(2,9),
+    theyGiveYou, wantsFromYou,
+    theyGiveValue: tradePackageValue(theyGiveYou),
+    wantValue,
+    partnerAbbr, partnerName: TEAM_NAMES[partnerAbbr],
+    reason: tradeReasonFor(askedPlayer),
+  };
+}
+
+// Applies an accepted offer: removes what you gave up, adds what you
+// received. Picks are tracked as a simple ledger against a resolved
+// absolute year (dynastyState.yearIdx, +1 if "next") rather than staying
+// symbolic, so the draft-year logic can directly check "do I still have my
+// round 1 pick this year?" against concrete entries. Returns how many
+// players (if any) now need to be cut to get back under the roster cap —
+// same overflow contract as addPlayersToDynastyRoster, so the caller
+// handles it the same way a rookie-draft overflow would be handled.
+function applyTradeOffer(team, offer, dynastyState){
+  offer.wantsFromYou.forEach(asset=>{
+    if(asset.type==='player') removePlayerFromDynastyRoster(team, asset.player.id);
+    else if(asset.type==='pick'){
+      const yearIdx = dynastyState.yearIdx + (asset.when==='next'?1:0);
+      dynastyState.tradedAwayPicks.push({round:asset.round, yearIdx});
+    }
+  });
+  const incomingPlayers = offer.theyGiveYou.filter(a=>a.type==='player').map(a=>a.player);
+  const cap = dynastyRosterCap(dynastyState.startingRosterSize);
+  const overflow = incomingPlayers.length ? addPlayersToDynastyRoster(team, incomingPlayers, cap) : 0;
+  offer.theyGiveYou.forEach(asset=>{
+    if(asset.type==='pick'){
+      const yearIdx = dynastyState.yearIdx + (asset.when==='next'?1:0);
+      dynastyState.extraPicks.push({round:asset.round, yearIdx});
+    }
+  });
+  return { overflow };
+}
+// Whether the user still holds their own round-`round` pick in a given
+// dynasty year — false if it's been traded away. Used when building that
+// year's draft rounds.
+function hasOwnPick(dynastyState, round, yearIdx){
+  return !dynastyState.tradedAwayPicks.some(p=>p.round===round && p.yearIdx===yearIdx);
+}
+// Any extra picks (acquired via trade) the user holds for a given round in
+// a given dynasty year, beyond their own.
+function extraPicksFor(dynastyState, round, yearIdx){
+  return dynastyState.extraPicks.filter(p=>p.round===round && p.yearIdx===yearIdx).length;
+}
+
+// A generated rookie's id always starts with 'ROOKIE_' — everything else
+// (All-Time legends, Modern real players) is treated as a "legend" for
+// aging purposes: gentle decline on a randomized career clock, rather than
+// the full rise/peak/decline arc a generated prospect goes through.
+function isDynastyRookie(p){ return typeof p.id==='string' && p.id.indexOf('ROOKIE_')===0; }
+
+// One year of aging for the whole roster. Rookies follow their full
+// development arc; legends tick down their randomized career clock and
+// decline gently. Returns the players who retired this year — already
+// removed from the roster (with the lineup automatically reoptimized
+// around their departure) by the time this returns.
+function ageDynastyRoster(team, dynastyState){
+  const retired = [];
+  dynastyFlatRoster(team).forEach(p=>{
+    if(isDynastyRookie(p)){
+      const result = developRookieOneYear(p);
+      if(result.retiring) retired.push(p);
+    } else {
+      if(dynastyState.legendClocks[p.id]==null) dynastyState.legendClocks[p.id] = assignLegendCareerClock();
+      dynastyState.legendClocks[p.id]--;
+      ageLegendOneYear(p);
+      if(dynastyState.legendClocks[p.id]<=0) retired.push(p);
+    }
+  });
+  retired.forEach(p=>{ removePlayerFromDynastyRoster(team, p.id); dynastyState.retiredPlayerIds.push(p.id); });
+  return retired;
+}
+
+// How many picks the user actually holds in a given round this year — 1
+// for their own pick unless it was traded away, plus however many extra
+// picks in that round they've acquired via trade.
+function dynastyRoundPickCounts(dynastyState, round){
+  const own = hasOwnPick(dynastyState, round, dynastyState.yearIdx) ? 1 : 0;
+  return own + extraPicksFor(dynastyState, round, dynastyState.yearIdx);
+}
+
+// Sets up a new dynasty from a freshly-drafted starting team. Assigns
+// career clocks to every legend already on the roster (a dynasty starting
+// with an All-Time team begins the clock immediately, same as any legend
+// picked up later).
+function initDynastyState(totalYears, startingTeam, era, conf){
+  const startingRosterSize = dynastyRosterCount(startingTeam);
+  const state = {
+    active: true, totalYears, yearIdx: 1,
+    startingRosterSize, rosterCap: dynastyRosterCap(startingRosterSize),
+    era, conf,
+    legendClocks: {}, tradedAwayPicks: [], extraPicks: [], history: [],
+    retiredPlayerIds: [], // permanent — a retired player is done, never eligible to resurface via trade
+    currentSeasonResult: null,
+  };
+  dynastyFlatRoster(startingTeam).forEach(p=>{
+    if(!isDynastyRookie(p)) state.legendClocks[p.id] = assignLegendCareerClock();
+  });
+  return state;
+}
+
+// Resolves however many cuts are required (from a rookie-draft or trade
+// overflow) by repeatedly asking the decision-maker to choose one player
+// at a time from the current full roster — the same overflow contract
+// used by both sources, so this one function handles either case.
+function resolveDynastyCuts(team, count, decisions, yearLog){
+  for(let i=0;i<count;i++){
+    const roster = dynastyFlatRoster(team);
+    const cutId = decisions.onCutRequired(roster);
+    const cutPlayer = roster.find(p=>p.id===cutId);
+    removePlayerFromDynastyRoster(team, cutId);
+    yearLog.cutsMade.push(cutPlayer ? cutPlayer.n : cutId);
+  }
+}
+
+// Runs one full dynasty year end to end: a preseason trade opportunity,
+// the season and playoffs, a postseason trade opportunity, aging and
+// retirement, and (unless this is the final year) a two-round rookie
+// draft respecting the pick ledger — cuts resolved wherever the roster
+// goes over cap along the way. All actual DECISIONS (accept a trade? who
+// to draft? who to cut?) are supplied via the `decisions` callbacks, so
+// this same core loop can be driven by a real UI later, or — for testing —
+// by scripted logic that always makes a reasonable choice.
+function runDynastyYear(dynastyState, team, decisions){
+  const yearLog = { yearIdx: dynastyState.yearIdx, trades: [], draftPicks: [], cutsMade: [], retired: [] };
+
+  function offerTradeIfAny(timing){
+    if(Math.random()>=0.4) return;
+    const offer = generateTradeOffer(team, dynastyState.retiredPlayerIds, dynastyState);
+    if(!offer) return;
+    const accept = decisions.onTradeOffer(offer, timing);
+    yearLog.trades.push({offer, accepted: accept, timing});
+    if(accept){
+      const res = applyTradeOffer(team, offer, dynastyState);
+      if(res.overflow>0) resolveDynastyCuts(team, res.overflow, decisions, yearLog);
+    }
+  }
+
+  offerTradeIfAny('preseason');
+
+  team._rating = teamRating(team).rating;
+  const seasonResult = simSeasonWithPlayoffs(team, dynastyState.conf);
+  dynastyState.currentSeasonResult = seasonResult;
+  yearLog.seasonResult = { wins:seasonResult.wins, losses:seasonResult.losses, madePlayoffs:seasonResult.madePlayoffs,
+    outcome: seasonResult.playoffs ? (seasonResult.playoffs.wonTitle?'CHAMPION':seasonResult.playoffs.wonConf?'LOST_FINALS':'ELIM_R'+seasonResult.playoffs.eliminatedRound) : 'MISSED' };
+
+  offerTradeIfAny('postseason');
+
+  const retired = ageDynastyRoster(team, dynastyState);
+  yearLog.retired = retired.map(p=>p.n);
+
+  if(dynastyState.yearIdx < dynastyState.totalYears){
+    const winPct = seasonResult.wins/(seasonResult.wins+seasonResult.losses);
+    const newRookies = [];
+    for(const round of [1,2]){
+      const picks = dynastyRoundPickCounts(dynastyState, round);
+      for(let i=0;i<picks;i++){
+        const pos = dynastyDraftPosition(winPct, 14);
+        const pool = generateProspectPool(round, pos, 12);
+        const chosen = decisions.onDraftPick(pool, round, pos);
+        if(chosen){ newRookies.push(chosen); yearLog.draftPicks.push({round, pos, name:chosen.n}); }
+      }
+    }
+    if(newRookies.length){
+      const overflow = addPlayersToDynastyRoster(team, newRookies, dynastyState.rosterCap);
+      if(overflow>0) resolveDynastyCuts(team, overflow, decisions, yearLog);
+    }
+  }
+
+  dynastyState.history.push(yearLog);
+  dynastyState.yearIdx++;
+  return yearLog;
 }
 
 // Team Fit (Complex Mode only): how well a starting five's advanced
@@ -2316,7 +3067,19 @@ function initAuction(){
   S.auction = {
     nominee:null, nominatorIdx:null, currentBid:0, leaderIdx:null,
     activeBidders:[], bidCursor:0, phase:'idle', nominateOptions:null, floorExcludingNominee:null,
+    nominatorCursor:0, pendingNominatorIdx:null,
   };
+}
+// Resets ONLY the current nominee/bidding state between rounds — NOT
+// nominatorCursor. That cursor has to persist and keep advancing across the
+// whole auction; resetting it after every single player resolution (as
+// initAuction() does, correctly, for a brand-new auction) meant nomination
+// turn order snapped back to the start every time, so whichever team came
+// first with open roster room got picked again and again.
+function resetBiddingRound(){
+  S.auction.nominee=null; S.auction.nominatorIdx=null; S.auction.currentBid=0; S.auction.leaderIdx=null;
+  S.auction.activeBidders=[]; S.auction.bidCursor=0; S.auction.phase='idle';
+  S.auction.floorExcludingNominee=null; S.auction.eligibleAtStart=null;
 }
 // The first open starting slot this player fits, else RES if there's room,
 // else null (this team genuinely can't use them — excluded from bidding).
@@ -2336,23 +3099,49 @@ function canAffordBid(team, bidAmount, player){
   const reserve = Math.max(0, otherOpen) * (floor||2);
   return bidAmount + reserve <= remaining;
 }
-// CPU nomination: put up the best remaining player usable by at least one
-// team. Mirrors real auction behavior — the marquee names get cashed in
-// early since everyone wants a shot at them while budgets are still full.
-function cpuNominate(available){
+// CPU nomination strategy. Early in the auction, strongly favors putting up
+// the single best remaining player — mirrors real behavior, since everyone
+// wants a shot at the marquee names while budgets are still full, and it's
+// a reasonable way to get the best talent onto the board before money runs
+// dry. As the auction progresses, mixes in nominating a player who fills
+// the NOMINATOR's own biggest need instead — a real, recognizable auction
+// tactic ("I need a center and there are only two good ones left, better
+// put one up now") even though anyone at the table can still win it.
+// Personality shifts the balance: Star Chasers keep chasing star power
+// later into the auction; Steady Builders pivot to need-based nomination
+// sooner, matching how each personality already behaves in a normal draft.
+function cpuNominate(nominatorTeam, available){
   const usable = available.filter(p=>S.teams.some(t=>bestSlotFor(t,p)!==null));
-  return usable.sort((a,b)=>playerRating(b)-playerRating(a))[0] || null;
+  if(!usable.length) return null;
+  const byRating = [...usable].sort((a,b)=>playerRating(b)-playerRating(a));
+  if(usable.length<=3) return byRating[0]; // endgame — no point being clever with the last few names
+
+  const progress = S.order.length ? S.pickIdx/S.order.length : 0; // 0 at start, ~1 near the end
+  const per = PERSONALITY[nominatorTeam.personality] || PERSONALITY.balanced;
+  const personalityNudge = per.talentChase>0 ? 0.35 : (per.needWeight>1.1 ? -0.15 : 0);
+  const nominateBestChance = Math.max(0.15, 0.85 - progress*0.6 + personalityNudge);
+
+  if(Math.random() < nominateBestChance) return byRating[0];
+
+  const openStart = POS_LIST.filter(s=>!nominatorTeam.slots[s]);
+  const resOpen = (nominatorTeam.resCap||0) - (nominatorTeam.slots.RES||[]).length;
+  let needCandidates = openStart.length ? usable.filter(p=>p.elig.some(s=>openStart.includes(s))) : [];
+  if(!needCandidates.length && resOpen>0) needCandidates = usable;
+  return needCandidates.length ? needCandidates.sort((a,b)=>playerRating(b)-playerRating(a))[0] : byRating[0];
 }
 // How much this specific CPU would pay for this specific player: the
 // player's static cost, adjusted up or down by the same situational-value
-// signal the turn-based CPU already uses to judge fit/need, then hard-capped
-// by what the team can actually afford once its other open slots are
-// reserved for.
+// signal the turn-based CPU already uses to judge fit/need — including
+// positional scarcity among what's left, so a team facing a thin market at
+// a position it needs will reasonably pay a premium — then hard-capped by
+// what the team can actually afford once its other open slots are reserved
+// for.
 function auctionCeiling(team, player){
   const slot = bestSlotFor(team, player);
   if(!slot) return 0;
   const base = costOf(player);
-  const sv = situationalValue(team, player, {}, slot);
+  const scarcity = S.auction && S.auction.nominee===player ? S.auction.scarcityAtNomination : computeScarcity(S.available);
+  const sv = situationalValue(team, player, scarcity||{}, slot);
   const baseline = playerRating(player);
   const multiplier = Math.max(0.55, Math.min(1.6, 1 + (sv-baseline)/40));
   let ceiling = Math.round(base*multiplier);
@@ -2371,6 +3160,7 @@ function startBidding(nominee, nominatorIdx){
   S.auction.eligibleAtStart = eligible; // preserved separately — activeBidders shrinks as teams pass
   S.auction.activeBidders = eligible;
   S.auction.bidCursor = 0;
+  S.auction.scarcityAtNomination = computeScarcity(S.available); // cached once per nominee, same reasoning as floorExcludingNominee below
   // Cached once per nominee rather than recomputed (full pool scan) on every
   // single bid decision — this value can't change until the current auction
   // actually resolves and S.available updates, so recomputing it dozens of
@@ -2384,6 +3174,22 @@ function nextBidderIdx(){
   for(let i=0;i<n;i++){
     const idx=(S.auction.bidCursor+i)%n;
     if(S.auction.activeBidders.includes(idx) && idx!==S.auction.leaderIdx) return idx;
+  }
+  return null;
+}
+// Next team (scanning forward from nominatorCursor) that still has open
+// roster room. A team with a full roster can never win another player —
+// they have nothing to gain from nominating and are skipped entirely,
+// rather than wasting a turn that inevitably dumps a player on whoever's
+// left. Deliberately independent of S.order/S.pickIdx, which only tracks
+// how many total picks remain across the whole league — a team's own
+// roster can fill up (from winning OTHER teams' nominations) well before
+// or after their "scheduled" turn in that shared sequence comes up.
+function nextNominatorIdx(){
+  const n = S.teams.length;
+  for(let i=0;i<n;i++){
+    const idx=(S.auction.nominatorCursor+i)%n;
+    if(openSlots(S.teams[idx]).length>0) return idx;
   }
   return null;
 }
@@ -2405,7 +3211,7 @@ function resolveAuction(){
       // leaving state unchanged, so a retry can't re-nominate the same
       // player and loop forever.
       S.available = S.available.filter(p=>p.id!==nominee.id);
-      initAuction();
+      resetBiddingRound();
       return;
     }
     winnerIdx = fallbackPool.includes(S.auction.nominatorIdx) ? S.auction.nominatorIdx : fallbackPool[0];
@@ -2414,7 +3220,7 @@ function resolveAuction(){
   const winner = S.teams[winnerIdx];
   const slot = bestSlotFor(winner, nominee);
   place(winner, nominee, slot, price);
-  initAuction();
+  resetBiddingRound();
 }
 // Main driver — same setTimeout-recursion pattern as runCpuPicks(), pausing
 // (returning without recursing) whenever it's the human's turn to nominate
@@ -2422,14 +3228,16 @@ function resolveAuction(){
 function runAuctionStep(){
   if(draftDone()){ finishDraft(); return; }
   if(!S.auction.nominee){
-    const nominator = currentTeam();
-    const nominatorIdx = S.order[S.pickIdx];
-    if(nominator.isUser){ S.auction.phase='nominate_wait_human'; render(); return; }
+    const nominatorIdx = nextNominatorIdx();
+    if(nominatorIdx===null){ finishDraft(); return; } // safety: no one has room left (shouldn't happen if draftDone() was false)
+    const nominator = S.teams[nominatorIdx];
+    if(nominator.isUser){ S.auction.phase='nominate_wait_human'; S.auction.pendingNominatorIdx=nominatorIdx; render(); return; }
     S.auction.phase='nominating'; render();
     setTimeout(()=>{
-      const pick = cpuNominate(S.available);
+      const pick = cpuNominate(nominator, S.available);
       if(!pick){ S.pickIdx++; runAuctionStep(); return; } // safety: nothing left anyone can use
       startBidding(pick, nominatorIdx);
+      S.auction.nominatorCursor = nominatorIdx+1;
       runAuctionStep();
     }, 750);
     return;
@@ -2438,16 +3246,28 @@ function runAuctionStep(){
   const bidderIdx = nextBidderIdx();
   if(bidderIdx===null){ resolveAuction(); runAuctionStep(); return; }
   const bidder = S.teams[bidderIdx];
+  // If this bidder literally cannot afford the next increment, there's no
+  // real decision to make — skip them automatically (no prompt, not even
+  // for the human) instead of showing a dead-end Bid/Pass choice.
+  if(!canAffordBid(bidder, S.auction.currentBid+1, S.auction.nominee)){
+    S.auction.activeBidders = S.auction.activeBidders.filter(i=>i!==bidderIdx);
+    runAuctionStep();
+    return;
+  }
   if(bidder.isUser){ S.auction.phase='bid_wait_human'; render(); return; }
   S.auction.phase='bidding'; render();
   setTimeout(()=>{
     const ceiling = auctionCeiling(bidder, S.auction.nominee);
-    // Cover a fixed fraction of the remaining gap each round — converges in
-    // a small, bounded number of rounds regardless of how large the total
-    // gap is (a fixed small increment could take dozens of rounds to close
-    // a big gap; this closes any gap in roughly the same handful of steps).
+    // Cover a fraction of the remaining gap each round — converges in a
+    // small, bounded number of rounds regardless of how large the total gap
+    // is. The fraction itself scales with personality: Star Chasers bid
+    // decisively (bigger jumps toward their ceiling), Steady Builders raise
+    // more cautiously and incrementally — same reachTolerance signal that
+    // already shapes how each personality drafts normally.
+    const per = PERSONALITY[bidder.personality] || PERSONALITY.balanced;
+    const raisePct = Math.max(0.25, Math.min(0.7, 0.45*per.reachTolerance));
     const headroom = ceiling - S.auction.currentBid;
-    const raise = Math.max(1, Math.ceil(headroom*0.45));
+    const raise = Math.max(1, Math.ceil(headroom*raisePct));
     const nextBid = S.auction.currentBid + raise;
     if(headroom>=1 && canAffordBid(bidder, nextBid, S.auction.nominee)){
       S.auction.currentBid=nextBid; S.auction.leaderIdx=bidderIdx; S.auction.bidCursor=bidderIdx+1;
@@ -2475,6 +3295,7 @@ function runCpuPicks(){
 
 function finishDraft(){
   if(S.gameMode==='season'){ finishSeasonDraft(); return; }
+  if(S.gameMode==='dynasty'){ finishDynastyDraft(); return; }
   S.teams.forEach(t=>{ t._rating=teamRating(t).rating; });
   const field=S.teams.map(t=>({...t})); // shallow copy — already carries the _rating just computed above
   S.bracket=runBracket(field, Math.random);
@@ -2491,6 +3312,418 @@ function finishSeasonDraft(){
   S.screen = 'seasonResults';
   S._playConfetti = S.seasonResults.wins > S.seasonResults.losses; // celebrate a winning season, not a losing one
   render();
+}
+
+// ---------- DYNASTY MODE: interactive year-by-year driver ----------
+// Uses S.teams[0] directly as the persistent dynasty roster throughout —
+// unlike every other mode, this team's slots keep changing year over year
+// (rookies added, cuts made, trades applied, retirements), so there's no
+// separate "final" team object; S.teams[0] simply *is* the dynasty.
+
+function finishDynastyDraft(){
+  const team = S.teams[0];
+  team.name = (S.dynastyTeamName||'').trim() || 'Your Dynasty';
+  team._rating = teamRating(team).rating;
+  S.dynasty = initDynastyState(S.dynastyYears||10, team, S.theme==='modern'?'modern':'all', S.seasonConf);
+  S.screen = 'dynastyYear';
+  startDynastyYear();
+}
+function startDynastyYear(){
+  S.dynastyYearLog = { yearIdx: S.dynasty.yearIdx, trades:[], draftPicks:[], cutsMade:[], retired:[] };
+  S.dynastyPhase = 'preseasonTrade';
+  advanceDynasty();
+}
+// Drives the year forward one step at a time, pausing (returning without
+// recursing, after a render()) whenever human input is needed, and
+// recursing straight through for steps that are pure computation. Mirrors
+// the same pattern runAuctionStep() uses for the same reason.
+function advanceDynasty(){
+  const team = S.teams[0];
+  const D = S.dynasty;
+
+  if(S.dynastyPhase==='preseasonTrade' || S.dynastyPhase==='postseasonTrade'){
+    if(Math.random()<0.4){
+      const offer = generateTradeOffer(team, D.retiredPlayerIds, D);
+      if(offer){ S.dynastyPendingOffer=offer; S.dynastyPendingOfferTiming=S.dynastyPhase; render(); return; }
+    }
+    S.dynastyPhase = S.dynastyPhase==='preseasonTrade' ? 'seasonSim' : 'aging';
+    advanceDynasty();
+    return;
+  }
+  if(S.dynastyPhase==='seasonSim'){
+    team._rating = teamRating(team).rating;
+    const ratingDelta = D.priorYearRating!=null ? team._rating - D.priorYearRating : null;
+    D.priorYearRating = team._rating;
+    const result = simSeasonWithPlayoffs(team, D.conf);
+    D.currentSeasonResult = result;
+    const mvp = [...dynastyFlatRoster(team)].sort((a,b)=>playerRating(b)-playerRating(a))[0];
+    S.dynastyYearLog.seasonResult = { wins:result.wins, losses:result.losses, madePlayoffs:result.madePlayoffs,
+      outcome: result.playoffs ? (result.playoffs.wonTitle?'CHAMPION':result.playoffs.wonConf?'LOST_FINALS':'ELIM_R'+result.playoffs.eliminatedRound) : 'MISSED' };
+    S.dynastyYearLog.mvp = mvp ? {name:mvp.n, rating:playerRating(mvp)} : null;
+    S.dynastyYearLog.ratingDelta = ratingDelta;
+    S.dynastyPhase = 'seasonResult';
+    render();
+    return;
+  }
+  if(S.dynastyPhase==='aging'){
+    const before = {};
+    dynastyFlatRoster(team).forEach(p=>{ before[p.id] = playerRating(p); });
+    const retired = ageDynastyRoster(team, D);
+    S.dynastyYearLog.retired = retired.map(p=>{
+      const finalRating = playerRating(p);
+      let arc = null;
+      if(isDynastyRookie(p)){
+        const tierLabel = POTENTIAL_TIERS[p._potentialTier].label;
+        if(finalRating >= p._peakPotential - 2) arc = `lived up to his "${tierLabel}" billing`;
+        else if(finalRating >= p._peakPotential - 10) arc = `had a solid career, short of his "${tierLabel}" ceiling`;
+        else arc = `never quite found it, a disappointing finish to his "${tierLabel}" promise`;
+      }
+      return { name:p.n, finalRating, arc };
+    });
+    const deltas = dynastyFlatRoster(team).map(p=>({name:p.n, delta: playerRating(p)-(before[p.id]||playerRating(p))}))
+      .filter(d=>Math.abs(d.delta)>=2.5).sort((a,b)=>b.delta-a.delta);
+    S.dynastyYearLog.riser = deltas.length && deltas[0].delta>0 ? deltas[0] : null;
+    S.dynastyYearLog.decliner = deltas.length && deltas[deltas.length-1].delta<0 ? deltas[deltas.length-1] : null;
+    S.dynastyPhase = 'agingReport';
+    render();
+    return;
+  }
+  if(S.dynastyPhase==='rookieDraftSetup'){
+    if(D.yearIdx >= D.totalYears){ S.dynastyPhase='yearEndSummary'; advanceDynasty(); return; } // final year — no more drafting
+    const winPct = D.currentSeasonResult.wins/(D.currentSeasonResult.wins+D.currentSeasonResult.losses);
+    const queue = [];
+    for(const round of [1,2]){
+      const picks = dynastyRoundPickCounts(D, round);
+      for(let i=0;i<picks;i++) queue.push({round, pos: dynastyDraftPosition(winPct, 14)});
+    }
+    S.dynastyPickQueue = queue;
+    S.dynastyPhase = 'rookieDraftPick';
+    advanceDynasty();
+    return;
+  }
+  if(S.dynastyPhase==='rookieDraftPick'){
+    if(!S.dynastyPickQueue.length){
+      const cap = D.rosterCap;
+      const overflow = dynastyRosterCount(team) - cap;
+      if(overflow>0){ S.dynastyCutsNeeded=overflow; S.dynastyPhase='cutRequired'; advanceDynasty(); return; }
+      S.dynastyPhase='yearEndSummary'; advanceDynasty(); return;
+    }
+    const next = S.dynastyPickQueue[0];
+    S.dynastyPendingPool = generateProspectPool(next.round, next.pos, 12);
+    S.dynastyPendingRound = next.round;
+    render();
+    return;
+  }
+  if(S.dynastyPhase==='cutRequired'){
+    if(S.dynastyCutsNeeded<=0){ S.dynastyPhase='yearEndSummary'; advanceDynasty(); return; }
+    render();
+    return;
+  }
+  if(S.dynastyPhase==='yearEndSummary'){
+    D.history.push(S.dynastyYearLog);
+    render();
+    return;
+  }
+}
+function dynastyAdvanceToNextYearOrLegacy(){
+  const D = S.dynasty;
+  if(D.yearIdx >= D.totalYears){
+    S.screen = 'dynastyLegacy';
+    render();
+    return;
+  }
+  D.yearIdx++;
+  startDynastyYear();
+}
+
+function tradePieceLabel(asset){
+  if(asset.type==='player') return asset.player.n + (asset.player.team?' '+teamBadgeHTML(asset.player.team):'') +
+    ' <span class="mono ovr-num '+ratingTierClass(playerRating(asset.player))+'">'+playerRating(asset.player).toFixed(0)+'</span>';
+  return (asset.when==='next'?'Next year\'s':'This year\'s') + ' Round ' + asset.round + ' pick';
+}
+function renderDynastyYear(){
+  const D = S.dynasty;
+  const team = S.teams[0];
+  const yearLabel = 'Year '+D.yearIdx+' of '+D.totalYears;
+  let mainCard = '';
+
+  if(S.dynastyPendingOffer){
+    const o = S.dynastyPendingOffer;
+    const timingLabel = S.dynastyPendingOfferTiming==='preseasonTrade' ? 'Preseason' : 'Postseason';
+    mainCard = `<div class="pick-panel">
+      <h4>${timingLabel} Trade Offer — ${teamBadgeHTML(o.partnerAbbr)} ${o.partnerName}</h4>
+      <div class="hint">${o.partnerName.split(' ').pop()} are ${o.reason}. No negotiating — take it or leave it.</div>
+      <div class="trade-columns">
+        <div class="trade-col"><div class="trade-col-label">They give you</div>
+          ${o.theyGiveYou.map(a=>`<div class="slot-row"><span class="slot-name">${tradePieceLabel(a)}</span></div>`).join('')}
+        </div>
+        <div class="trade-col"><div class="trade-col-label">They want</div>
+          ${o.wantsFromYou.map(a=>`<div class="slot-row"><span class="slot-name">${tradePieceLabel(a)}</span></div>`).join('')}
+        </div>
+      </div>
+      <div class="auc-actions">
+        <button class="big-btn" id="acceptTradeBtn">Accept</button>
+        <button class="ghost-btn" id="declineTradeBtn">Decline</button>
+      </div>
+    </div>`;
+  } else if(S.dynastyPhase==='seasonResult'){
+    const r = D.currentSeasonResult;
+    const won = r.playoffs && r.playoffs.wonTitle;
+    const outcome = r.playoffs ? (r.playoffs.wonTitle?'🏆 NBA CHAMPION':r.playoffs.wonConf?'🥈 Lost the NBA Finals':'🏀 Eliminated — '+roundName(r.playoffs.eliminatedRound-1, r.playoffs.confBracket.rounds.length)) : '📅 Missed the Playoffs';
+    const sl = r.statLine;
+    const statChips = [['PTS',sl.pts],['REB',sl.reb],['AST',sl.ast],['BLK',sl.blk],['STL',sl.stl]]
+      .map(([label,val])=>`<div class="season-stat"><b>${val.toFixed(1)}</b><i>${label}</i></div>`).join('');
+    const seedNote = r.madePlayoffs ? `#${r.yourSeed} seed in the ${D.conf}` : `Finished #${r.yourSeed} in the ${D.conf}`;
+    const bracketBlock = r.playoffs ? `
+      <div class="field">
+        <label>Playoff Bracket</label>
+        <div class="bracket-scroll"><div class="bracket-tree">${bracketColumnsHTML(r.playoffs.confBracket)}</div></div>
+        ${r.playoffs.finals ? `<div class="season-supers">🏆 NBA Finals: ${r.playoffs.wonTitle?'You':r.playoffs.finals.winner.name} defeated ${r.playoffs.wonTitle?r.playoffs.finals.loser.name:'you'} ${Math.max(r.playoffs.finals.wA,r.playoffs.finals.wB)}-${Math.min(r.playoffs.finals.wA,r.playoffs.finals.wB)}</div>` : ''}
+      </div>` : '';
+    const mvp = S.dynastyYearLog.mvp;
+    const delta = S.dynastyYearLog.ratingDelta;
+    const trendNote = delta!=null ? `<div class="season-supers">${delta>=0?'📈':'📉'} Team rating ${delta>=0?'+':''}${delta.toFixed(1)} from last year (now ${team._rating.toFixed(1)})</div>` : '';
+    const logRows = r.log.map((g,i)=>{
+      const oppBadge = teamBadgeHTML(g.opponent.abbr);
+      return `<div class="feed-row ${g.userWon?'feed-you':''}">
+        <span class="feed-pick mono">${i+1}</span>
+        <div class="feed-main"><span class="feed-name">${g.userWon?'W':'L'} vs ${g.opponent.name} ${oppBadge}</span>
+          <span class="feed-meta">${g.userScore}-${g.oppScore}</span></div>
+      </div>`;
+    }).join('');
+    mainCard = `${won?confettiHTML():''}
+    <div class="result-hero">
+      <div class="champ-label">${yearLabel}</div>
+      <div class="champ-name">${r.wins}-${r.losses}</div>
+      <div class="champ-meta"><span class="champ-rating mono">${outcome} · ${seedNote}</span></div>
+    </div>
+    <div class="field">
+      <label>Season Averages</label>
+      <div class="season-stats-row">${statChips}</div>
+      ${mvp ? `<div class="season-supers">🌟 Team MVP: <b>${mvp.name}</b> (${mvp.rating.toFixed(1)} ovr)</div>` : ''}
+      ${trendNote}
+    </div>
+    <div class="field">
+      <label>Game Log</label>
+      <div class="hint">All 82 games, in play order.</div>
+      <div class="feed-list">${logRows}</div>
+    </div>
+    ${bracketBlock}
+    <button class="big-btn" id="dynContinueBtn">Continue</button>`;
+  } else if(S.dynastyPhase==='agingReport'){
+    const retired = S.dynastyYearLog.retired;
+    const riser = S.dynastyYearLog.riser;
+    const decliner = S.dynastyYearLog.decliner;
+    const lines = [];
+    if(riser) lines.push(`<div class="slot-row">📈 <span class="slot-name"><b>${riser.name}</b> took a real leap this offseason (+${riser.delta.toFixed(1)}).</span></div>`);
+    if(decliner) lines.push(`<div class="slot-row">📉 <span class="slot-name"><b>${decliner.name}</b> is starting to show his age (${decliner.delta.toFixed(1)}).</span></div>`);
+    retired.forEach(r=>lines.push(`<div class="slot-row">🎉 <span class="slot-name"><b>${r.name}</b> hangs it up (${r.finalRating.toFixed(0)} ovr)${r.arc?' — '+r.arc:''}.</span></div>`));
+    mainCard = `<div class="field">
+      <label>Offseason</label>
+      ${lines.length ? lines.join('') : '<div class="hint">A quiet offseason — the whole roster returns unchanged.</div>'}
+    </div>
+    <button class="big-btn" id="dynContinueBtn">Continue</button>`;
+  } else if(S.dynastyPhase==='rookieDraftPick' && S.dynastyPendingPool){
+    const roundOrdinal = S.dynastyPendingRound===1?'Round 1':'Round 2';
+    const rows = S.dynastyPendingPool.map(p=>{
+      const tier = POTENTIAL_TIERS[p._potentialTier].label;
+      // "Fits Need" compares against your actual current starter at a
+      // matching position, not just whether the slot is literally empty —
+      // the roster auto-reoptimizes after every change, so an open slot
+      // almost never persists long enough to matter; a real upgrade over
+      // your current starter is the meaningful signal.
+      const fitsNeed = p.elig.some(s=>{ const cur=team.slots[s]; return !cur || playerRating(p) > playerRating(cur)-5; });
+      return `<div class="p-row" data-pickrookie="${p.id}">
+        <span class="p-pos">${p.elig.join('/')}</span>
+        <div class="p-main"><div class="p-name">${p.n}${fitsNeed?' <span class="team-tag" style="background:var(--win);color:#04150a;">Fits Need</span>':''}</div>
+          <div class="p-yr mono">${tier} potential</div>
+          <div class="p-scout">${scoutingBlurbFor(p)}</div></div>
+        <div class="p-stats"><b>${p.pts}</b> pts · ${p.reb} reb<br>${p.ast} ast · <b class="ovr-num ${ratingTierClass(playerRating(p))}">${playerRating(p).toFixed(0)}</b> ovr</div>
+      </div>`;
+    }).join('');
+    mainCard = `<div class="pick-panel">
+      <h4>Rookie Draft — ${roundOrdinal}</h4>
+      <div class="hint">Potential is a real signal, not a promise — even a Rare Talent can bust, even a Bust Risk guy can surprise you.</div>
+      <div class="player-list">${rows}</div>
+    </div>`;
+  } else if(S.dynastyPhase==='cutRequired'){
+    const starterIds = new Set(POS_LIST.map(pos=>team.slots[pos]?team.slots[pos].id:null).filter(Boolean));
+    const roster = [...dynastyFlatRoster(team)].sort((a,b)=>playerRating(a)-playerRating(b));
+    const rows = roster.map(p=>{
+      const isStarter = starterIds.has(p.id);
+      return `<div class="p-row" data-cutplayer="${p.id}">
+        <span class="p-pos">${p.elig.join('/')}</span>
+        <div class="p-main"><div class="p-name">${p.n}${p.team?' '+teamBadgeHTML(p.team):''}${isStarter?' <span class="team-tag" style="background:var(--warn);color:#2a1a00;">Starter</span>':''}</div><div class="p-yr mono">${isDynastyRookie(p)?'age '+p._age:'legend'}</div></div>
+        <div class="p-stats"><b class="ovr-num ${ratingTierClass(playerRating(p))}">${playerRating(p).toFixed(0)}</b> ovr</div>
+      </div>`;
+    }).join('');
+    mainCard = `<div class="pick-panel">
+      <h4>Roster Cut Needed</h4>
+      <div class="hint">You're over the ${D.rosterCap}-player cap — choose someone to cut. ${S.dynastyCutsNeeded>1?S.dynastyCutsNeeded+' cuts remaining.':''} Sorted worst to best.</div>
+      <div class="player-list">${rows}</div>
+    </div>`;
+  } else if(S.dynastyPhase==='yearEndSummary'){
+    const log = S.dynastyYearLog;
+    const isFinal = D.yearIdx>=D.totalYears;
+    mainCard = `<div class="field">
+      <label>${yearLabel} — Complete</label>
+      <div class="slot-row"><span class="slot-name">Record: <b>${log.seasonResult.wins}-${log.seasonResult.losses}</b></span></div>
+      ${log.mvp ? `<div class="slot-row"><span class="slot-name">Team MVP: <b>${log.mvp.name}</b></span></div>` : ''}
+      ${log.trades.length ? log.trades.map(t=>{
+        const partner = t.offer.partnerName || 'a team';
+        if(!t.accepted) return `<div class="slot-row"><span class="slot-name">❌ Passed on a trade with the ${partner}</span></div>`;
+        const gave = t.offer.wantsFromYou.map(a=>a.type==='player'?a.player.n:(a.round+(a.round===1?'st':'nd')+' round pick')).join(', ');
+        const got = t.offer.theyGiveYou.map(a=>a.type==='player'?a.player.n:(a.round+(a.round===1?'st':'nd')+' round pick')).join(', ');
+        return `<div class="slot-row"><span class="slot-name">✅ Traded ${gave} to the ${partner} for ${got}</span></div>`;
+      }).join('') : ''}
+      ${log.draftPicks.length ? log.draftPicks.map(p=>`<div class="slot-row"><span class="slot-name">Drafted ${p.name} (Round ${p.round})</span></div>`).join('') : ''}
+      ${log.cutsMade.length ? log.cutsMade.map(n=>`<div class="slot-row"><span class="slot-name">Cut ${n}</span></div>`).join('') : ''}
+      ${log.retired.length ? log.retired.map(r=>`<div class="slot-row"><span class="slot-name">${r.name} retired (${r.finalRating.toFixed(0)} ovr)</span></div>`).join('') : ''}
+    </div>
+    <button class="big-btn" id="dynYearEndBtn">${isFinal?'See Your Legacy':'Start Year '+(D.yearIdx+1)}</button>`;
+  }
+
+  const starterRows = POS_LIST.map(pos=>{
+    const p = team.slots[pos];
+    if(!p) return `<div class="slot-row"><span class="slot-pos">${pos}</span><span class="slot-name" style="color:var(--chalk-dimmer);font-style:italic;">Vacant</span></div>`;
+    return `<div class="slot-row"><span class="slot-pos">${pos}</span>
+      <span class="slot-name">${p.n}${p.team?' '+teamBadgeHTML(p.team):''}<span class="mono" style="color:var(--chalk-dimmer);font-size:11px;margin-left:6px;">${isDynastyRookie(p)?'age '+p._age:'legend'}</span></span>
+      <span class="mono ovr-num ${ratingTierClass(playerRating(p))}" style="margin-left:auto;">${playerRating(p).toFixed(0)}</span></div>`;
+  }).join('');
+  const benchList = team.slots.RES||[];
+  const benchRows = benchList.map((p,i)=>`<div class="slot-row"><span class="slot-pos res">R${i+1}</span>
+    <span class="slot-name">${p.n}${p.team?' '+teamBadgeHTML(p.team):''}<span class="mono" style="color:var(--chalk-dimmer);font-size:11px;margin-left:6px;">${isDynastyRookie(p)?'age '+p._age:'legend'}</span></span>
+    <span class="mono ovr-num ${ratingTierClass(playerRating(p))}" style="margin-left:auto;">${playerRating(p).toFixed(0)}</span></div>`).join('');
+
+  app.innerHTML = `
+  <div class="topbar">
+    <div class="logo"><div class="mark">🏀</div>
+      <div><h1>All-Time Draft</h1><div class="sub">${team.name} — ${yearLabel}</div></div></div>
+    <div class="topbar-btns">${D.history.length ? '<button class="ghost-btn" id="dynHistoryBtn">History</button>' : ''}${themeToggleHTML()}</div>
+  </div>
+  ${mainCard}
+  <div class="field">
+    <label>${team.name} <span class="mono" style="color:var(--chalk-dim);font-weight:400;">${dynastyRosterCount(team)}/${D.rosterCap} · rating ${team._rating.toFixed(1)}</span></label>
+    ${starterRows}
+    ${benchList.length ? `<div class="hint" style="margin-top:8px;">Bench</div>${benchRows}` : ''}
+  </div>
+  ${S.dynastyShowHistory ? dynastyHistoryModalHTML() : ''}`;
+
+  const historyBtn = document.getElementById('dynHistoryBtn');
+  if(historyBtn) historyBtn.onclick=()=>{ S.dynastyShowHistory=true; render(); };
+  const closeHistory = document.getElementById('closeDynastyHistory');
+  if(closeHistory) closeHistory.onclick=()=>{ S.dynastyShowHistory=false; render(); };
+
+  const acceptBtn = document.getElementById('acceptTradeBtn');
+  if(acceptBtn) acceptBtn.onclick=()=>{
+    const res = applyTradeOffer(team, S.dynastyPendingOffer, D);
+    S.dynastyYearLog.trades.push({offer:S.dynastyPendingOffer, accepted:true, timing:S.dynastyPendingOfferTiming});
+    S.dynastyPendingOffer = null;
+    if(res.overflow>0){ S.dynastyCutsNeeded=res.overflow; S.dynastyPhase='cutRequired'; render(); }
+    else { S.dynastyPhase = S.dynastyPendingOfferTiming==='preseasonTrade' ? 'seasonSim' : 'aging'; advanceDynasty(); }
+  };
+  const declineBtn = document.getElementById('declineTradeBtn');
+  if(declineBtn) declineBtn.onclick=()=>{
+    S.dynastyYearLog.trades.push({offer:S.dynastyPendingOffer, accepted:false, timing:S.dynastyPendingOfferTiming});
+    S.dynastyPendingOffer = null;
+    S.dynastyPhase = S.dynastyPendingOfferTiming==='preseasonTrade' ? 'seasonSim' : 'aging';
+    advanceDynasty();
+  };
+  const continueBtn = document.getElementById('dynContinueBtn');
+  if(continueBtn) continueBtn.onclick=()=>{
+    if(S.dynastyPhase==='seasonResult') S.dynastyPhase='postseasonTrade';
+    else if(S.dynastyPhase==='agingReport') S.dynastyPhase='rookieDraftSetup';
+    advanceDynasty();
+  };
+  app.querySelectorAll('[data-pickrookie]').forEach(el=>el.onclick=()=>{
+    const chosen = S.dynastyPendingPool.find(p=>p.id===el.dataset.pickrookie);
+    if(!chosen) return;
+    const picked = S.dynastyPickQueue.shift();
+    S.dynastyYearLog.draftPicks.push({round:picked.round, name:chosen.n});
+    const overflow = addPlayersToDynastyRoster(team, [chosen], D.rosterCap);
+    S.dynastyPendingPool = null;
+    if(overflow>0){ S.dynastyCutsNeeded=overflow; S.dynastyPhase='cutRequired'; render(); }
+    else advanceDynasty();
+  });
+  app.querySelectorAll('[data-cutplayer]').forEach(el=>el.onclick=()=>{
+    const cutPlayer = dynastyFlatRoster(team).find(p=>p.id===el.dataset.cutplayer);
+    removePlayerFromDynastyRoster(team, el.dataset.cutplayer);
+    S.dynastyYearLog.cutsMade.push(cutPlayer?cutPlayer.n:el.dataset.cutplayer);
+    S.dynastyCutsNeeded--;
+    advanceDynasty();
+  });
+  const yearEndBtn = document.getElementById('dynYearEndBtn');
+  if(yearEndBtn) yearEndBtn.onclick=()=>dynastyAdvanceToNextYearOrLegacy();
+}
+
+// Lets you check the dynasty's story so far at any point mid-run, not just
+// at the very end — an 8-10 year dynasty is a lot to keep in your head.
+// Reuses the same overlay chrome as the results-screen recap card.
+function dynastyHistoryModalHTML(){
+  const D = S.dynasty;
+  const championships = D.history.filter(y=>y.seasonResult.outcome==='CHAMPION').length;
+  const rows = D.history.map(y=>`<div class="slot-row"><span class="slot-name">Year ${y.yearIdx}: ${y.seasonResult.wins}-${y.seasonResult.losses} — ${y.seasonResult.outcome.replace('_',' ')}${y.mvp?' · MVP '+y.mvp.name:''}</span></div>`).join('');
+  return `<div class="recap-overlay" id="dynastyHistoryOverlay">
+    <div class="recap-card">
+      <div class="rc-header">
+        <div class="rc-logo"><div class="rc-mark">AT</div><div><div class="rc-title">${S.teams[0].name}</div>
+          <div class="rc-sub">${championships} title${championships===1?'':'s'} so far · Year ${D.yearIdx} of ${D.totalYears}</div></div></div>
+      </div>
+      <div class="rc-roster">${rows}</div>
+    </div>
+    <button class="recap-close" id="closeDynastyHistory">Close</button>
+  </div>`;
+}
+function renderDynastyLegacy(){
+  const D = S.dynasty;
+  const team = S.teams[0];
+  const championships = D.history.filter(y=>y.seasonResult.outcome==='CHAMPION').length;
+  const bestRecord = D.history.reduce((best,y)=>y.seasonResult.wins>best.wins?y.seasonResult:best, D.history[0].seasonResult);
+  const totalWins = D.history.reduce((s,y)=>s+y.seasonResult.wins,0);
+  const totalLosses = D.history.reduce((s,y)=>s+y.seasonResult.losses,0);
+  const yearRows = D.history.map(y=>`<div class="slot-row"><span class="slot-name">Year ${y.yearIdx}: ${y.seasonResult.wins}-${y.seasonResult.losses} — ${y.seasonResult.outcome.replace('_',' ')}${y.mvp?' · MVP '+y.mvp.name:''}</span></div>`).join('');
+
+  // Franchise legend: whoever was crowned MVP most often across the run.
+  const mvpCounts = {};
+  D.history.forEach(y=>{ if(y.mvp) mvpCounts[y.mvp.name] = (mvpCounts[y.mvp.name]||0)+1; });
+  const topMvp = Object.entries(mvpCounts).sort((a,b)=>b[1]-a[1])[0];
+
+  const totalTradesAccepted = D.history.reduce((s,y)=>s+y.trades.filter(t=>t.accepted).length,0);
+  const totalTradesDeclined = D.history.reduce((s,y)=>s+y.trades.filter(t=>!t.accepted).length,0);
+  const totalDrafted = D.history.reduce((s,y)=>s+y.draftPicks.length,0);
+  const totalRetired = D.history.reduce((s,y)=>s+y.retired.length,0);
+
+  app.innerHTML = `
+  <div class="topbar">
+    <div class="logo"><div class="mark">🏀</div>
+      <div><h1>All-Time Draft</h1><div class="sub">${team.name} — Dynasty Complete</div></div></div>
+    <div class="topbar-btns">${themeToggleHTML()}<button class="ghost-btn" id="againBtn">New Dynasty</button></div>
+  </div>
+  <div class="result-hero">
+    <div class="champ-label">${D.totalYears}-Year Legacy</div>
+    <div class="champ-name">${championships} Title${championships===1?'':'s'}</div>
+    <div class="champ-meta"><span class="champ-rating mono">${totalWins}-${totalLosses} all-time · best season ${bestRecord.wins}-${bestRecord.losses}</span></div>
+  </div>
+  ${topMvp ? `<div class="field">
+    <label>Franchise Legend</label>
+    <div class="hint"><b>${topMvp[0]}</b> was your team MVP ${topMvp[1]} time${topMvp[1]>1?'s':''} across the run — the face of the dynasty.</div>
+  </div>` : ''}
+  <div class="field">
+    <label>Front Office</label>
+    <div class="slot-row"><span class="slot-name">Trades made: <b>${totalTradesAccepted}</b> accepted, ${totalTradesDeclined} passed on</span></div>
+    <div class="slot-row"><span class="slot-name">Rookies drafted: <b>${totalDrafted}</b></span></div>
+    <div class="slot-row"><span class="slot-name">Players retired: <b>${totalRetired}</b></span></div>
+  </div>
+  <div class="field">
+    <label>Year by Year</label>
+    ${yearRows}
+  </div>
+  <div class="field">
+    <label>Final Roster</label>
+    ${dynastyFlatRoster(team).map(p=>`<div class="slot-row"><span class="slot-name">${p.n}</span>
+      <span class="mono ovr-num ${ratingTierClass(playerRating(p))}" style="margin-left:auto;">${playerRating(p).toFixed(0)}</span></div>`).join('')}
+  </div>`;
+  document.getElementById('againBtn').onclick=()=>{ S.screen='modepick'; S.dynasty=null; render(); };
 }
 
 // Confetti burst for the champion reveal — plays once (see S._playConfetti),
@@ -2516,10 +3749,13 @@ function render(){
   if(S.screen==='modepick') renderModePick();
   else if(S.screen==='setup') renderSetup();
   else if(S.screen==='seasonSetup') renderSeasonSetup();
+  else if(S.screen==='dynastySetup') renderDynastySetup();
   else if(S.screen==='draft') renderDraft();
   else if(S.screen==='auction') renderAuction();
   else if(S.screen==='results') renderResults();
   else if(S.screen==='seasonResults') renderSeasonResults();
+  else if(S.screen==='dynastyYear') renderDynastyYear();
+  else if(S.screen==='dynastyLegacy') renderDynastyLegacy();
   const tt=document.getElementById('themeToggle');
   if(tt) tt.onclick=()=>{ S.appearance = S.appearance==='light'?'dark':'light'; render(); };
   // Logo click returns to the mode menu from anywhere, like a normal site
@@ -2533,7 +3769,7 @@ function render(){
     logoEl.style.cursor = S.screen==='modepick' ? 'default' : 'pointer';
     logoEl.onclick = ()=>{
       if(S.screen==='modepick') return;
-      const hasProgress = ['draft','auction','results','seasonResults'].includes(S.screen);
+      const hasProgress = ['draft','auction','results','seasonResults','dynastyYear','dynastyLegacy'].includes(S.screen);
       if(hasProgress && !confirm('Return to the mode menu? Current progress will be lost.')) return;
       S.screen='modepick';
       render();
@@ -2559,6 +3795,7 @@ function applyAppearance(){
   let modeAccent = null;
   if(S.gameMode==='season') modeAccent='season';
   else if(S.gameMode==='auction') modeAccent='auction';
+  else if(S.gameMode==='dynasty') modeAccent='dynasty';
   else if(S.gameMode==='draft' && S.mode==='cap') modeAccent='cap';
   const current = document.documentElement.getAttribute('data-mode-accent');
   if(modeAccent && current!==modeAccent) document.documentElement.setAttribute('data-mode-accent', modeAccent);
@@ -2576,7 +3813,7 @@ function renderModePick(){
     ${themeToggleHTML()}
   </div>
   <p class="hero-sub">Draft a franchise from the greatest players in NBA history, at their absolute peak — real stats, real positions, real stakes. Pick a format to begin.</p>
-  <div class="mode-cards mode-cards-3">
+  <div class="mode-cards mode-cards-4">
     <button class="mode-card mode-card-1" data-mode="draft">
       <div class="mc-icon mc-icon-wood">🗳️</div>
       <h3>Draft</h3>
@@ -2592,6 +3829,11 @@ function renderModePick(){
       <h3>Auction</h3>
       <p>Everyone shares one pool of players. Nominate names, bid against the computer in real time, and win the bidding war for the roster you actually want.</p>
     </button>
+    <button class="mode-card mode-card-4" data-mode="dynasty">
+      <div class="mc-icon mc-icon-crimson">🏛️</div>
+      <h3>Dynasty</h3>
+      <p>Draft a team, then run it for years. Play seasons, draft rookies, watch legends age out and retire, and weigh trade offers — build something that lasts.</p>
+    </button>
   </div>
   <div class="howto-blurb">
     <div class="howto-title">How it works</div>
@@ -2606,6 +3848,7 @@ function renderModePick(){
     S.userTeamsHidden=false;
     if(b.dataset.mode==='season'){ S.gameMode='season'; S.mode='classic'; S.screen='seasonSetup'; }
     else if(b.dataset.mode==='auction'){ S.gameMode='auction'; S.mode='cap'; S.screen='setup'; S.userTeams=[0]; }
+    else if(b.dataset.mode==='dynasty'){ S.gameMode='dynasty'; S.mode='classic'; S.screen='dynastySetup'; S.userTeams=[0]; }
     else { S.gameMode='draft'; S.mode='classic'; S.screen='setup'; }
     render();
   });
@@ -2804,6 +4047,127 @@ function renderSetup(){
 // Season Mode setup: era pool, optional salary cap, conference choice, and
 // roster size. No opponent-team count or "who do you control" fields — it's
 // always just your one team, no CPU competing for picks.
+function renderDynastySetup(){
+  const capOn = S.mode==='cap';
+  const years = S.dynastyYears||10;
+  app.innerHTML = `
+  <div class="topbar">
+    <div class="logo"><div class="mark">🏀</div>
+      <div><h1>All-Time Draft</h1><div class="sub">Dynasty Mode</div></div></div>
+    <div class="topbar-btns">${themeToggleHTML()}<button class="ghost-btn" id="backBtn">← Mode</button></div>
+  </div>
+  <p class="hero-sub">Draft your starting team, then run it for years. Play full seasons, draft rookies with the picks your record earns you, watch legends age out and retire, and weigh trade offers along the way.</p>
+  <div class="setup-grid">
+    <div class="field">
+      <label>Team Name</label>
+      <div class="hint">Optional — makes it yours. Shows up throughout the dynasty and in your final legacy.</div>
+      <input class="search" id="dynastyTeamName" placeholder="e.g. Portland Legacy" value="${S.dynastyTeamName||''}" maxlength="30">
+    </div>
+    <div class="field">
+      <label>Dynasty Length</label>
+      <div class="hint">How many years to run — a defined arc with a finish line, not an endless mode. "I want to threepeat within 10 years" is the kind of goal this sets up.</div>
+      <div class="assign-row">
+        <div class="stepper"><button data-dy="-1">–</button><span class="val mono">${years}</span><button data-dy="1">+</button></div>
+        <span>${years} year${years>1?'s':''}</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Conference</label>
+      <div class="hint">Sets your schedule weighting each season — more games against your own conference, like the real NBA.</div>
+      <div class="seg">
+        <button class="${S.seasonConf==='East'?'on':''}" data-conf="East">Eastern</button>
+        <button class="${S.seasonConf==='West'?'on':''}" data-conf="West">Western</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Roster Size</label>
+      <div class="hint">Your starting players: five starters (PG/SG/SF/PF/C) plus reserves. This also sets your roster cap for the whole dynasty — a bigger start means more room to carry through the years.</div>
+      <div class="assign-row">
+        <div class="stepper"><button data-rs="-1">–</button><span class="val mono">${S.rosterSize}</span><button data-rs="1">+</button></div>
+        <span>cap will be ${dynastyRosterCap(S.rosterSize)} players</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Era</label>
+      <div class="hint">Which players you can draft from — real Modern teams are always your opponents either way.</div>
+      <div class="seg">${themeButtonsHTML()}</div>
+      <div class="theme-desc" id="themeDesc">${themeById(S.theme).desc}</div>
+    </div>
+    <div class="field">
+      <label>Salary Cap</label>
+      <div class="hint">Optional, and only for your starting draft — once the dynasty begins, the cap doesn't carry forward. Off means straight talent, no budget.</div>
+      <div class="seg">
+        <button class="${!capOn?'on':''}" data-seasoncap="0">Off</button>
+        <button class="${capOn?'on':''}" data-seasoncap="1">On</button>
+      </div>
+    </div>
+    ${capOn ? seasonCapSliderHTML() : ''}
+    <div class="field">
+      <label>Rating Detail</label>
+      <div class="hint">How player ratings are calculated and shown.</div>
+      <div class="seg">
+        <button class="${S.complexity==='simple'?'on':''}" data-complexity="simple">Simple</button>
+        <button class="${S.complexity==='complex'?'on':''}" data-complexity="complex">Complex</button>
+      </div>
+      <div class="theme-desc" id="complexityDesc">${complexityDesc(S.complexity)}</div>
+    </div>
+    ${S.complexity==='complex' ? coachingFieldHTML() : ''}
+  </div>
+  <div class="warn" id="setupWarn"></div>
+  <button class="big-btn" id="startDynastyBtn">Draft Your Team</button>`;
+
+  app.querySelectorAll('[data-dy]').forEach(b=>b.onclick=()=>{
+    S.dynastyYears = Math.max(2, Math.min(20, (S.dynastyYears||10) + +b.dataset.dy));
+    render();
+  });
+  const teamNameInput = document.getElementById('dynastyTeamName');
+  if(teamNameInput) teamNameInput.oninput = ()=>{ S.dynastyTeamName = teamNameInput.value; };
+  app.querySelectorAll('[data-conf]').forEach(b=>b.onclick=()=>{ S.seasonConf=b.dataset.conf; render(); });
+  app.querySelectorAll('[data-rs]').forEach(b=>b.onclick=()=>{
+    S.rosterSize=Math.max(5,Math.min(10,S.rosterSize+ +b.dataset.rs));
+    render();
+  });
+  app.querySelectorAll('[data-theme]').forEach(b=>b.onclick=()=>{
+    if(b.classList.contains('theme-dis')) return;
+    S.theme=b.dataset.theme; render();
+  });
+  app.querySelectorAll('[data-seasoncap]').forEach(b=>b.onclick=()=>{ S.mode=b.dataset.seasoncap==='1'?'cap':'classic'; render(); });
+  app.querySelectorAll('[data-complexity]').forEach(b=>b.onclick=()=>{ S.complexity=b.dataset.complexity; render(); });
+  app.querySelectorAll('[data-coaching]').forEach(b=>b.onclick=()=>{ S.coachingEnabled=b.dataset.coaching==='1'; render(); });
+  app.querySelectorAll('[data-coach]').forEach(b=>b.onclick=()=>{
+    S.coachStyle=b.dataset.coach;
+    app.querySelectorAll('[data-coach]').forEach(x=>x.classList.toggle('on', x.dataset.coach===S.coachStyle));
+    const card=document.getElementById('coachCard');
+    if(card) card.innerHTML=coachCardHTML(S.coachStyle);
+  });
+  const ub=document.getElementById('userBudgetSlider');
+  if(ub) ub.oninput=()=>{ S.userBudgetPP = +ub.value / S.rosterSize; updateBudgetLabels(); };
+  const backBtn=document.getElementById('backBtn');
+  if(backBtn) backBtn.onclick=()=>{ S.screen='modepick'; render(); };
+
+  document.getElementById('startDynastyBtn').onclick=()=>{
+    S.numTeams=1; S.userTeams=[0]; S.snake=true;
+    const feas=themeFeasible(S.theme, 1, S.rosterSize);
+    if(!feas.ok){
+      document.getElementById('setupWarn').textContent = `"${themeById(S.theme).name}" doesn't have enough players for a ${S.rosterSize}-man roster.`;
+      return;
+    }
+    if(S.mode==='cap'){
+      const uF=capFeasible(S.theme, S.rosterSize, userBudget());
+      if(!uF.ok){
+        document.getElementById('setupWarn').textContent = `Your budget is too low for "${themeById(S.theme).name}" — needs at least ${uF.minCost} points for a ${S.rosterSize}-man roster.`;
+        return;
+      }
+    }
+    initTeams(); buildOrder();
+    S.available=poolForTheme(S.theme);
+    S.screen='draft';
+    S.posFilter='ALL'; S.search=''; S.selected=null; S.lastPick=null;
+    S.pickLog=[]; S.history=[]; S.resim=null; S.showRecap=false; S.affordWarn=null;
+    render();
+  };
+}
+
 function renderSeasonSetup(){
   const capOn = S.mode==='cap';
   app.innerHTML = `
@@ -3137,7 +4501,8 @@ function renderAuction(){
   if(done){
     mainCard = `<div class="pick-panel"><div class="cpu-thinking">Auction complete.</div></div>`;
   } else if(!a || !a.nominee){
-    const nominator = currentTeam();
+    const nominatorIdx = a ? nextNominatorIdx() : null;
+    const nominator = nominatorIdx!=null ? S.teams[nominatorIdx] : null;
     if(a && a.phase==='nominate_wait_human'){
       const usable = S.available.filter(p=>S.teams.some(t=>bestSlotFor(t,p)!==null));
       const rows = filteredPlayerRows(usable, true);
@@ -3149,7 +4514,7 @@ function renderAuction(){
         <div class="player-list">${rows}</div>
       </div>`;
     } else {
-      mainCard = `<div class="pick-panel"><div class="cpu-thinking"><span class="spin"></span>${nominator.name} is choosing a player to nominate…</div></div>`;
+      mainCard = `<div class="pick-panel"><div class="cpu-thinking"><span class="spin"></span>${nominator?nominator.name:'A team'} is choosing a player to nominate…</div></div>`;
     }
   } else {
     const nominee = a.nominee;
@@ -3215,7 +4580,9 @@ function renderAuction(){
   app.querySelectorAll('[data-nominate]').forEach(b=>b.onclick=()=>{
     const p = S.available.find(x=>x.n===b.dataset.nominate);
     if(!p) return;
-    startBidding(p, S.order[S.pickIdx]);
+    const nominatorIdx = S.auction.pendingNominatorIdx;
+    startBidding(p, nominatorIdx);
+    S.auction.nominatorCursor = nominatorIdx+1;
     renderAuction();
     runAuctionStep();
   });
