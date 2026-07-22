@@ -106,7 +106,7 @@ h1,h2,h3,h4{margin:0;font-family:'Libre Franklin',sans-serif;font-weight:800;let
 .field{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;}
 .field > label{display:block;font-family:'Libre Franklin';text-transform:uppercase;letter-spacing:1.5px;
   font-size:13px;color:var(--chalk);margin-bottom:4px;}
-.field .hint{font-size:12.5px;color:var(--chalk-dimmer);margin-bottom:14px;line-height:1.4;}
+.hint{font-size:12.5px;color:var(--chalk-dimmer);margin-bottom:14px;line-height:1.4;}
 .dice-btn{margin-left:8px;font-family:'Libre Franklin';text-transform:none;letter-spacing:0;font-size:12px;
   font-weight:700;color:var(--gold);background:rgba(234,179,8,.12);border:1px solid rgba(234,179,8,.35);
   padding:3px 10px;border-radius:20px;cursor:pointer;transition:.15s;vertical-align:middle;}
@@ -208,6 +208,20 @@ h1,h2,h3,h4{margin:0;font-family:'Libre Franklin',sans-serif;font-weight:800;let
 .event-recap-choice{font-size:14px;font-weight:600;margin-bottom:6px;}
 .event-recap-outcome{font-size:13.5px;color:var(--chalk-dim);line-height:1.6;margin-bottom:8px;}
 .event-recap-effect{font-family:'Libre Franklin';font-size:12px;font-weight:700;color:var(--win);}
+.award-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.award-badge{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,rgba(234,179,8,.16),rgba(234,179,8,.06));
+  border:1px solid rgba(234,179,8,.4);border-radius:10px;padding:9px 14px;font-size:15px;font-weight:700;color:var(--gold);}
+.award-badge.no-award{background:var(--ink2);border-color:var(--line);color:var(--chalk-dimmer);font-weight:600;font-size:14px;}
+.milestone-badge{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,rgba(6,182,212,.14),rgba(6,182,212,.05));
+  border:1px solid rgba(6,182,212,.4);border-radius:10px;padding:12px 16px;margin-top:10px;font-size:16px;font-weight:700;color:var(--cyan);}
+.milestone-badge i{font-style:normal;font-weight:500;font-size:13px;color:var(--chalk-dim);display:block;margin-top:1px;}
+.event-story-text{font-size:16px;line-height:1.6;color:var(--chalk);margin-bottom:18px;text-align:center;}
+.event-choices{display:flex;flex-direction:column;gap:10px;}
+.event-choice-btn{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--ink2);
+  border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-size:14.5px;font-weight:600;color:var(--chalk);
+  cursor:pointer;transition:.12s;font-family:inherit;}
+.event-choice-btn:hover, .event-choice-btn:active{border-color:var(--accent);background:var(--panel2);}
+.event-choice-arrow{color:var(--accent);font-weight:900;font-size:16px;flex:0 0 auto;}
 .pick-panel h4{font-size:15px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;}
 .pick-panel .psub{font-size:12.5px;color:var(--chalk-dimmer);margin-bottom:14px;}
 .slot-overview{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;}
@@ -278,8 +292,8 @@ button.p-row{font:inherit;color:inherit;}
 .champ-trophy-ico{position:relative;font-size:52px;line-height:1;margin-bottom:10px;
   filter:drop-shadow(0 0 18px rgba(234,179,8,.5));animation:trophyIn .55s cubic-bezier(.2,.9,.3,1.3) both;}
 @keyframes trophyIn{from{opacity:0;transform:scale(.5) translateY(-8px);}to{opacity:1;transform:scale(1) translateY(0);}}
-.result-hero .champ-label{position:relative;font-family:'Libre Franklin';letter-spacing:4px;text-transform:uppercase;
-  font-size:13px;color:var(--clock);animation:feedIn .4s ease .1s both;}
+.result-hero .champ-label{position:relative;font-family:'Libre Franklin';letter-spacing:3px;text-transform:uppercase;
+  font-size:14.5px;font-weight:800;color:var(--accent);animation:feedIn .4s ease .1s both;}
 .result-hero .champ-name{position:relative;font-family:'Libre Franklin';font-weight:900;font-size:44px;letter-spacing:1px;margin:8px 0 14px;
   background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
   animation:feedIn .45s ease .16s both;}
@@ -291,7 +305,7 @@ button.p-row{font:inherit;color:inherit;}
 .champ-grade-badge.grade-B{background:rgba(6,182,212,.14);}
 .champ-grade-badge.grade-C{background:rgba(234,179,8,.14);}
 .champ-grade-badge.grade-D{background:rgba(239,77,94,.14);}
-.result-hero .champ-rating{font-family:'Libre Franklin';color:var(--chalk-dim);font-size:14px;}
+.result-hero .champ-rating{font-family:'Libre Franklin';color:var(--chalk);font-weight:700;font-size:15px;letter-spacing:.3px;}
 .standings{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin:20px 0;}
 .standings h4{font-size:15px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;}
 .stand-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(40,52,74,.5);}
@@ -371,6 +385,12 @@ button.p-row{font:inherit;color:inherit;}
   border-radius:8px;padding:12px 8px;}
 .season-stat b{display:block;font-family:'Libre Franklin';font-size:22px;font-weight:800;color:var(--cyan);}
 .season-stat i{font-style:normal;font-size:11px;letter-spacing:1px;color:var(--chalk-dimmer);}
+.stat-total{display:block;font-size:9.5px;color:var(--chalk-dimmer);margin-top:3px;font-weight:600;}
+.trophy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:10px;}
+.trophy-item{text-align:center;background:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:12px 6px;}
+.trophy-icon{display:block;font-size:22px;margin-bottom:4px;}
+.trophy-item b{display:block;font-family:'Libre Franklin';font-size:20px;font-weight:800;color:var(--gold);}
+.trophy-item i{font-style:normal;font-size:10.5px;letter-spacing:.5px;color:var(--chalk-dimmer);}
 .season-supers{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:12.5px;color:var(--chalk-dim);line-height:1.7;}
 .feed-list::-webkit-scrollbar{width:6px;}
 .feed-list::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px;}
@@ -1881,15 +1901,66 @@ function markCareerHighs(gameLog, priorBest, priorGameCount){
 // the scope this mode is designed to avoid. A little randomness keeps it
 // from being a hard, predictable cutoff, same as real voting has real
 // variance even for deserving players.
-function careerAwardsThisYear(rating, teamWins, madePlayoffs){
-  const impact = rating + (madePlayoffs?3:0) + Math.max(0,teamWins-45)*0.1;
-  const score = impact + (Math.random()-0.5)*10; // wide spread — real uncertainty even at the very top
+// Five independent award tracks, each with its own scoring formula, so a
+// season gets judged on what actually made it notable rather than every
+// possible honor collapsing into one overall-value number. A defensive
+// stopper, a valuable bench spark, a breakout year, and a go-to scorer in
+// crunch time are all genuinely different stories — MVP and All-NBA
+// shouldn't be the only shelf a player can ever fill.
+function careerAwardsThisYear(player, role, seasonStats, teamWins, madePlayoffs, yearIdx, priorRating){
+  const rating = playerRating(player);
   const awards = [];
-  if(score>=96) awards.push('MVP');
-  if(score>=88) awards.push('All-NBA First Team');
-  else if(score>=82) awards.push('All-NBA Second Team');
-  else if(score>=76) awards.push('All-NBA Third Team');
-  if(score>=68) awards.push('All-Star');
+
+  // Overall value track — unchanged core logic.
+  const impact = rating + (madePlayoffs?3:0) + Math.max(0,teamWins-45)*0.1;
+  const valueScore = impact + (Math.random()-0.5)*10;
+  if(valueScore>=96) awards.push('MVP');
+  if(valueScore>=88) awards.push('All-NBA First Team');
+  else if(valueScore>=82) awards.push('All-NBA Second Team');
+  else if(valueScore>=76) awards.push('All-NBA Third Team');
+  if(valueScore>=68) awards.push('All-Star');
+
+  // Defensive Player of the Year — rewards real defensive investment
+  // (pdef/idef) on its own terms, completely independent of scoring.
+  const defScore = (player.adv.pdef*0.55 + player.adv.idef*0.45) + (madePlayoffs?2:0) + Math.max(0,teamWins-45)*0.08 + (Math.random()-0.5)*10;
+  if(defScore>=80) awards.push('Defensive Player of the Year');
+
+  // Sixth Man of the Year — the one honor a rotation-role player can
+  // actually chase; real 6MOY voting specifically goes to bench standouts,
+  // not incumbent starters having a good year.
+  if(role==='rotation'){
+    const sixthScore = rating + Math.max(0,teamWins-41)*0.1 + (Math.random()-0.5)*8;
+    if(sixthScore>=62) awards.push('Sixth Man of the Year');
+  }
+
+  // Rookie of the Year — only in year one, calibrated against the lower
+  // range rookies actually produce rather than the full-career scale
+  // everything else uses.
+  if(yearIdx===1){
+    const royScore = rating + Math.max(0,teamWins-38)*0.08 + (Math.random()-0.5)*8;
+    if(royScore>=50) awards.push('Rookie of the Year');
+  }
+
+  // Most Improved Player — rewards the SIZE of the leap from last season,
+  // not absolute quality, so a team's role player breaking out is exactly
+  // the story this tells. Not eligible in year one, where there's no prior
+  // season to have improved on.
+  if(yearIdx>1){
+    const delta = rating - priorRating;
+    if(delta>=6){
+      const mipScore = delta*3 + Math.max(0,teamWins-38)*0.1 + (Math.random()-0.5)*8;
+      if(mipScore>=22) awards.push('Most Improved Player');
+    }
+  }
+
+  // Clutch Player of the Year — a different spotlight than MVP: rewards
+  // being the guy who takes the big shot on a competitive team, not just
+  // overall value. Scoring-weighted, real team success required.
+  if(role==='star' || role==='starter'){
+    const clutchScore = seasonStats.pts*1.4 + Math.max(0,teamWins-44)*0.5 + (madePlayoffs?4:0) + (Math.random()-0.5)*10;
+    if(clutchScore>=44) awards.push('Clutch Player of the Year');
+  }
+
   return awards;
 }
 
@@ -4496,7 +4567,7 @@ function renderModePick(){
       <div><h1>All-Time Draft</h1><div class="sub">Build a franchise from NBA history</div></div></div>
     ${themeToggleHTML()}
   </div>
-  <p class="hero-sub">Draft a franchise from the greatest players in NBA history, at their absolute peak — real stats, real positions, real stakes. Pick a format to begin.</p>
+  <p class="hero-sub">Draft a dream roster from NBA history, run a franchise for years, or build a player from scratch and live out an entire career — five ways to play. Pick a format to begin.</p>
   <div class="mode-cards mode-cards-5">
     <button class="mode-card mode-card-1" data-mode="draft">
       <div class="mc-icon mc-icon-wood">🗳️</div>
@@ -4527,9 +4598,9 @@ function renderModePick(){
   <div class="howto-blurb">
     <div class="howto-title">How it works</div>
     <div class="howto-steps">
-      <div><span class="hs-num hs-num-1">1</span>Pick a format and your rules — teams, roster size, draft theme.</div>
-      <div><span class="hs-num hs-num-2">2</span>Draft real players into real positions, taking turns with the computer.</div>
-      <div><span class="hs-num hs-num-3">3</span>Each team gets a rating and grade, then a playoff bracket crowns a champion.</div>
+      <div><span class="hs-num hs-num-1">1</span>Pick a format — draft a team, run a franchise, or build a player of your own.</div>
+      <div><span class="hs-num hs-num-2">2</span>Make it yours — teams and rules if you're drafting, or name, position, and skills if you're playing.</div>
+      <div><span class="hs-num hs-num-3">3</span>Every mode ends with something real to show for it — a champion, a franchise legacy, or a full career.</div>
     </div>
   </div>
   <div class="footer-note">Independent fan project · not affiliated with the NBA.<br>Stats are approximate peak-season averages; ratings blend production with hand-set intangibles. For fun, not prediction.</div>`;
@@ -4794,8 +4865,8 @@ function renderCareerCreate(){
     <div class="hint">You must spend every point to enter the draft. Specializing hard in a few skills makes you great at those — and genuinely weak everywhere else.</div>
     ${statRows}
   </div>
-  <div class="field">
-    <label>Preview</label>
+  <div class="field" style="background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(16,185,129,.03));border-color:rgba(16,185,129,.35);">
+    <label style="color:var(--accent);">Preview</label>
     <div class="career-preview-row">
       <div class="career-preview-stat"><b>${preview.pts}</b><i>PTS</i></div>
       <div class="career-preview-stat"><b>${preview.reb}</b><i>REB</i></div>
@@ -4805,7 +4876,7 @@ function renderCareerCreate(){
       <div class="career-preview-stat"><b>${preview.tpm}</b><i>3PM</i></div>
       <div class="career-preview-stat"><b class="${ratingTierClass(rating)}">${rating.toFixed(1)}</b><i>OVR</i></div>
     </div>
-    ${arch ? `<div class="season-supers">Projects as a <b>${arch.primary}</b> (${arch.secondary} secondary) · likely drafted around pick <b>${pick}</b> of 60</div>` : ''}
+    ${arch ? `<div style="margin-top:12px;font-size:14px;">Projects as a <b style="color:var(--accent);">${arch.primary}</b> (${arch.secondary} secondary) · likely drafted around pick <b>${pick}</b> of 60</div>` : ''}
   </div>
   <div class="warn" id="careerWarn"></div>
   <button class="big-btn" id="enterDraftBtn" ${remaining!==0?'disabled':''}>Enter the Draft</button>`;
@@ -4888,8 +4959,9 @@ function playCareerSeason(){
   C.careerBestGameScore = highResult.best;
   C.careerGameCount = highResult.count;
   const rating = playerRating(C.player);
-  const awards = careerAwardsThisYear(rating, seasonResult.wins, seasonResult.madePlayoffs);
   const beforeHistory = C.history || [];
+  const priorRating = beforeHistory.length ? beforeHistory[beforeHistory.length-1].rating : rating;
+  const awards = careerAwardsThisYear(C.player, fold.role, seasonStats, seasonResult.wins, seasonResult.madePlayoffs, C.yearIdx, priorRating);
   const thisSeason = { yearIdx: C.yearIdx, role: fold.role, seasonStats, seasonResult, gameLog, awards, rating, investment };
   const milestones = careerMilestonesCrossed(beforeHistory, [...beforeHistory, thisSeason]);
   thisSeason.milestones = milestones;
@@ -4965,8 +5037,8 @@ function renderCareerSeasonResult(){
   <div class="field">
     <label>Your Season</label>
     <div class="season-stats-row">${statChips}</div>
-    ${L.awards.length ? `<div class="season-supers">🏅 ${L.awards.join(' · ')}</div>` : `<div class="season-supers">No awards this season.</div>`}
-    ${(L.milestones||[]).map(m=>`<div class="season-supers">🎯 <b>${m.threshold.toLocaleString()} career ${m.stat==='pts'?'points':m.stat==='reb'?'rebounds':'assists'}</b> — a real career milestone.</div>`).join('')}
+    ${L.awards.length ? `<div class="award-badges">${L.awards.map(a=>`<span class="award-badge">🏅 ${a}</span>`).join('')}</div>` : ''}
+    ${(L.milestones||[]).map(m=>`<div class="milestone-badge">🎯 <span>${m.threshold.toLocaleString()} career ${m.stat==='pts'?'points':m.stat==='reb'?'rebounds':'assists'}<i>A real career milestone.</i></span></div>`).join('')}
   </div>
   <div class="field">
     <label>Game Log</label>
@@ -5007,11 +5079,16 @@ function startCareerOffseason(skipCutCheck){
   }
   render();
 }
+const CAREER_EVENT_ICONS = {
+  'Locker Room':'🗣️', 'Media':'🎙️', 'Injury Scare':'🩹', 'Off the Court':'🏙️',
+  'Mentorship':'🤝', 'Business':'💼', 'Rivalry':'🔥', 'Community':'❤️',
+};
 function renderCareerEvent(){
   const C = S.career;
   const evt = S.careerPendingEvent;
-  const choiceRows = evt.choices.map((c,i)=>`<button class="p-row" data-eventchoice="${i}" style="cursor:pointer;width:100%;text-align:left;">
-    <div class="p-main" style="width:100%;"><div class="p-name">${c.label}</div></div>
+  const icon = CAREER_EVENT_ICONS[evt.cat] || '📋';
+  const choiceRows = evt.choices.map((c,i)=>`<button class="event-choice-btn" data-eventchoice="${i}">
+    <span class="event-choice-arrow">→</span><span>${c.label}</span>
   </button>`).join('');
   app.innerHTML = `
   <div class="topbar">
@@ -5019,10 +5096,13 @@ function renderCareerEvent(){
       <div><h1>All-Time Draft</h1><div class="sub">${C.player.n} — Off-Season</div></div></div>
     <div class="topbar-btns">${themeToggleHTML()}</div>
   </div>
+  <div class="result-hero" style="padding:24px 0 8px;">
+    <div class="champ-trophy-ico" style="font-size:40px;">${icon}</div>
+    <div class="champ-label">${evt.cat}</div>
+  </div>
   <div class="pick-panel">
-    <h4>${evt.cat}</h4>
-    <div class="hint">${evt.text}</div>
-    <div class="player-list">${choiceRows}</div>
+    <div class="event-story-text">${evt.text}</div>
+    <div class="event-choices">${choiceRows}</div>
   </div>`;
   app.querySelectorAll('[data-eventchoice]').forEach(b=>b.onclick=()=>{
     const choice = evt.choices[+b.dataset.eventchoice];
@@ -5053,11 +5133,42 @@ function renderCareerLegacy(){
   const mvps = allAwards.filter(a=>a==='MVP').length;
   const allStars = allAwards.filter(a=>a==='All-Star').length;
   const allNba = allAwards.filter(a=>a.startsWith('All-NBA')).length;
+  const allNbaFirst = allAwards.filter(a=>a==='All-NBA First Team').length;
+  const dpoys = allAwards.filter(a=>a==='Defensive Player of the Year').length;
+  const sixthMans = allAwards.filter(a=>a==='Sixth Man of the Year').length;
+  const roys = allAwards.filter(a=>a==='Rookie of the Year').length;
+  const mips = allAwards.filter(a=>a==='Most Improved Player').length;
+  const clutches = allAwards.filter(a=>a==='Clutch Player of the Year').length;
   const careerAvg = k => yearsPlayed ? (history.reduce((s,y)=>s+y.seasonStats[k],0)/yearsPlayed) : 0;
   const bestSeason = history.reduce((best,y)=>!best||y.rating>best.rating?y:best, null);
   const peakRating = bestSeason ? bestSeason.rating : C.rating;
-  const isHOF = mvps>=1 || allStars>=5 || allNba>=3 || titles>=2;
+  const isHOF = mvps>=1 || allStars>=5 || allNba>=3 || titles>=2 || dpoys>=2;
   const subtitle = C.forcedRetirement ? 'Career Ended — Nobody Called' : 'Career Complete';
+
+  // Exact career totals — same real-game-log summation already built for
+  // milestone tracking, reused here rather than estimating from averages.
+  const totalPts = Math.round(careerCumulativeTotal(history, 'pts'));
+  const totalReb = Math.round(careerCumulativeTotal(history, 'reb'));
+  const totalAst = Math.round(careerCumulativeTotal(history, 'ast'));
+  const totalStl = Math.round(careerCumulativeTotal(history, 'stl'));
+  const totalBlk = Math.round(careerCumulativeTotal(history, 'blk'));
+
+  // All-time legacy ranking — a single score blending peak brilliance with
+  // sustained accumulation (real GOAT debates weigh both), loosely
+  // calibrated against real NBA history: a multi-MVP, multi-title, 30,000+
+  // point career lands in genuine GOAT-conversation territory, while a
+  // short or modest career reads as exactly that.
+  const legacyScore = mvps*14 + titles*9 + allNbaFirst*5 + allStars*1.3 + dpoys*4 + (totalPts/1000)*0.5 + peakRating*0.15;
+  const hasRealAccolade = mvps>0 || titles>0 || allNba>0 || allStars>0 || dpoys>0;
+  let legacyTier, legacyDesc;
+  if(legacyScore>=220 && mvps>=3){ legacyTier='GOAT Contention'; legacyDesc='Mentioned in the same breath as the greatest to ever play.'; }
+  else if(legacyScore>=170 && (mvps>=1 || titles>=3)){ legacyTier='Top 5 All-Time'; legacyDesc='One of the five best careers the game has ever seen.'; }
+  else if(legacyScore>=120){ legacyTier='Top 10 All-Time'; legacyDesc='A career that belongs in any all-time top-ten conversation.'; }
+  else if(legacyScore>=80){ legacyTier='Top 20 All-Time'; legacyDesc='A genuine all-time great, no argument needed.'; }
+  else if(legacyScore>=45){ legacyTier='Hall of Fame Caliber'; legacyDesc='A career that gets a real look for enshrinement.'; }
+  else if(legacyScore>=20 && hasRealAccolade){ legacyTier='Perennial All-Star'; legacyDesc='A name fans around the league knew and respected.'; }
+  else if(legacyScore>=8){ legacyTier='Solid NBA Starter'; legacyDesc='A dependable pro who did real winning basketball things.'; }
+  else { legacyTier='Journeyman'; legacyDesc='Made it. Stuck around. Not every career is a legendary one — most are not, and that is alright.'; }
 
   const yearRows = history.map(y=>`<div class="slot-row"><span class="slot-name">Year ${y.yearIdx} (age ${21+y.yearIdx}): ${y.seasonResult.wins}-${y.seasonResult.losses}, ${y.seasonStats.pts} ppg${y.awards.length?' · '+y.awards.join(', '):''}</span></div>`).join('');
 
@@ -5069,27 +5180,39 @@ function renderCareerLegacy(){
   </div>
   ${C.forcedRetirement ? `<div class="hint">After getting released, no team was willing to sign you. Sometimes that's just how it ends — the league moves on faster than any one career.</div>` : ''}
   <div class="result-hero">
-    <div class="champ-label">${yearsPlayed}-Year Career${isHOF?' · Hall of Fame':''}</div>
+    <div class="champ-label" style="font-size:15px;">${yearsPlayed}-Year Career${isHOF?' 🏛️ HALL OF FAME':''}</div>
     <div class="champ-name">${peakRating.toFixed(1)} Peak OVR</div>
     <div class="champ-meta"><span class="champ-rating mono">${totalWins}-${totalLosses} team record · ${titles} title${titles===1?'':'s'}</span></div>
   </div>
+  <div class="field" style="background:linear-gradient(135deg,rgba(234,179,8,.14),rgba(234,179,8,.03));border-color:rgba(234,179,8,.4);">
+    <label style="color:var(--gold);">All-Time Legacy</label>
+    <div style="font-size:26px;font-weight:800;color:var(--gold);margin:4px 0 2px;">${legacyTier}</div>
+    <div style="font-size:13.5px;color:var(--chalk-dim);">${legacyDesc}</div>
+  </div>
   <div class="field">
-    <label>Career Averages</label>
+    <label>Career Stats</label>
     <div class="season-stats-row">
-      <div class="season-stat"><b>${careerAvg('pts').toFixed(1)}</b><i>PTS</i></div>
-      <div class="season-stat"><b>${careerAvg('reb').toFixed(1)}</b><i>REB</i></div>
-      <div class="season-stat"><b>${careerAvg('ast').toFixed(1)}</b><i>AST</i></div>
-      <div class="season-stat"><b>${careerAvg('stl').toFixed(1)}</b><i>STL</i></div>
-      <div class="season-stat"><b>${careerAvg('blk').toFixed(1)}</b><i>BLK</i></div>
+      <div class="season-stat"><b>${careerAvg('pts').toFixed(1)}</b><i>PTS</i><span class="stat-total">${totalPts.toLocaleString()} total</span></div>
+      <div class="season-stat"><b>${careerAvg('reb').toFixed(1)}</b><i>REB</i><span class="stat-total">${totalReb.toLocaleString()} total</span></div>
+      <div class="season-stat"><b>${careerAvg('ast').toFixed(1)}</b><i>AST</i><span class="stat-total">${totalAst.toLocaleString()} total</span></div>
+      <div class="season-stat"><b>${careerAvg('stl').toFixed(1)}</b><i>STL</i><span class="stat-total">${totalStl.toLocaleString()} total</span></div>
+      <div class="season-stat"><b>${careerAvg('blk').toFixed(1)}</b><i>BLK</i><span class="stat-total">${totalBlk.toLocaleString()} total</span></div>
       <div class="season-stat"><b>${careerAvg('tpm').toFixed(1)}</b><i>3PM</i></div>
     </div>
   </div>
   <div class="field">
     <label>Trophy Case</label>
-    <div class="slot-row"><span class="slot-name">MVPs: <b>${mvps}</b></span></div>
-    <div class="slot-row"><span class="slot-name">All-Star selections: <b>${allStars}</b></span></div>
-    <div class="slot-row"><span class="slot-name">All-NBA selections: <b>${allNba}</b></span></div>
-    <div class="slot-row"><span class="slot-name">Championships: <b>${titles}</b></span></div>
+    <div class="trophy-grid">
+      <div class="trophy-item"><span class="trophy-icon">👑</span><b>${mvps}</b><i>MVP</i></div>
+      <div class="trophy-item"><span class="trophy-icon">⭐</span><b>${allStars}</b><i>All-Star</i></div>
+      <div class="trophy-item"><span class="trophy-icon">🏅</span><b>${allNba}</b><i>All-NBA</i></div>
+      <div class="trophy-item"><span class="trophy-icon">🏆</span><b>${titles}</b><i>Title${titles===1?'':'s'}</i></div>
+      ${dpoys ? `<div class="trophy-item"><span class="trophy-icon">🛡️</span><b>${dpoys}</b><i>DPOY</i></div>` : ''}
+      ${sixthMans ? `<div class="trophy-item"><span class="trophy-icon">🎯</span><b>${sixthMans}</b><i>6th Man</i></div>` : ''}
+      ${roys ? `<div class="trophy-item"><span class="trophy-icon">🌟</span><b>${roys}</b><i>ROY</i></div>` : ''}
+      ${mips ? `<div class="trophy-item"><span class="trophy-icon">📈</span><b>${mips}</b><i>MIP</i></div>` : ''}
+      ${clutches ? `<div class="trophy-item"><span class="trophy-icon">🔥</span><b>${clutches}</b><i>Clutch</i></div>` : ''}
+    </div>
   </div>
   <div class="field">
     <label>Year by Year</label>
@@ -5123,10 +5246,7 @@ function renderCareerOffseason(){
   }).join('');
 
   const canDemand = C.lastSeason && !S.careerJustTraded && careerCanDemandTrade(C.lastSeason.role, C.lastSeason.seasonResult.wins);
-  const tradeSection = S.careerJustTraded ? `<div class="field">
-    <label>Trade Approved</label>
-    <div class="season-supers">🔄 You're headed to the <b>${TEAM_NAMES[C.teamAbbr]}</b> ${teamBadgeHTML(C.teamAbbr)}. New team, new chance to win.</div>
-  </div>` : canDemand ? `<div class="field">
+  const tradeSection = S.careerJustTraded ? `<div class="event-recap"><div class="event-recap-choice">🔄 Trade Approved</div><div class="event-recap-outcome">You're headed to the ${TEAM_NAMES[C.teamAbbr]} ${teamBadgeHTML(C.teamAbbr)}. New team, new chance to win.</div></div>` : canDemand ? `<div class="field">
     <label>Frustrated with Losing?</label>
     <div class="hint">You're a ${C.lastSeason.role} on a team that went ${C.lastSeason.seasonResult.wins}-${C.lastSeason.seasonResult.losses}. You could demand a trade somewhere with a real chance to win — though you might have to accept a smaller role to get it.</div>
     ${S.careerShowTradeConfirm ? `
@@ -5242,11 +5362,11 @@ function renderCareerDraftResult(){
       <div class="career-preview-stat"><b>${p.tpm}</b><i>3PM</i></div>
       <div class="career-preview-stat"><b class="${ratingTierClass(C.rating)}">${C.rating.toFixed(1)}</b><i>OVR</i></div>
     </div>
-    ${arch ? `<div class="season-supers">A <b>${arch.primary}</b> · ${heightLabel(p.heightIn)} ${p.pos} · ${TEAM_NAMES[C.teamAbbr]}</div>` : ''}
-    <div class="season-supers">🔍 Scouts say: <b>${CAREER_POTENTIAL_TIERS[p._potentialTier].label}</b> — nobody really knows how far this game can take you yet.</div>
+    ${arch ? `<div style="margin-top:12px;font-size:13.5px;color:var(--chalk-dim);">A <b style="color:var(--chalk);">${arch.primary}</b> · ${heightLabel(p.heightIn)} ${p.pos} · ${TEAM_NAMES[C.teamAbbr]}</div>` : ''}
+    <div class="event-recap" style="margin-top:10px;margin-bottom:0;"><div class="event-recap-choice">🔍 Scouts say: ${CAREER_POTENTIAL_TIERS[p._potentialTier].label}</div><div class="event-recap-outcome">Nobody really knows how far this game can take you yet.</div></div>
   </div>
   <div class="field">
-    <label>New Teammates</label>
+    <label>Your Starting Lineup</label>
     ${teammateRows}
   </div>
   <button class="big-btn" id="playSeasonBtn">Play Season 1</button>`;
