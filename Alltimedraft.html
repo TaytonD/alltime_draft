@@ -1559,7 +1559,7 @@ const CAREER_EVENTS = [
     ]},
   { id:'lockerJersey', cat:'Locker Room', text:'A teammate wants to swap jersey numbers with you — his kid was born the day you got drafted, apparently.',
     choices:[
-      {label:'Just give it to him', effect:{type:'none'}, outcome:'Small gesture, but it means a lot to him. Good vibes in the locker room.'},
+      {label:'Just give it to him', effect:{type:'stat',key:'iq',value:1}, outcome:'Small gesture, but it means a lot to him. Good vibes in the locker room.'},
       {label:'Politely decline, it\'s your number', effect:{type:'none'}, outcome:'No hard feelings. He gets over it.'},
       {label:'Offer to trade him something for it', effect:{type:'points',value:1}, outcome:'You work out a deal that leaves you both happy — and a little wiser about the business side of things.'},
     ]},
@@ -1599,7 +1599,7 @@ const CAREER_EVENTS = [
     choices:[
       {label:'Stay in the game', effect:{type:'stat',key:'sco',value:1}, outcome:'You shake it off and finish strong. The moment becomes part of your reputation.'},
       {label:'Come out as a precaution', effect:{type:'none'}, outcome:'Smart call. You\'re back the next game with no issues.'},
-      {label:'Ask the trainer to check you first', effect:{type:'none'}, outcome:'A few tense minutes, then you\'re cleared and back in.'},
+      {label:'Ask the trainer to check you first', effect:{type:'stat',key:'iq',value:1}, outcome:'A few tense minutes, then you\'re cleared and back in.'},
     ]},
   { id:'injKnee', cat:'Injury Scare', text:'Nagging knee soreness has followed you around all season. It\'s not serious, but it\'s not nothing either.',
     choices:[
@@ -1609,7 +1609,7 @@ const CAREER_EVENTS = [
     ]},
   { id:'injRestDay', cat:'Injury Scare', text:'The team doctor recommends a rest day during a brutal back-to-back stretch.',
     choices:[
-      {label:'Take the rest', effect:{type:'none'}, outcome:'Smart, sustainable, and nobody blinks at it.'},
+      {label:'Take the rest', effect:{type:'stat',key:'iq',value:1}, outcome:'Smart, sustainable, and nobody blinks at it.'},
       {label:'Insist on playing anyway', effect:{type:'stat',key:'sco',value:1}, outcome:'You gut through it and play well. The staff isn\'t thrilled, but it works out.'},
       {label:'Compromise on limited minutes', effect:{type:'none'}, outcome:'A reasonable middle ground. Nobody\'s upset about it.'},
     ]},
@@ -1623,8 +1623,8 @@ const CAREER_EVENTS = [
   { id:'lifeJersey', cat:'Off the Court', text:'Your hometown high school wants to retire your old jersey number.',
     choices:[
       {label:'Attend the ceremony in person', effect:{type:'points',value:2}, outcome:'A genuinely great day. The whole town shows up for you.'},
-      {label:'Send a heartfelt letter instead', effect:{type:'none'}, outcome:'They understand you\'re busy. Still means something.'},
-      {label:'Politely decline, too much going on', effect:{type:'none'}, outcome:'A missed opportunity, but life goes on.'},
+      {label:'Send a heartfelt letter instead', effect:{type:'points',value:1}, outcome:'They understand you\'re busy. Still means something.'},
+      {label:'Politely decline, too much going on', effect:{type:'points',value:-1}, outcome:'A missed opportunity, but life goes on.'},
     ]},
   { id:'lifeLoan', cat:'Off the Court', text:'An old friend from back home asks you for a big loan.',
     choices:[
@@ -1636,7 +1636,7 @@ const CAREER_EVENTS = [
     choices:[
       {label:'Accept and prepare a real speech', effect:{type:'stat',key:'iq',value:1}, outcome:'It goes great. You find you actually enjoy this side of things.'},
       {label:'Do a quick video call-in instead', effect:{type:'none'}, outcome:'Lower effort, still appreciated.'},
-      {label:'Decline, not ready for public speaking', effect:{type:'none'}, outcome:'Maybe next time.'},
+      {label:'Decline, not ready for public speaking', effect:{type:'points',value:-1}, outcome:'Maybe next time.'},
     ]},
 
   { id:'coachMentor', cat:'Mentorship', text:'A rookie on the team asks you to take him under your wing.',
@@ -1674,7 +1674,7 @@ const CAREER_EVENTS = [
     choices:[
       {label:'Start it', effect:{type:'points',value:2}, outcome:'It becomes something you\'re genuinely proud of.'},
       {label:'Wait for a bigger platform first', effect:{type:'none'}, outcome:'You table the idea for now.'},
-      {label:'Sponsor someone else\'s camp instead', effect:{type:'none'}, outcome:'Lower effort, still does some good.'},
+      {label:'Sponsor someone else\'s camp instead', effect:{type:'points',value:1}, outcome:'Lower effort, still does some good.'},
     ]},
   { id:'bizCrypto', cat:'Business', text:'A startup wants to pay you as a spokesperson. The pitch sounds a little too good.',
     choices:[
@@ -1703,7 +1703,7 @@ const CAREER_EVENTS = [
     ]},
   { id:'rivalFormerTeammate', cat:'Rivalry', text:'A former teammate, now on a rival team, calls you out in the press.',
     choices:[
-      {label:'Respond directly in the media', effect:{type:'none'}, outcome:'It becomes a storyline for a week, then fades.'},
+      {label:'Respond directly in the media', effect:{type:'points',value:-1}, outcome:'It becomes a storyline for a week, then fades.'},
       {label:'Reach out to him privately instead', effect:{type:'stat',key:'iq',value:1}, outcome:'You clear the air like adults. Mature move.'},
       {label:'Ignore it completely', effect:{type:'none'}, outcome:'You don\'t dignify it with a response.'},
     ]},
@@ -1717,26 +1717,334 @@ const CAREER_EVENTS = [
   { id:'charityKid', cat:'Community', text:'A kid from your hometown battling a serious illness reaches out to meet you.',
     choices:[
       {label:'Visit in person', effect:{type:'points',value:2}, outcome:'One of the most meaningful days of your career, honestly.'},
-      {label:'Send a heartfelt gift and message', effect:{type:'none'}, outcome:'It still means the world to them.'},
+      {label:'Send a heartfelt gift and message', effect:{type:'points',value:1}, outcome:'It still means the world to them.'},
       {label:'Donate through your foundation instead', effect:{type:'none'}, outcome:'A generous, if more distant, gesture.'},
     ]},
   { id:'charityFundraiser', cat:'Community', text:'You\'re asked to headline a big charity fundraiser.',
     choices:[
       {label:'Commit fully, help organize it', effect:{type:'points',value:2}, outcome:'It\'s a huge success, and you\'re proud of the work behind it.'},
       {label:'Just show up and support it', effect:{type:'none'}, outcome:'Solid, low-key contribution.'},
-      {label:'Donate money instead of your time', effect:{type:'none'}, outcome:'Generous, if a bit hands-off.'},
+      {label:'Donate money instead of your time', effect:{type:'points',value:1}, outcome:'Generous, if a bit hands-off.'},
     ]},
   { id:'charityGym', cat:'Community', text:'A local school wants to name their gym after you.',
     choices:[
       {label:'Fund real renovations to make it happen right', effect:{type:'points',value:1}, outcome:'It becomes something the whole community is proud of.'},
       {label:'Just accept the honor', effect:{type:'none'}, outcome:'A nice gesture either way.'},
-      {label:'Politely decline, prefer to stay low-key', effect:{type:'none'}, outcome:'Humble choice. They understand.'},
+      {label:'Politely decline, prefer to stay low-key', effect:{type:'stat',key:'iq',value:1}, outcome:'Humble choice. They understand.'},
     ]},
-  { id:'charityDisaster', cat:'Community', text:'A disaster relief effort near your team\'s city could really use star support.',
+  { id:'charityDisaster', cat:'Community', text:"A disaster relief effort near your team's city could really use star support.",
     choices:[
-      {label:'Volunteer hands-on', effect:{type:'points',value:2}, outcome:'A genuinely impactful, hands-on effort that the city won\'t forget.'},
+      {label:'Volunteer hands-on', effect:{type:'points',value:2}, outcome:"A genuinely impactful, hands-on effort that the city won't forget."},
       {label:'Organize a donation drive', effect:{type:'points',value:1}, outcome:'You rally real resources without needing to be the center of it.'},
       {label:'Donate personally, stay out of the spotlight', effect:{type:'none'}, outcome:'Quiet generosity. Still matters.'},
+    ]},
+
+  { id:'coachNewHead', cat:'Coaching Change', text:'The team fires the head coach midseason and brings in a new voice.',
+    choices:[
+      {label:'Embrace the fresh system immediately', effect:{type:'stat',key:'iq',value:1}, outcome:'The adjustment period is short. You adapt faster than most.'},
+      {label:'Take a wait-and-see approach', effect:{type:'none'}, outcome:'A reasonable, measured response while things settle.'},
+      {label:'Push back on the new philosophy', effect:{type:'stat',key:'sco',value:1}, outcome:'You stick to what works for you. It ruffles a few feathers, but your game stays sharp.'},
+    ]},
+  { id:'coachShotSelection', cat:'Coaching Change', text:'The new coaching staff wants you to change your shot selection entirely.',
+    choices:[
+      {label:'Commit fully to the new approach', effect:{type:'stat',key:'sho',value:2}, outcome:'It takes real reps, but your shot profile genuinely improves.'},
+      {label:'Blend it with your natural game', effect:{type:'stat',key:'iq',value:1}, outcome:'A smart middle ground that keeps you comfortable.'},
+      {label:'Stick with what got you here', effect:{type:'none'}, outcome:'You trust your instincts. Nobody argues with results.'},
+    ]},
+  { id:'coachBenched', cat:'Coaching Change', text:'After a rough stretch, the coach benches you for a game to make a point.',
+    choices:[
+      {label:'Take it as motivation', effect:{type:'stat',key:'sco',value:1}, outcome:'You come back with something to prove. It shows.'},
+      {label:'Have a private conversation with the coach', effect:{type:'points',value:2}, outcome:'You clear the air like professionals. Mutual respect earned.'},
+      {label:'Let your frustration show publicly', effect:{type:'points',value:-2}, outcome:"It becomes a story nobody needed. The coach doesn't forget it."},
+    ]},
+  { id:'coachRetire', cat:'Coaching Change', text:'Your longtime coach announces retirement at the end of the season.',
+    choices:[
+      {label:'Help organize a proper send-off', effect:{type:'points',value:2}, outcome:'A genuinely touching moment for the whole organization.'},
+      {label:'Focus on finishing the season strong instead', effect:{type:'stat',key:'iq',value:1}, outcome:'You honor him the best way you know how — by playing well.'},
+      {label:'Keep it business as usual', effect:{type:'none'}, outcome:'Respectful, if understated.'},
+    ]},
+
+  { id:'faExtension', cat:'Free Agency', text:'The front office puts a contract extension offer on the table.',
+    choices:[
+      {label:'Sign it right away', effect:{type:'points',value:2}, outcome:'Security and stability. You can focus fully on basketball now.'},
+      {label:'Negotiate for more first', effect:{type:'stat',key:'iq',value:1}, outcome:'It takes longer, but you get real value out of the process.'},
+      {label:'Bet on yourself, play it out', effect:{type:'stat',key:'sco',value:1}, outcome:'A bold, motivated approach. The pressure sharpens your game.'},
+    ]},
+  { id:'faPoach', cat:'Free Agency', text:'A rival team floats a massive offer to try to lure you away.',
+    choices:[
+      {label:'Take the meeting seriously', effect:{type:'points',value:2}, outcome:'Real leverage, whether you use it or not.'},
+      {label:'Shut it down out of loyalty', effect:{type:'stat',key:'iq',value:1}, outcome:'The city notices. Loyalty has its own kind of value.'},
+      {label:'Let your agent handle it quietly', effect:{type:'none'}, outcome:'You stay focused on the court while business happens elsewhere.'},
+    ]},
+  { id:'faAgentPush', cat:'Free Agency', text:'Your agent pushes the coaching staff for a bigger role and more shots.',
+    choices:[
+      {label:'Back your agent publicly', effect:{type:'stat',key:'sco',value:1}, outcome:'You get the green light. Time to prove it was deserved.'},
+      {label:'Tell your agent to dial it back', effect:{type:'stat',key:'iq',value:1}, outcome:"You'd rather earn it on the floor. Teammates respect it."},
+      {label:'Stay out of it entirely', effect:{type:'none'}, outcome:'You let the business side handle business.'},
+    ]},
+  { id:'faDiscount', cat:'Free Agency', text:'You could take a hometown discount to stay, or chase max money elsewhere.',
+    choices:[
+      {label:'Take the discount, stay put', effect:{type:'points',value:2}, outcome:'The fans never forget it. A real legacy move.'},
+      {label:'Chase the max contract', effect:{type:'points',value:1}, outcome:'You get paid what the market says you are worth.'},
+      {label:'Let the front office make the first move', effect:{type:'none'}, outcome:'You wait and see what they value you at.'},
+    ]},
+
+  { id:'legacyYoungPlayer', cat:'Legacy', text:'A young player on the team asks what you want to be remembered for.',
+    choices:[
+      {label:'Give a real, thoughtful answer', effect:{type:'stat',key:'iq',value:1}, outcome:'The conversation sticks with both of you.'},
+      {label:'Keep it light with a joke', effect:{type:'none'}, outcome:'A laugh, and a little bit of wisdom slipped in anyway.'},
+      {label:'Tell him legacy is for later, focus on today', effect:{type:'stat',key:'sco',value:1}, outcome:'A mentality that keeps you locked in on the present.'},
+    ]},
+  { id:'legacyRetireQuestion', cat:'Legacy', text:'Reporters keep asking whether you have a timeline for retirement in mind.',
+    choices:[
+      {label:'Say you will know when it is time', effect:{type:'none'}, outcome:'Honest, unbothered. The questions eventually stop.'},
+      {label:'Commit publicly to a specific timeline', effect:{type:'points',value:1}, outcome:'It creates real accountability — and real motivation.'},
+      {label:'Get visibly annoyed by the question', effect:{type:'points',value:-1}, outcome:'A minor headline nobody needed.'},
+    ]},
+  { id:'legacyJersey', cat:'Legacy', text:'A rookie asks to wear a number close to yours as a tribute.',
+    choices:[
+      {label:'Take him under your wing too', effect:{type:'stat',key:'iq',value:2}, outcome:'A real mentorship grows out of a small gesture.'},
+      {label:'Just say thanks and let it be', effect:{type:'none'}, outcome:'A nice, simple moment.'},
+      {label:'Playfully give him a hard time about it', effect:{type:'points',value:1}, outcome:'Locker room gets a laugh out of it.'},
+    ]},
+  { id:'legacyGoatDebate', cat:'Legacy', text:'Your name starts coming up in "greatest of your generation" debates.',
+    choices:[
+      {label:'Lean into the moment', effect:{type:'stat',key:'sco',value:1}, outcome:'You play like someone with something to prove, again.'},
+      {label:'Deflect and stay humble', effect:{type:'stat',key:'iq',value:1}, outcome:'The quiet confidence only adds to the argument for you.'},
+      {label:'Ignore the noise completely', effect:{type:'none'}, outcome:'You tune it all out. Simpler that way.'},
+    ]},
+
+  { id:'cultureOwnership', cat:'Team Culture', text:'A new ownership group takes over the franchise.',
+    choices:[
+      {label:'Reach out and build a relationship early', effect:{type:'points',value:2}, outcome:'A good working relationship from day one.'},
+      {label:'Wait and see what changes first', effect:{type:'none'}, outcome:'A cautious, reasonable approach.'},
+      {label:'Voice concerns about the direction publicly', effect:{type:'points',value:-1}, outcome:'It gets attention, not all of it good.'},
+    ]},
+  { id:'cultureVetRetire', cat:'Team Culture', text:'A respected veteran teammate announces this will be his final season.',
+    choices:[
+      {label:'Make it a priority to help him go out right', effect:{type:'points',value:2}, outcome:'The whole locker room rallies around it. A real moment.'},
+      {label:'Lean on him for advice while you still can', effect:{type:'stat',key:'iq',value:1}, outcome:'Wisdom you carry with you long after he is gone.'},
+      {label:'Keep things business as usual', effect:{type:'none'}, outcome:'Respectful, low-key.'},
+    ]},
+  { id:'cultureAlumni', cat:'Team Culture', text:'The team hosts a big alumni night, bringing back franchise legends.',
+    choices:[
+      {label:'Spend real time talking with the legends', effect:{type:'stat',key:'iq',value:1}, outcome:'Genuinely valuable perspective from people who have been there.'},
+      {label:'Enjoy the moment, keep it light', effect:{type:'none'}, outcome:'A fun night for everyone involved.'},
+      {label:'Use it as motivation for your own legacy', effect:{type:'stat',key:'sco',value:1}, outcome:'Seeing the greats up close lights a real fire.'},
+    ]},
+  { id:'cultureRookieClass', cat:'Team Culture', text:'An unusually talented rookie class arrives, and the vets take notice.',
+    choices:[
+      {label:'Welcome them and set the tone early', effect:{type:'stat',key:'iq',value:1}, outcome:'You help shape a culture that pays off for years.'},
+      {label:'Let them earn their place the hard way', effect:{type:'none'}, outcome:'Old-school, and nobody really argues with it.'},
+      {label:'Quietly raise your own game to stay ahead', effect:{type:'stat',key:'sco',value:1}, outcome:'Healthy competition. It shows in your play.'},
+    ]},
+
+  { id:'awardsSnub', cat:'Awards Season', text:'You get snubbed from an award you genuinely expected to win.',
+    choices:[
+      {label:'Use it as fuel', effect:{type:'stat',key:'sco',value:1}, outcome:'The chip on your shoulder shows up in your game.'},
+      {label:'Take the high road publicly', effect:{type:'stat',key:'iq',value:1}, outcome:'The maturity earns you real respect around the league.'},
+      {label:'Vent about it to the media', effect:{type:'points',value:-1}, outcome:'It becomes a bigger story than the snub itself.'},
+    ]},
+  { id:'awardsCampaign', cat:'Awards Season', text:'A media outlet starts actively campaigning for you to win a major award.',
+    choices:[
+      {label:'Lean into the extra attention', effect:{type:'points',value:2}, outcome:'It raises your profile at exactly the right time.'},
+      {label:'Stay focused, let the campaign run itself', effect:{type:'stat',key:'iq',value:1}, outcome:'A grounded approach that keeps you playing well regardless.'},
+      {label:'Ask them to tone it down', effect:{type:'none'}, outcome:'You would rather earn it quietly.'},
+    ]},
+  { id:'awardsSurprise', cat:'Awards Season', text:'You win an award nobody, including you, really saw coming.',
+    choices:[
+      {label:'Give a heartfelt speech', effect:{type:'points',value:2}, outcome:'A genuinely memorable moment for your career.'},
+      {label:'Keep the reaction low-key', effect:{type:'none'}, outcome:'Humble, understated, exactly your style.'},
+      {label:'Dedicate it publicly to your team', effect:{type:'stat',key:'iq',value:1}, outcome:'The gesture means a lot to everyone in the locker room.'},
+    ]},
+  { id:'awardsRivalWins', cat:'Awards Season', text:'A rival narrowly beats you out for an award you both wanted.',
+    choices:[
+      {label:'Congratulate him publicly and mean it', effect:{type:'stat',key:'iq',value:1}, outcome:'Real class. It does not go unnoticed around the league.'},
+      {label:'Let it fuel next season', effect:{type:'stat',key:'sco',value:1}, outcome:'You channel it into real, tangible improvement.'},
+      {label:'Keep your feelings private', effect:{type:'none'}, outcome:'You process it your own way, out of the spotlight.'},
+    ]},
+
+  { id:'intlNationalTeam', cat:'International', text:'Your national team invites you to play in a major international tournament.',
+    choices:[
+      {label:'Accept, represent your country', effect:{type:'points',value:2}, outcome:'An unforgettable experience and real global exposure.'},
+      {label:'Decline to protect your body for the NBA season', effect:{type:'none'}, outcome:'A pragmatic call your team quietly appreciates.'},
+      {label:'Accept, but with a limited role', effect:{type:'stat',key:'iq',value:1}, outcome:'A smart compromise that still lets you contribute.'},
+    ]},
+  { id:'intlOffseasonConflict', cat:'International', text:'An international commitment eats into your usual offseason training time.',
+    choices:[
+      {label:'Train hard around the schedule anyway', effect:{type:'points',value:1}, outcome:'It is tiring, but you make it work.'},
+      {label:'Prioritize rest this offseason instead', effect:{type:'none'}, outcome:'A smart, sustainable long-term choice.'},
+      {label:'Scale back the international commitment', effect:{type:'stat',key:'iq',value:1}, outcome:'A mature decision about managing your career.'},
+    ]},
+  { id:'intlRivalMatchup', cat:'International', text:'A star international player calls you out ahead of a marquee exhibition matchup.',
+    choices:[
+      {label:'Answer the challenge head-on', effect:{type:'stat',key:'sco',value:1}, outcome:'You bring real intensity to a game that mattered more than it should have.'},
+      {label:'Stay above the trash talk', effect:{type:'stat',key:'iq',value:1}, outcome:'The quiet confidence route, again. It works.'},
+      {label:'Laugh it off in interviews', effect:{type:'none'}, outcome:'You defuse it with humor before the game even starts.'},
+    ]},
+  { id:'intlGrowGame', cat:'International', text:"The league asks you to join a tour growing the game in a country that has never hosted an NBA event.",
+    choices:[
+      {label:'Commit fully, embrace the ambassador role', effect:{type:'points',value:2}, outcome:'A genuinely meaningful experience that broadens your profile.'},
+      {label:'Do a shorter, limited appearance', effect:{type:'points',value:1}, outcome:'You support the effort without overextending yourself.'},
+      {label:'Pass, focus on your own season', effect:{type:'none'}, outcome:'A reasonable call given everything else on your plate.'},
+    ]},
+
+  { id:'lockerStarDemand', cat:'Locker Room', text:'A star teammate starts publicly demanding more touches, and the tension is real.',
+    choices:[
+      {label:'Give up some of your own usage to keep the peace', effect:{type:'stat',key:'ply',value:1}, outcome:"Your playmaking sharpens finding him shots. Team chemistry holds."},
+      {label:'Hold your ground on your role', effect:{type:'stat',key:'sco',value:1}, outcome:'You stand firm, and your own game stays sharp — but the tension lingers.'},
+      {label:'Let the coaching staff sort it out', effect:{type:'points',value:-1}, outcome:'It drags on longer than it should have, costing you some focus.'},
+    ]},
+  { id:'lockerRookieBlowup', cat:'Locker Room', text:'Two rookies get into a heated shouting match during film session.',
+    choices:[
+      {label:'Step in and defuse it yourself', effect:{type:'stat',key:'iq',value:1}, outcome:'You handle it like a real leader. Both sides respect it.'},
+      {label:'Let the vets handle it as a group', effect:{type:'none'}, outcome:'It gets sorted out, no harm done.'},
+      {label:'Stay out of it entirely', effect:{type:'points',value:-1}, outcome:'The tension festers a bit longer than it should have.'},
+    ]},
+
+  { id:'mediaFormerTeammate', cat:'Media', text:'A reporter presses you hard about your relationship with a controversial former teammate.',
+    choices:[
+      {label:'Answer honestly, even if it stings', effect:{type:'stat',key:'iq',value:1}, outcome:'The honesty is respected, even by people who disagree with you.'},
+      {label:'Deflect the question entirely', effect:{type:'none'}, outcome:'You avoid the drama. Nothing gained, nothing lost.'},
+      {label:'Take a shot back at him publicly', effect:{type:'points',value:-2}, outcome:'It becomes a real story you did not need this week.'},
+    ]},
+  { id:'mediaOwnShow', cat:'Media', text:"You're offered your own media platform — a podcast built around your voice and career.",
+    choices:[
+      {label:'Launch it and commit real time to it', effect:{type:'points',value:2}, outcome:'It becomes a genuine second income stream and platform.'},
+      {label:'License your name, let others run it', effect:{type:'points',value:1}, outcome:'Lower effort, still a solid payday.'},
+      {label:'Pass entirely, stay focused on ball', effect:{type:'stat',key:'iq',value:1}, outcome:'Total focus on basketball. No regrets.'},
+    ]},
+
+  { id:'injLoadManagement', cat:'Injury Scare', text:'The coaching staff wants to rest you strategically ahead of a playoff push.',
+    choices:[
+      {label:'Trust the plan completely', effect:{type:'none'}, outcome:'Smart, modern, sustainable basketball.'},
+      {label:'Push to play through it anyway', effect:{type:'stat',key:'ath',value:-1}, outcome:'You wear down a bit more than the staff wanted.'},
+      {label:'Negotiate a middle-ground minutes plan', effect:{type:'stat',key:'iq',value:1}, outcome:'A smart compromise everyone can live with.'},
+    ]},
+  { id:'injTeammateOut', cat:'Injury Scare', text:"A teammate's serious injury suddenly forces you into a much bigger role than you're ready for.",
+    choices:[
+      {label:'Embrace the challenge head-on', effect:{type:'stat',key:'sco',value:2}, outcome:'You rise to the moment. It genuinely accelerates your growth.'},
+      {label:'Take it game by game, no pressure', effect:{type:'stat',key:'iq',value:1}, outcome:'A measured approach that still gets the job done.'},
+      {label:'Struggle visibly with the sudden weight of it', effect:{type:'points',value:-2}, outcome:'A rough stretch. It happens to everyone eventually.'},
+    ]},
+
+  { id:'lifeDocumentary', cat:'Off the Court', text:"A production company wants to film a documentary about your rise to the league.",
+    choices:[
+      {label:'Give them real, honest access', effect:{type:'points',value:2}, outcome:'It becomes something genuinely special — and great exposure.'},
+      {label:'Allow it with heavy restrictions', effect:{type:'points',value:1}, outcome:'A safer, more controlled version still gets made.'},
+      {label:'Turn it down, guard your privacy', effect:{type:'stat',key:'iq',value:1}, outcome:'You protect your peace. No regrets.'},
+    ]},
+  { id:'lifeBadInvestment', cat:'Off the Court', text:'A friend pitches you on a risky investment that sounds too good to be true.',
+    choices:[
+      {label:'Get a real financial advisor to vet it first', effect:{type:'stat',key:'iq',value:1}, outcome:'Good instinct. You avoid a real headache.'},
+      {label:'Invest a small amount just in case', effect:{type:'points',value:-1}, outcome:'It does not pan out. A lesson learned cheaply.'},
+      {label:'Go all in on the friend\u2019s word', effect:{type:'points',value:-3}, outcome:'It falls apart. An expensive mistake.'},
+    ]},
+
+  { id:'mentorRookieCallsBack', cat:'Mentorship', text:'The veteran who mentored you as a rookie calls — he needs advice now that his career is winding down.',
+    choices:[
+      {label:'Make real time for him', effect:{type:'stat',key:'iq',value:2}, outcome:'You return the favor in a way that means a lot to both of you.'},
+      {label:'Offer a quick, supportive call', effect:{type:'none'}, outcome:'Brief, but appreciated.'},
+      {label:'Get too caught up in your own season', effect:{type:'points',value:-1}, outcome:'You feel a little guilty about it later.'},
+    ]},
+  { id:'mentorFixShot', cat:'Mentorship', text:'A struggling young teammate asks you to help fix his broken jump shot.',
+    choices:[
+      {label:'Work with him personally, extra reps', effect:{type:'stat',key:'iq',value:1}, outcome:'It genuinely helps him — and sharpens your own coaching eye.'},
+      {label:'Point him toward the shooting coach instead', effect:{type:'none'}, outcome:'A reasonable delegation. Still helps him some.'},
+      {label:'Tell him to figure it out himself', effect:{type:'points',value:-1}, outcome:'Not your finest moment as a leader.'},
+    ]},
+
+  { id:'bizRestaurant', cat:'Business', text:'A struggling local restaurant chain wants you as an investor to help save it.',
+    choices:[
+      {label:'Invest and get hands-on with the turnaround', effect:{type:'points',value:2}, outcome:'A genuine business win, and a great local story.'},
+      {label:'Invest passively, minimal involvement', effect:{type:'points',value:1}, outcome:'A modest, low-effort return.'},
+      {label:'Pass on the risk entirely', effect:{type:'none'}, outcome:'You stay clear of it. No harm done.'},
+    ]},
+  { id:'bizTradingCard', cat:'Business', text:'A trading card company offers a lucrative exclusive deal for your rookie card reprints.',
+    choices:[
+      {label:'Sign the exclusive deal', effect:{type:'points',value:2}, outcome:'A strong payday and a cool piece of your legacy locked in.'},
+      {label:'Negotiate for a non-exclusive deal', effect:{type:'stat',key:'iq',value:1}, outcome:'Less money, but more control over your own brand.'},
+      {label:'Turn it down entirely', effect:{type:'none'}, outcome:'You pass. Not every opportunity needs taking.'},
+    ]},
+
+  { id:'rivalTraded', cat:'Rivalry', text:'Your longtime rival gets traded to a legitimate title contender, raising the stakes between you.',
+    choices:[
+      {label:'Use it as extra motivation', effect:{type:'stat',key:'sco',value:1}, outcome:'The added stakes bring out a sharper edge in your game.'},
+      {label:'Stay focused on your own team\u2019s goals', effect:{type:'stat',key:'iq',value:1}, outcome:'The grounded approach keeps you playing winning basketball.'},
+      {label:'Get publicly vocal about the rivalry', effect:{type:'points',value:1}, outcome:'The extra attention on the matchup raises your profile too.'},
+    ]},
+  { id:'rivalMediaStoke', cat:'Rivalry', text:'A beat writer keeps stoking a rivalry narrative that never really existed between you two.',
+    choices:[
+      {label:'Play along, it is good for business', effect:{type:'points',value:1}, outcome:'Harmless theater that raises both your profiles.'},
+      {label:'Publicly shut the narrative down', effect:{type:'stat',key:'iq',value:1}, outcome:'A mature response. The story fades fast.'},
+      {label:'Ignore it completely', effect:{type:'none'}, outcome:'It burns out on its own eventually.'},
+    ]},
+
+  { id:'communityScholarship', cat:'Community', text:'A local school district asks you to help fund scholarships for students who need it.',
+    choices:[
+      {label:'Fund a real, lasting scholarship program', effect:{type:'points',value:2}, outcome:'A genuinely meaningful, lasting impact on real lives.'},
+      {label:'Make a one-time donation instead', effect:{type:'points',value:1}, outcome:'Generous, and appreciated.'},
+      {label:'Decline for now, revisit it later', effect:{type:'none'}, outcome:'A missed opportunity, but not the last chance.'},
+    ]},
+
+  { id:'coachDefenseRole', cat:'Coaching Change', text:'The new coaching staff wants to hand you significantly more defensive responsibility.',
+    choices:[
+      {label:'Embrace the challenge fully', effect:{type:'stat',key:'pdef',value:2}, outcome:'The extra reps genuinely sharpen that side of your game.'},
+      {label:'Accept it, but stay focused on offense too', effect:{type:'stat',key:'idef',value:1}, outcome:'A balanced approach that still shows real defensive growth.'},
+      {label:'Push back, it is not your natural game', effect:{type:'points',value:-1}, outcome:'The staff is not thrilled, but they respect the honesty.'},
+    ]},
+
+  { id:'faFrontOfficeDoubt', cat:'Free Agency', text:'A front office executive is quoted questioning whether you still fit the team\u2019s long-term plans.',
+    choices:[
+      {label:'Respond with your play, not words', effect:{type:'stat',key:'sco',value:1}, outcome:'You let your game do the talking. It works.'},
+      {label:'Request a direct meeting to clear the air', effect:{type:'points',value:1}, outcome:'A mature, professional resolution.'},
+      {label:'Fire back publicly', effect:{type:'points',value:-2}, outcome:'It becomes a real distraction nobody needed.'},
+    ]},
+
+  { id:'legacyStatue', cat:'Legacy', text:'The city floats the idea of commissioning a statue or mural in your honor.',
+    choices:[
+      {label:'Embrace it, get involved in the design', effect:{type:'points',value:2}, outcome:'A genuinely emotional, lasting tribute to your career.'},
+      {label:'Let the city handle it themselves', effect:{type:'none'}, outcome:'A nice honor either way.'},
+      {label:'Ask them to wait until your career is over', effect:{type:'stat',key:'iq',value:1}, outcome:'A humble, grounded call that ages well.'},
+    ]},
+
+  { id:'cultureConductPolicy', cat:'Team Culture', text:'After an incident involving a teammate, the organization rolls out a strict new conduct policy.',
+    choices:[
+      {label:'Publicly support the new standards', effect:{type:'stat',key:'iq',value:1}, outcome:'Your buy-in helps the whole locker room adjust faster.'},
+      {label:'Stay quiet, let it play out', effect:{type:'none'}, outcome:'A neutral, low-risk approach.'},
+      {label:'Push back on the changes', effect:{type:'points',value:-1}, outcome:'It puts you at odds with the front office over something small.'},
+    ]},
+  { id:'cultureEquipMgr', cat:'Team Culture', text:'A beloved equipment manager who has been with the team for decades announces retirement.',
+    choices:[
+      {label:'Organize something special for him', effect:{type:'points',value:2}, outcome:'A genuinely touching send-off the whole organization remembers.'},
+      {label:'Write him a heartfelt personal note', effect:{type:'points',value:1}, outcome:'A small gesture that means a lot.'},
+      {label:'Let the front office handle it', effect:{type:'none'}, outcome:'Handled appropriately either way.'},
+    ]},
+
+  { id:'awardsBallotSnub', cat:'Awards Season', text:'You are left off an award ballot entirely — a real, public snub.',
+    choices:[
+      {label:'Channel it into your next games', effect:{type:'stat',key:'sco',value:2}, outcome:'The chip on your shoulder shows up immediately on the floor.'},
+      {label:'Take the high road in public', effect:{type:'stat',key:'iq',value:1}, outcome:'The grace under pressure earns real respect.'},
+      {label:'Air your frustration to the media', effect:{type:'points',value:-2}, outcome:'It becomes a bigger story than the snub itself.'},
+    ]},
+  { id:'awardsYoungLeapfrog', cat:'Awards Season', text:'A young player unexpectedly leapfrogs you in the voting for an award you were favored for.',
+    choices:[
+      {label:'Congratulate him and mean it', effect:{type:'stat',key:'iq',value:1}, outcome:'Real class. It does not go unnoticed.'},
+      {label:'Let it motivate next season', effect:{type:'stat',key:'sco',value:1}, outcome:'You turn the disappointment into fuel.'},
+      {label:'Quietly stew over it', effect:{type:'points',value:-1}, outcome:'It lingers longer than it should have.'},
+    ]},
+
+  { id:'intlOlympicConflict', cat:'International', text:'An Olympic qualifying window directly conflicts with your team\u2019s training camp schedule.',
+    choices:[
+      {label:'Prioritize the Olympics', effect:{type:'points',value:2}, outcome:'An unforgettable experience representing your country.'},
+      {label:'Prioritize training camp instead', effect:{type:'stat',key:'iq',value:1}, outcome:'A disciplined, team-first decision.'},
+      {label:'Try to do both, exhausting as it is', effect:{type:'points',value:-1}, outcome:'You make it work, but it wears you down more than expected.'},
+    ]},
+  { id:'intlScouting', cat:'International', text:'Your team asks you to help scout international prospects during the offseason.',
+    choices:[
+      {label:'Dive in, it is genuinely interesting', effect:{type:'stat',key:'iq',value:2}, outcome:'The experience sharpens your own understanding of the game.'},
+      {label:'Help out in a limited way', effect:{type:'stat',key:'iq',value:1}, outcome:'A light touch that still adds some value.'},
+      {label:'Pass, this offseason is about your own training', effect:{type:'none'}, outcome:'A reasonable call given your own priorities.'},
     ]},
 ];
 // Picks a random unseen event for this career (tracked on C.seenEventIds),
@@ -5082,6 +5390,8 @@ function startCareerOffseason(skipCutCheck){
 const CAREER_EVENT_ICONS = {
   'Locker Room':'🗣️', 'Media':'🎙️', 'Injury Scare':'🩹', 'Off the Court':'🏙️',
   'Mentorship':'🤝', 'Business':'💼', 'Rivalry':'🔥', 'Community':'❤️',
+  'Coaching Change':'📋', 'Free Agency':'💰', 'Legacy':'🏛️', 'Team Culture':'👥',
+  'Awards Season':'🏅', 'International':'🌍',
 };
 function renderCareerEvent(){
   const C = S.career;
