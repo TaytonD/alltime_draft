@@ -177,6 +177,7 @@ h1,h2,h3,h4{margin:0;font-family:'Libre Franklin',sans-serif;font-weight:800;let
 .clock-right b{color:var(--chalk);}
 
 .board{display:grid;grid-template-columns:1fr;gap:14px;}
+.team-grid{display:grid;grid-template-columns:1fr;gap:14px;}
 @media(min-width:720px){.board{grid-template-columns:1fr 1fr;}}
 .team-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;transition:.2s;}
 .team-card.active{border-color:var(--clock);box-shadow:0 0 0 1px var(--clock),0 0 26px rgba(245,197,66,.12);}
@@ -355,6 +356,7 @@ button.p-row{font:inherit;color:inherit;}
 .bkt-team.champ{background:linear-gradient(90deg,rgba(255,107,53,.18),rgba(34,211,238,.1));color:var(--accent);}
 .bkt-team.adv{color:var(--chalk);}
 .bkt-team.bkt-bye{color:var(--chalk-dimmer);font-style:italic;font-weight:400;}
+.bye-match{opacity:.72;}
 .bkt-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .bkt-name em{font-style:normal;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);
   background:rgba(255,107,53,.15);padding:1px 5px;border-radius:4px;margin-left:4px;}
@@ -547,6 +549,7 @@ button.p-row{font:inherit;color:inherit;}
 .mode-card{position:relative;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
   padding:20px 20px 20px 22px;cursor:pointer;transition:.16s;color:var(--chalk);overflow:hidden;
   animation:feedIn .4s ease both;}
+.mode-card-1{animation-delay:0s;}
 .mode-card-2{animation-delay:.08s;}
 .mode-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--gold),var(--cost));opacity:.7;}
 .mode-card:hover{border-color:var(--cyan);transform:translateY(-2px);box-shadow:0 12px 34px rgba(0,0,0,.35);}
@@ -1601,17 +1604,17 @@ const CAREER_EVENTS = [
       {label:'Stay out of it entirely', effect:{type:'none'}, outcome:'It blows over on its own in a couple weeks, mostly.'},
       {label:'Pick a side', effect:{type:'stat',key:'pdef',value:-1}, outcome:'The other guy remembers it. On-court chemistry with him takes a small hit.'},
     ]},
-  { id:'lockerShotsRole', cat:'Locker Room', text:'Your team\'s leading scorer corners you about touches — he thinks you\'re taking shots that should be his.',
+  { id:'lockerShotsRole', cat:'Locker Room', text:'Your team\'s leading scorer corners you about touches - he thinks you\'re taking shots that should be his.',
     choices:[
       {label:'Stand your ground', effect:{type:'stat',key:'sco',value:1}, outcome:'You don\'t back down, and it actually sharpens your killer instinct.'},
       {label:'Defer to keep the peace', effect:{type:'stat',key:'ply',value:1}, outcome:'You start looking for him more. Your playmaking instincts get a little sharper for it.'},
       {label:'Bring it to the coach to sort out', effect:{type:'points',value:2}, outcome:'The coach sets clear roles. Awkward meeting, but it actually helps.'},
     ]},
-  { id:'lockerJersey', cat:'Locker Room', text:'A teammate wants to swap jersey numbers with you — his kid was born the day you got drafted, apparently.',
+  { id:'lockerJersey', cat:'Locker Room', text:'A teammate wants to swap jersey numbers with you - his kid was born the day you got drafted, apparently.',
     choices:[
       {label:'Just give it to him', effect:{type:'stat',key:'iq',value:1}, outcome:'Small gesture, but it means a lot to him. Good vibes in the locker room.'},
       {label:'Politely decline, it\'s your number', effect:{type:'none'}, outcome:'No hard feelings. He gets over it.'},
-      {label:'Offer to trade him something for it', effect:{type:'points',value:1}, outcome:'You work out a deal that leaves you both happy — and a little wiser about the business side of things.'},
+      {label:'Offer to trade him something for it', effect:{type:'points',value:1}, outcome:'You work out a deal that leaves you both happy - and a little wiser about the business side of things.'},
     ]},
 
   { id:'mediaLeading', cat:'Media', text:'A reporter keeps asking leading questions, clearly trying to get you to rip your coach on the record.',
@@ -1620,9 +1623,9 @@ const CAREER_EVENTS = [
       {label:'Give an honest, blunt answer', effect:{type:'points',value:-2}, outcome:'It becomes a headline you didn\'t want. Awkward practice the next day.'},
       {label:'Turn it into a joke', effect:{type:'none'}, outcome:'You dodge the trap and get a laugh out of the press room.'},
     ]},
-  { id:'mediaViral', cat:'Media', text:'A postgame quote of yours goes viral overnight — for better or worse, everyone\'s talking about you.',
+  { id:'mediaViral', cat:'Media', text:'A postgame quote of yours goes viral overnight - for better or worse, everyone\'s talking about you.',
     choices:[
-      {label:'Lean into the moment', effect:{type:'points',value:3}, outcome:'You ride the wave — more eyes on you means more opportunities.'},
+      {label:'Lean into the moment', effect:{type:'points',value:3}, outcome:'You ride the wave - more eyes on you means more opportunities.'},
       {label:'Stay humble, downplay it', effect:{type:'stat',key:'iq',value:1}, outcome:'People respect the maturity. It quietly builds your reputation.'},
       {label:'Ignore the attention entirely', effect:{type:'none'}, outcome:'It fades in a few days like everything else online does.'},
     ]},
@@ -1810,7 +1813,7 @@ const CAREER_EVENTS = [
   { id:'coachRetire', cat:'Coaching Change', text:'Your longtime coach announces retirement at the end of the season.',
     choices:[
       {label:'Help organize a proper send-off', effect:{type:'points',value:2}, outcome:'A genuinely touching moment for the whole organization.'},
-      {label:'Focus on finishing the season strong instead', effect:{type:'stat',key:'iq',value:1}, outcome:'You honor him the best way you know how — by playing well.'},
+      {label:'Focus on finishing the season strong instead', effect:{type:'stat',key:'iq',value:1}, outcome:'You honor him the best way you know how - by playing well.'},
       {label:'Keep it business as usual', effect:{type:'none'}, outcome:'Respectful, if understated.'},
     ]},
 
@@ -1848,7 +1851,7 @@ const CAREER_EVENTS = [
   { id:'legacyRetireQuestion', cat:'Legacy', text:'Reporters keep asking whether you have a timeline for retirement in mind.',
     choices:[
       {label:'Say you will know when it is time', effect:{type:'none'}, outcome:'Honest, unbothered. The questions eventually stop.'},
-      {label:'Commit publicly to a specific timeline', effect:{type:'points',value:1}, outcome:'It creates real accountability — and real motivation.'},
+      {label:'Commit publicly to a specific timeline', effect:{type:'points',value:1}, outcome:'It creates real accountability - and real motivation.'},
       {label:'Get visibly annoyed by the question', effect:{type:'points',value:-1}, outcome:'A minor headline nobody needed.'},
     ]},
   { id:'legacyJersey', cat:'Legacy', text:'A rookie asks to wear a number close to yours as a tribute.',
@@ -1942,7 +1945,7 @@ const CAREER_EVENTS = [
   { id:'lockerStarDemand', cat:'Locker Room', text:'A star teammate starts publicly demanding more touches, and the tension is real.',
     choices:[
       {label:'Give up some of your own usage to keep the peace', effect:{type:'stat',key:'ply',value:1}, outcome:"Your playmaking sharpens finding him shots. Team chemistry holds."},
-      {label:'Hold your ground on your role', effect:{type:'stat',key:'sco',value:1}, outcome:'You stand firm, and your own game stays sharp — but the tension lingers.'},
+      {label:'Hold your ground on your role', effect:{type:'stat',key:'sco',value:1}, outcome:'You stand firm, and your own game stays sharp - but the tension lingers.'},
       {label:'Let the coaching staff sort it out', effect:{type:'points',value:-1}, outcome:'It drags on longer than it should have, costing you some focus.'},
     ]},
   { id:'lockerRookieBlowup', cat:'Locker Room', text:'Two rookies get into a heated shouting match during film session.',
@@ -1958,7 +1961,7 @@ const CAREER_EVENTS = [
       {label:'Deflect the question entirely', effect:{type:'none'}, outcome:'You avoid the drama. Nothing gained, nothing lost.'},
       {label:'Take a shot back at him publicly', effect:{type:'points',value:-2}, outcome:'It becomes a real story you did not need this week.'},
     ]},
-  { id:'mediaOwnShow', cat:'Media', text:"You're offered your own media platform — a podcast built around your voice and career.",
+  { id:'mediaOwnShow', cat:'Media', text:"You're offered your own media platform - a podcast built around your voice and career.",
     choices:[
       {label:'Launch it and commit real time to it', effect:{type:'points',value:2}, outcome:'It becomes a genuine second income stream and platform.'},
       {label:'License your name, let others run it', effect:{type:'points',value:1}, outcome:'Lower effort, still a solid payday.'},
@@ -1980,7 +1983,7 @@ const CAREER_EVENTS = [
 
   { id:'lifeDocumentary', cat:'Off the Court', text:"A production company wants to film a documentary about your rise to the league.",
     choices:[
-      {label:'Give them real, honest access', effect:{type:'points',value:2}, outcome:'It becomes something genuinely special — and great exposure.'},
+      {label:'Give them real, honest access', effect:{type:'points',value:2}, outcome:'It becomes something genuinely special - and great exposure.'},
       {label:'Allow it with heavy restrictions', effect:{type:'points',value:1}, outcome:'A safer, more controlled version still gets made.'},
       {label:'Turn it down, guard your privacy', effect:{type:'stat',key:'iq',value:1}, outcome:'You protect your peace. No regrets.'},
     ]},
@@ -1991,7 +1994,7 @@ const CAREER_EVENTS = [
       {label:'Go all in on the friend\u2019s word', effect:{type:'points',value:-3}, outcome:'It falls apart. An expensive mistake.'},
     ]},
 
-  { id:'mentorRookieCallsBack', cat:'Mentorship', text:'The veteran who mentored you as a rookie calls — he needs advice now that his career is winding down.',
+  { id:'mentorRookieCallsBack', cat:'Mentorship', text:'The veteran who mentored you as a rookie calls - he needs advice now that his career is winding down.',
     choices:[
       {label:'Make real time for him', effect:{type:'stat',key:'iq',value:2}, outcome:'You return the favor in a way that means a lot to both of you.'},
       {label:'Offer a quick, supportive call', effect:{type:'none'}, outcome:'Brief, but appreciated.'},
@@ -1999,7 +2002,7 @@ const CAREER_EVENTS = [
     ]},
   { id:'mentorFixShot', cat:'Mentorship', text:'A struggling young teammate asks you to help fix his broken jump shot.',
     choices:[
-      {label:'Work with him personally, extra reps', effect:{type:'stat',key:'iq',value:1}, outcome:'It genuinely helps him — and sharpens your own coaching eye.'},
+      {label:'Work with him personally, extra reps', effect:{type:'stat',key:'iq',value:1}, outcome:'It genuinely helps him - and sharpens your own coaching eye.'},
       {label:'Point him toward the shooting coach instead', effect:{type:'none'}, outcome:'A reasonable delegation. Still helps him some.'},
       {label:'Tell him to figure it out himself', effect:{type:'points',value:-1}, outcome:'Not your finest moment as a leader.'},
     ]},
@@ -2071,7 +2074,7 @@ const CAREER_EVENTS = [
       {label:'Let the front office handle it', effect:{type:'none'}, outcome:'Handled appropriately either way.'},
     ]},
 
-  { id:'awardsBallotSnub', cat:'Awards Season', text:'You are left off an award ballot entirely — a real, public snub.',
+  { id:'awardsBallotSnub', cat:'Awards Season', text:'You are left off an award ballot entirely - a real, public snub.',
     choices:[
       {label:'Channel it into your next games', effect:{type:'stat',key:'sco',value:2}, outcome:'The chip on your shoulder shows up immediately on the floor.'},
       {label:'Take the high road in public', effect:{type:'stat',key:'iq',value:1}, outcome:'The grace under pressure earns real respect.'},
@@ -2890,7 +2893,7 @@ const SCOUTING_BLURBS = {
     "elite court vision, the kind of passer who makes everyone around him better",
     "a steady hand who rarely turns the ball over under pressure",
     "reads defenses a step ahead and delivers the ball on time",
-    "a true point guard in the traditional sense — pass first, shoot second",
+    "a true point guard in the traditional sense - pass first, shoot second",
     "orchestrates an offense with poise beyond his experience",
   ],
   big: [
@@ -3643,7 +3646,7 @@ function renderDynastyYear(){
       <div class="champ-name" style="font-size:28px;">${o.partnerName}</div>
     </div>
     <div class="pick-panel">
-      <div class="event-story-text">${o.partnerName.split(' ').pop()} are ${o.reason}. No negotiating — take it or leave it.</div>
+      <div class="event-story-text">${o.partnerName.split(' ').pop()} are ${o.reason}. No negotiating - take it or leave it.</div>
       <div class="trade-columns">
         <div class="trade-col"><div class="trade-col-label">They give you</div>
           ${o.theyGiveYou.map(a=>`<div class="slot-row"><span class="slot-name">${tradePieceLabel(a)}</span></div>`).join('')}
@@ -3660,7 +3663,7 @@ function renderDynastyYear(){
   } else if(S.dynastyPhase==='seasonResult'){
     const r = D.currentSeasonResult;
     const won = r.playoffs && r.playoffs.wonTitle;
-    const outcome = r.playoffs ? (r.playoffs.wonTitle?'🏆 NBA CHAMPION':r.playoffs.wonConf?'🥈 Lost the NBA Finals':'🏀 Eliminated — '+roundName(r.playoffs.eliminatedRound-1, r.playoffs.confBracket.rounds.length)) : '📅 Missed the Playoffs';
+    const outcome = r.playoffs ? (r.playoffs.wonTitle?'🏆 NBA CHAMPION':r.playoffs.wonConf?'🥈 Lost the NBA Finals':'🏀 Eliminated - '+roundName(r.playoffs.eliminatedRound-1, r.playoffs.confBracket.rounds.length)) : '📅 Missed the Playoffs';
     const sl = r.statLine;
     const statChips = [['PTS',sl.pts],['REB',sl.reb],['AST',sl.ast],['BLK',sl.blk],['STL',sl.stl]]
       .map(([label,val])=>`<div class="season-stat"><b>${val.toFixed(1)}</b><i>${label}</i></div>`).join('');
@@ -3706,14 +3709,14 @@ function renderDynastyYear(){
     const riser = S.dynastyYearLog.riser;
     const decliner = S.dynastyYearLog.decliner;
     const cards = [];
-    if(riser) cards.push(`<div class="event-recap"><div class="event-recap-choice">📈 ${riser.name}</div><div class="event-recap-outcome">Took a real leap this offseason — up ${riser.delta.toFixed(1)} overall.</div></div>`);
-    if(decliner) cards.push(`<div class="event-recap" style="border-left-color:var(--loss);"><div class="event-recap-choice">📉 ${decliner.name}</div><div class="event-recap-outcome">Starting to show his age — down ${Math.abs(decliner.delta).toFixed(1)} overall.</div></div>`);
+    if(riser) cards.push(`<div class="event-recap"><div class="event-recap-choice">📈 ${riser.name}</div><div class="event-recap-outcome">Took a real leap this offseason - up ${riser.delta.toFixed(1)} overall.</div></div>`);
+    if(decliner) cards.push(`<div class="event-recap" style="border-left-color:var(--loss);"><div class="event-recap-choice">📉 ${decliner.name}</div><div class="event-recap-outcome">Starting to show his age - down ${Math.abs(decliner.delta).toFixed(1)} overall.</div></div>`);
     retired.forEach(r=>cards.push(`<div class="event-recap" style="border-left-color:var(--gold);"><div class="event-recap-choice">🎉 ${r.name} Hangs It Up</div><div class="event-recap-outcome">Retires at ${r.finalRating.toFixed(0)} overall.${r.arc?' '+r.arc:''}</div></div>`));
     mainCard = `<div class="result-hero" style="padding:20px 0 6px;">
       <div class="champ-trophy-ico" style="font-size:36px;">🗓️</div>
       <div class="champ-label">Offseason</div>
     </div>
-    ${cards.length ? cards.join('') : '<div class="field"><div class="hint">A quiet offseason — the whole roster returns unchanged.</div></div>'}
+    ${cards.length ? cards.join('') : '<div class="field"><div class="hint">A quiet offseason - the whole roster returns unchanged.</div></div>'}
     <button class="big-btn" id="dynContinueBtn">Continue</button>`;
   } else if(S.dynastyPhase==='rookieDraftPick' && S.dynastyPendingPool){
     const roundOrdinal = S.dynastyPendingRound===1?'Round 1':'Round 2';
@@ -3735,8 +3738,8 @@ function renderDynastyYear(){
       </div>`;
     }).join('');
     mainCard = `<div class="pick-panel">
-      <h4>Rookie Draft — ${roundOrdinal}</h4>
-      <div class="hint">Potential is a real signal, not a promise — even a Rare Talent can bust, even a Bust Risk guy can surprise you.</div>
+      <h4>Rookie Draft - ${roundOrdinal}</h4>
+      <div class="hint">Potential is a real signal, not a promise - even a Rare Talent can bust, even a Bust Risk guy can surprise you.</div>
       <div class="player-list">${rows}</div>
     </div>`;
   } else if(S.dynastyPhase==='cutRequired'){
@@ -3753,7 +3756,7 @@ function renderDynastyYear(){
     }).join('');
     mainCard = `<div class="pick-panel">
       <h4>Roster Cut Needed</h4>
-      <div class="hint">You're over the ${D.rosterCap}-player cap — choose someone to cut. ${S.dynastyCutsNeeded>1?S.dynastyCutsNeeded+' cuts remaining.':''} Sorted worst to best.</div>
+      <div class="hint">You're over the ${D.rosterCap}-player cap - choose someone to cut. ${S.dynastyCutsNeeded>1?S.dynastyCutsNeeded+' cuts remaining.':''} Sorted worst to best.</div>
       <div class="player-list">${rows}</div>
     </div>`;
   } else if(S.dynastyPhase==='yearEndSummary'){
@@ -3772,7 +3775,7 @@ function renderDynastyYear(){
       ...log.retired.map(r=>`<div class="slot-row"><span class="slot-name">👋 ${r.name} retired (${r.finalRating.toFixed(0)} ovr)</span></div>`),
     ].join('');
     mainCard = `<div class="result-hero" style="padding:20px 0 6px;">
-      <div class="champ-label">${yearLabel} — Complete</div>
+      <div class="champ-label">${yearLabel} - Complete</div>
       <div class="champ-name" style="font-size:32px;">${log.seasonResult.wins}-${log.seasonResult.losses}</div>
       ${log.mvp ? `<div class="award-badges"><span class="award-badge">🌟 Team MVP: ${log.mvp.name}</span></div>` : ''}
     </div>
@@ -3800,7 +3803,7 @@ function renderDynastyYear(){
   app.innerHTML = `
   <div class="topbar">
     <div class="logo"><div class="mark">🏀</div>
-      <div><h1>All-Time Draft</h1><div class="sub">${team.name} — ${yearLabel}</div></div></div>
+      <div><h1>All-Time Draft</h1><div class="sub">${team.name} - ${yearLabel}</div></div></div>
     <div class="topbar-btns">${D.history.length ? '<button class="ghost-btn" id="dynHistoryBtn">History</button>' : ''}${themeToggleHTML()}</div>
   </div>
   ${mainCard}
@@ -3864,7 +3867,7 @@ function renderDynastyYear(){
 function dynastyHistoryModalHTML(){
   const D = S.dynasty;
   const championships = D.history.filter(y=>y.seasonResult.outcome==='CHAMPION').length;
-  const rows = D.history.map(y=>`<div class="slot-row"><span class="slot-name">Year ${y.yearIdx}: ${y.seasonResult.wins}-${y.seasonResult.losses} — ${y.seasonResult.outcome.replace('_',' ')}${y.mvp?' · MVP '+y.mvp.name:''}</span></div>`).join('');
+  const rows = D.history.map(y=>`<div class="slot-row"><span class="slot-name">Year ${y.yearIdx}: ${y.seasonResult.wins}-${y.seasonResult.losses} - ${y.seasonResult.outcome.replace('_',' ')}${y.mvp?' · MVP '+y.mvp.name:''}</span></div>`).join('');
   return `<div class="recap-overlay" id="dynastyHistoryOverlay">
     <div class="recap-card">
       <div class="rc-header">
@@ -3902,7 +3905,7 @@ function renderDynastyLegacy(){
   const bestRecord = D.history.reduce((best,y)=>y.seasonResult.wins>best.wins?y.seasonResult:best, D.history[0].seasonResult);
   const totalWins = D.history.reduce((s,y)=>s+y.seasonResult.wins,0);
   const totalLosses = D.history.reduce((s,y)=>s+y.seasonResult.losses,0);
-  const yearRows = D.history.map(y=>`<div class="slot-row"><span class="slot-name">Year ${y.yearIdx}: ${y.seasonResult.wins}-${y.seasonResult.losses} — ${y.seasonResult.outcome.replace('_',' ')}${y.mvp?' · MVP '+y.mvp.name:''}</span></div>`).join('');
+  const yearRows = D.history.map(y=>`<div class="slot-row"><span class="slot-name">Year ${y.yearIdx}: ${y.seasonResult.wins}-${y.seasonResult.losses} - ${y.seasonResult.outcome.replace('_',' ')}${y.mvp?' · MVP '+y.mvp.name:''}</span></div>`).join('');
 
   // Franchise legend: whoever was crowned MVP most often across the run.
   const mvpCounts = {};
@@ -3926,12 +3929,12 @@ function renderDynastyLegacy(){
   else if(dynastyScore>=45){ dynastyTier='Contender Era'; dynastyDesc='A real window of legitimate title contention.'; }
   else if(dynastyScore>=25){ dynastyTier='Playoff Mainstay'; dynastyDesc='Consistently competitive, a team nobody wanted to face.'; }
   else if(dynastyScore>=10){ dynastyTier='Building Something'; dynastyDesc='Real progress, even if the banners never came.'; }
-  else { dynastyTier='Rebuilding Years'; dynastyDesc='Every dynasty starts somewhere — this was the foundation.'; }
+  else { dynastyTier='Rebuilding Years'; dynastyDesc='Every dynasty starts somewhere - this was the foundation.'; }
 
   app.innerHTML = `
   <div class="topbar">
     <div class="logo"><div class="mark">🏀</div>
-      <div><h1>All-Time Draft</h1><div class="sub">${team.name} — Dynasty Complete</div></div></div>
+      <div><h1>All-Time Draft</h1><div class="sub">${team.name} - Dynasty Complete</div></div></div>
     <div class="topbar-btns">${themeToggleHTML()}<button class="ghost-btn" id="againBtn">New Dynasty</button></div>
   </div>
   <div class="result-hero">
@@ -3944,7 +3947,7 @@ function renderDynastyLegacy(){
     <div style="font-size:26px;font-weight:800;color:var(--gold);margin:4px 0 2px;">${dynastyTier}</div>
     <div style="font-size:13.5px;color:var(--chalk-dim);">${dynastyDesc}</div>
   </div>
-  ${topMvp ? `<div class="event-recap"><div class="event-recap-choice">🌟 Franchise Legend</div><div class="event-recap-outcome"><b>${topMvp[0]}</b> was your team MVP ${topMvp[1]} time${topMvp[1]>1?'s':''} across the run — the face of the dynasty.</div></div>` : ''}
+  ${topMvp ? `<div class="event-recap"><div class="event-recap-choice">🌟 Franchise Legend</div><div class="event-recap-outcome"><b>${topMvp[0]}</b> was your team MVP ${topMvp[1]} time${topMvp[1]>1?'s':''} across the run - the face of the dynasty.</div></div>` : ''}
   <div class="field">
     <label>Front Office</label>
     <div class="trophy-grid">
@@ -4328,8 +4331,8 @@ function championStory(champion, runnerUp){
     const rScout = scoutingReport(runnerUp);
     if(rScout.weakness===identity || rScout.weakness===scout.strength){
       s += ' ' + pick(1, [
-        `${runnerUp.name} couldn't keep pace — their ${label[rScout.weakness]} was the difference in the Final.`,
-        `${runnerUp.name} had no answer — their ${label[rScout.weakness]} gave it away in the end.`,
+        `${runnerUp.name} couldn't keep pace - their ${label[rScout.weakness]} was the difference in the Final.`,
+        `${runnerUp.name} had no answer - their ${label[rScout.weakness]} gave it away in the end.`,
         `${runnerUp.name} put up a fight, but their ${label[rScout.weakness]} proved fatal.`,
       ]);
     } else {
@@ -4387,7 +4390,7 @@ function leagueAwards(teams){
 const THEMES = [
   { id:'all',      name:'All-Time',        desc:'The greatest players in NBA history, at their peak.',
     isCurrent:false },
-  { id:'modern',   name:'Modern',          desc:'Current NBA — 8 players from every team, 2025-26 season.',
+  { id:'modern',   name:'Modern',          desc:'Current NBA - 8 players from every team, 2025-26 season.',
     isCurrent:true },
 ];
 function themeById(id){ return THEMES.find(t=>t.id===id) || THEMES[0]; }
@@ -5000,22 +5003,22 @@ function renderModePick(){
       <div><h1>All-Time Draft</h1><div class="sub">Draft, build, and play NBA history your way</div></div></div>
     <div class="topbar-btns"><button class="ghost-btn" id="howToPlayBtn">❓ How It Works</button>${themeToggleHTML()}</div>
   </div>
-  <p class="hero-sub">Draft a dream roster from NBA history, run a franchise for years, or build a player from scratch and live out an entire career — five ways to play. Pick a format to begin.</p>
+  <p class="hero-sub">Draft a dream roster from NBA history, run a franchise for years, or build a player from scratch and live out an entire career - five ways to play. Pick a format to begin.</p>
   <div class="mode-cards mode-cards-5">
     <button class="mode-card mode-card-1" data-mode="career">
       <div class="mc-icon mc-icon-emerald">🎽</div>
       <h3>Career <span class="mc-time-tag">Long-term · solo</span></h3>
-      <p>Build a player from scratch — name, position, height, and a points budget to spend across your skills. Get drafted, grow every year, and see how far you go.</p>
+      <p>Build a player from scratch - name, position, height, and a points budget to spend across your skills. Get drafted, grow every year, and see how far you go.</p>
     </button>
     <button class="mode-card mode-card-2" data-mode="dynasty">
       <div class="mc-icon mc-icon-crimson">🏛️</div>
       <h3>Dynasty <span class="mc-time-tag">Long-term · franchise</span></h3>
-      <p>Draft a team, then run it for years. Play seasons, draft rookies, watch legends age out and retire, and weigh trade offers — build something that lasts.</p>
+      <p>Draft a team, then run it for years. Play seasons, draft rookies, watch legends age out and retire, and weigh trade offers - build something that lasts.</p>
     </button>
     <button class="mode-card mode-card-3" data-mode="draft">
       <div class="mc-icon mc-icon-wood">🗳️</div>
       <h3>Draft <span class="mc-time-tag">Quick session</span></h3>
-      <p>Take turns picking against the computer. Play it straight with pure talent, or flip on a salary cap for a real budget squeeze — your call, right in setup.</p>
+      <p>Take turns picking against the computer. Play it straight with pure talent, or flip on a salary cap for a real budget squeeze - your call, right in setup.</p>
     </button>
     <button class="mode-card mode-card-4" data-mode="auction">
       <div class="mc-icon mc-icon-gold">🔨</div>
@@ -5031,9 +5034,9 @@ function renderModePick(){
   <div class="howto-blurb">
     <div class="howto-title">Quick Start</div>
     <div class="howto-steps">
-      <div><span class="hs-num hs-num-1">1</span>Pick a format — draft a team, run a franchise, or build a player of your own.</div>
-      <div><span class="hs-num hs-num-2">2</span>Make it yours — teams and rules if you're drafting, or name, position, and skills if you're playing.</div>
-      <div><span class="hs-num hs-num-3">3</span>Every mode ends with something real to show for it — a champion, a franchise legacy, or a full career.</div>
+      <div><span class="hs-num hs-num-1">1</span>Pick a format - draft a team, run a franchise, or build a player of your own.</div>
+      <div><span class="hs-num hs-num-2">2</span>Make it yours - teams and rules if you're drafting, or name, position, and skills if you're playing.</div>
+      <div><span class="hs-num hs-num-3">3</span>Every mode ends with something real to show for it - a champion, a franchise legacy, or a full career.</div>
     </div>
     <div class="howto-more-link">Want the full rundown on how ratings, aging, and each mode actually work? Tap <b>How It Works</b> up top.</div>
   </div>
@@ -5070,34 +5073,34 @@ function howToPlayModalHTML(){
 
       <div class="howto-section">
         <h3>The Five Modes</h3>
-        <div class="howto-mode-block"><b>Career</b> — Build your own player from scratch and live out an entire career: get drafted, grow every offseason, chase awards, and see how far one player can go.</div>
-        <div class="howto-mode-block"><b>Dynasty</b> — Draft a team, then run it across multiple years. Rookies enter the draft, legends age and retire, and AI-run trade offers come in — take it or leave it, no negotiating.</div>
-        <div class="howto-mode-block"><b>Draft</b> — Turn-based picks against CPU teams, then a playoff bracket crowns a champion. Toggle a salary cap for a budget-management challenge instead of pure talent.</div>
-        <div class="howto-mode-block"><b>Auction</b> — One shared player pool. Everyone (you and the CPU teams) bids in real time; win the bidding war for the roster you actually want.</div>
-        <div class="howto-mode-block"><b>Season</b> — Draft one team, then simulate a full 82-game season and playoffs against the real Modern-era rosters. You get a record, averages, and a full game log.</div>
+        <div class="howto-mode-block"><b>Career</b> - Build your own player from scratch and live out an entire career: get drafted, grow every offseason, chase awards, and see how far one player can go.</div>
+        <div class="howto-mode-block"><b>Dynasty</b> - Draft a team, then run it across multiple years. Rookies enter the draft, legends age and retire, and AI-run trade offers come in - take it or leave it, no negotiating.</div>
+        <div class="howto-mode-block"><b>Draft</b> - Turn-based picks against CPU teams, then a playoff bracket crowns a champion. Toggle a salary cap for a budget-management challenge instead of pure talent.</div>
+        <div class="howto-mode-block"><b>Auction</b> - One shared player pool. Everyone (you and the CPU teams) bids in real time; win the bidding war for the roster you actually want.</div>
+        <div class="howto-mode-block"><b>Season</b> - Draft one team, then simulate a full 82-game season and playoffs against the real Modern-era rosters. You get a record, averages, and a full game log.</div>
       </div>
 
       <div class="howto-section">
         <h3>How Ratings Work</h3>
-        <p>Every player's overall rating blends their box-score production (points, rebounds, assists, steals, blocks, threes) with hand-set intangibles like leadership and basketball IQ. It's a consistent way to compare players across eras and modes — not a precise statistical model, and not meant to be one.</p>
+        <p>Every player's overall rating blends their box-score production (points, rebounds, assists, steals, blocks, threes) with hand-set intangibles like leadership and basketball IQ. It's a consistent way to compare players across eras and modes - not a precise statistical model, and not meant to be one.</p>
       </div>
 
       <div class="howto-section">
         <h3>Career Mode: What's Actually Happening Under the Hood</h3>
-        <p><b>Skill points:</b> You get a fixed budget to spend across 9 skills. Spread evenly and you're a jack-of-all-trades; specialize hard and you're elite at a few things, genuinely weak everywhere else. A "usage tax" also caps how much scoring, rebounding, and playmaking can all be maxed at once — real teams only have so many possessions to go around, so no build can dominate every category simultaneously.</p>
-        <p><b>Potential tier:</b> Rolled once at creation and kept hidden. It quietly caps how far your skills can ever grow, from Limited Upside up to Rare Talent. You find out through how the career actually plays out, not up front — same as a real prospect.</p>
+        <p><b>Skill points:</b> You get a fixed budget to spend across 9 skills. Spread evenly and you're a jack-of-all-trades; specialize hard and you're elite at a few things, genuinely weak everywhere else. A "usage tax" also caps how much scoring, rebounding, and playmaking can all be maxed at once - real teams only have so many possessions to go around, so no build can dominate every category simultaneously.</p>
+        <p><b>Potential tier:</b> Rolled once at creation and kept hidden. It quietly caps how far your skills can ever grow, from Limited Upside up to Rare Talent. You find out through how the career actually plays out, not up front - same as a real prospect.</p>
         <p><b>Aging profile:</b> Also hidden, and independent of potential. Some careers decline hard and early, some barely age at all and can still be playing into their mid-40s. There's no single "normal" curve on purpose.</p>
         <p><b>Breakthroughs:</b> If you cap out your potential mid-career, there's a real (not guaranteed) chance of a late breakthrough that raises your ceiling. Plateauing doesn't have to be permanent.</p>
       </div>
 
       <div class="howto-section">
         <h3>Dynasty Mode: What's Actually Happening Under the Hood</h3>
-        <p>Rookies are freshly generated each draft class with their own hidden potential — a high pick can bust, a late pick can surprise you. Every player on your roster, rookies and legends alike, ages realistically over the run, and that aging affects real output, not just a cosmetic number.</p>
+        <p>Rookies are freshly generated each draft class with their own hidden potential - a high pick can bust, a late pick can surprise you. Every player on your roster, rookies and legends alike, ages realistically over the run, and that aging affects real output, not just a cosmetic number.</p>
       </div>
 
       <div class="howto-section">
         <h3>Why Outcomes Vary So Much</h3>
-        <p>A lot of what happens in this app is intentionally randomized within realistic bounds — award voting, aging curves, trade demands, rookie potential, and more. Two identical builds can have very different careers. That's deliberate: it's built to feel like real basketball, where outcomes are never fully predictable, rather than a spreadsheet where the same inputs always produce the same result.</p>
+        <p>A lot of what happens in this app is intentionally randomized within realistic bounds - award voting, aging curves, trade demands, rookie potential, and more. Two identical builds can have very different careers. That's deliberate: it's built to feel like real basketball, where outcomes are never fully predictable, rather than a spreadsheet where the same inputs always produce the same result.</p>
       </div>
     </div>
   </div>`;
@@ -5115,7 +5118,7 @@ function renderSetup(){
     controlChips+=`<button class="${on?'on':''}" data-ctrl="${i}">Team ${i+1}</button>`;
   }
   const randomStatus = S.userTeamsHidden
-    ? `<div class="random-status">🎲 ${S.userTeams.length} team${S.userTeams.length===1?'':'s'} randomly assigned — hidden until the draft starts. Tap a team to choose specifically instead.</div>`
+    ? `<div class="random-status">🎲 ${S.userTeams.length} team${S.userTeams.length===1?'':'s'} randomly assigned - hidden until the draft starts. Tap a team to choose specifically instead.</div>`
     : '';
   app.innerHTML = `
   <div class="topbar">
@@ -5123,7 +5126,7 @@ function renderSetup(){
       <div><h1>All-Time Draft</h1><div class="sub">${S.gameMode==='auction'?'Auction Mode':S.mode==='cap'?'Salary Cap On':'Draft Mode'}</div></div></div>
     <div class="topbar-btns">${themeToggleHTML()}<button class="ghost-btn" id="backBtn">← Mode</button></div>
   </div>
-  <p class="hero-sub">${S.mode==='cap'?'Every player has a cost. Spend your budget wisely — a superstar means bargains everywhere else.':'Take the best players available.'} Set your rules, draft against the computer, then watch the bracket decide a champion.</p>
+  <p class="hero-sub">${S.mode==='cap'?'Every player has a cost. Spend your budget wisely - a superstar means bargains everywhere else.':'Take the best players available.'} Set your rules, draft against the computer, then watch the bracket decide a champion.</p>
   <div class="setup-grid">
     <div class="field">
       <label>Number of Teams</label>
@@ -5141,15 +5144,15 @@ function renderSetup(){
     <div class="field">
       <label>You Control <button class="dice-btn" id="diceBtn" title="Randomly assign your team">🎲 Random</button></label>
       <div class="hint">${S.gameMode==='auction'
-        ? "Pick the one team you'll bid with, or hit the dice to get randomly assigned — you're bidding against every other team at the table, CPU-controlled."
-        : "Tap the teams you'll draft yourself, or hit the dice to get randomly assigned — draft position matters (who picks 1st vs. last), so it's a real difficulty twist, not just a shuffle. Random placement stays hidden so you can't peek and re-roll for a better spot."}</div>
+        ? "Pick the one team you'll bid with, or hit the dice to get randomly assigned - you're bidding against every other team at the table, CPU-controlled."
+        : "Tap the teams you'll draft yourself, or hit the dice to get randomly assigned - draft position matters (who picks 1st vs. last), so it's a real difficulty twist, not just a shuffle. Random placement stays hidden so you can't peek and re-roll for a better spot."}</div>
       <div class="seg">${controlChips}</div>
       ${randomStatus}
     </div>
     ${S.gameMode==='draft' ? `
     <div class="field">
       <label>Salary Cap</label>
-      <div class="hint">Optional. Off means straight talent, no budget — the purest version. On means a real budget squeeze, for you and the computer both.</div>
+      <div class="hint">Optional. Off means straight talent, no budget - the purest version. On means a real budget squeeze, for you and the computer both.</div>
       <div class="seg">
         <button class="${S.mode!=='cap'?'on':''}" data-draftcap="0">Off</button>
         <button class="${S.mode==='cap'?'on':''}" data-draftcap="1">On</button>
@@ -5232,7 +5235,7 @@ function renderSetup(){
   app.querySelectorAll('[data-theme]').forEach(b=>b.onclick=()=>{
     if(b.classList.contains('theme-dis')) {
       const d=document.getElementById('themeDesc');
-      if(d) d.textContent=themeById(b.dataset.theme).desc+' — not enough players for this many teams.';
+      if(d) d.textContent=themeById(b.dataset.theme).desc+' - not enough players for this many teams.';
       return;
     }
     S.theme=b.dataset.theme; render();
@@ -5255,7 +5258,7 @@ function renderSetup(){
     const feas=themeFeasible(S.theme, S.numTeams, S.rosterSize);
     if(!feas.ok){
       const why = feas.pos ? `Not enough ${feas.pos}s in "${themeById(S.theme).name}" for ${S.numTeams} teams.`
-                           : `"${themeById(S.theme).name}" has only ${feas.total} players — not enough for ${S.numTeams} teams of ${S.rosterSize}.`;
+                           : `"${themeById(S.theme).name}" has only ${feas.total} players - not enough for ${S.numTeams} teams of ${S.rosterSize}.`;
       document.getElementById('setupWarn').textContent = why+' Try fewer teams or a broader theme.';
       return;
     }
@@ -5267,7 +5270,7 @@ function renderSetup(){
         const need=Math.max(uF.minCost||0, cF.minCost||0);
         const who = !uF.ok && !cF.ok ? 'Both budgets are' : !uF.ok ? 'Your budget is' : "The computer's budget is";
         document.getElementById('setupWarn').textContent =
-          `${who} too low for "${themeById(S.theme).name}" — this pool needs at least ${need} points for a ${S.rosterSize}-man roster. Raise the budget or pick a broader theme.`;
+          `${who} too low for "${themeById(S.theme).name}" - this pool needs at least ${need} points for a ${S.rosterSize}-man roster. Raise the budget or pick a broader theme.`;
         return;
       }
     }
@@ -5325,10 +5328,10 @@ function renderCareerCreate(){
   app.innerHTML = `
   <div class="topbar">
     <div class="logo"><div class="mark">🏀</div>
-      <div><h1>All-Time Draft</h1><div class="sub">Career Mode — Create Your Player</div></div></div>
+      <div><h1>All-Time Draft</h1><div class="sub">Career Mode - Create Your Player</div></div></div>
     <div class="topbar-btns">${themeToggleHTML()}<button class="ghost-btn" id="backBtn">← Mode</button></div>
   </div>
-  <p class="hero-sub">Build your player from scratch. Spend every point — where you put them decides who you become, and where you land on draft night.</p>
+  <p class="hero-sub">Build your player from scratch. Spend every point - where you put them decides who you become, and where you land on draft night.</p>
   <div class="setup-grid">
     <div class="field">
       <label>Name</label>
@@ -5341,7 +5344,7 @@ function renderCareerCreate(){
     </div>
     <div class="field">
       <label>Height</label>
-      <div class="hint">Taller adds rebounding and interior defense, shorter adds athleticism and playmaking — a real but bounded tradeoff, not a hard rule.</div>
+      <div class="hint">Taller adds rebounding and interior defense, shorter adds athleticism and playmaking - a real but bounded tradeoff, not a hard rule.</div>
       <div class="assign-row">
         <div class="stepper"><button data-ht="-1" ${S.careerHeight<=range.min?'disabled':''}>–</button><span class="val mono">${heightLabel(S.careerHeight)}</span><button data-ht="1" ${S.careerHeight>=range.max?'disabled':''}>+</button></div>
         <span>range for ${S.careerPos}: ${heightLabel(range.min)}–${heightLabel(range.max)}</span>
@@ -5350,7 +5353,7 @@ function renderCareerCreate(){
   </div>
   <div class="field">
     <label>Skills <span class="mono" style="color:${remaining===0?'var(--win)':'var(--accent)'};font-weight:700;">${remaining} points left</span></label>
-    <div class="hint">You must spend every point to enter the draft. Specializing hard in a few skills makes you great at those — and genuinely weak everywhere else.</div>
+    <div class="hint">You must spend every point to enter the draft. Specializing hard in a few skills makes you great at those - and genuinely weak everywhere else.</div>
     ${statRows}
   </div>
   <div class="field" style="background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(16,185,129,.03));border-color:rgba(16,185,129,.35);">
@@ -5466,13 +5469,13 @@ function renderCareerReleased(){
   app.innerHTML = `
   <div class="topbar">
     <div class="logo"><div class="mark">🏀</div>
-      <div><h1>All-Time Draft</h1><div class="sub">${p.n} — Roster Cut</div></div></div>
+      <div><h1>All-Time Draft</h1><div class="sub">${p.n} - Roster Cut</div></div></div>
     <div class="topbar-btns">${themeToggleHTML()}</div>
   </div>
   <div class="result-hero">
     <div class="champ-label">Bad News</div>
     <div class="champ-name">Released</div>
-    <div class="champ-meta"><span class="champ-rating mono">The ${TEAM_NAMES[C.teamAbbr]} waived you — a stuck bench role finally caught up with you.</span></div>
+    <div class="champ-meta"><span class="champ-rating mono">The ${TEAM_NAMES[C.teamAbbr]} waived you - a stuck bench role finally caught up with you.</span></div>
   </div>
   <div class="hint">Front offices don't keep a bench spot warm forever. Time to find out if another team's willing to take a chance on you.</div>
   <button class="big-btn" id="seeFateBtn">See What Happens Next</button>`;
@@ -5496,14 +5499,14 @@ function renderCareerSeasonResult(){
   const r = L.seasonResult;
   const p = C.player;
   const won = r.playoffs && r.playoffs.wonTitle;
-  const outcome = r.playoffs ? (r.playoffs.wonTitle?'🏆 NBA CHAMPION':r.playoffs.wonConf?'🥈 Lost the NBA Finals':'🏀 Eliminated — '+roundName(r.playoffs.eliminatedRound-1, r.playoffs.confBracket.rounds.length)) : '📅 Missed the Playoffs';
+  const outcome = r.playoffs ? (r.playoffs.wonTitle?'🏆 NBA CHAMPION':r.playoffs.wonConf?'🥈 Lost the NBA Finals':'🏀 Eliminated - '+roundName(r.playoffs.eliminatedRound-1, r.playoffs.confBracket.rounds.length)) : '📅 Missed the Playoffs';
   const roleLabel = { star:'Star', starter:'Starter', rotation:'Rotation Piece', bench:'Bench' }[L.role];
   const statChips = [['PTS',L.seasonStats.pts],['REB',L.seasonStats.reb],['AST',L.seasonStats.ast],['STL',L.seasonStats.stl],['BLK',L.seasonStats.blk],['3PM',L.seasonStats.tpm]]
     .map(([label,val])=>`<div class="season-stat"><b>${val.toFixed(1)}</b><i>${label}</i></div>`).join('');
   const logRows = L.gameLog.map((g,i)=>`<div class="feed-row ${g.userWon?'feed-you':''}">
       <span class="feed-pick mono">${i+1}</span>
-      <div class="feed-main"><span class="feed-name">${g.userWon?'W':'L'} vs ${g.opponent.name} ${teamBadgeHTML(g.opponent.abbr)} — ${g.pts} pts${g.careerHigh?' <span class="team-tag" style="background:var(--gold);color:#2a1a00;">🔥 Career High</span>':''}</span>
-        <span class="feed-meta">${g.careerHigh?g.pts+' pts, '+g.reb+' reb, '+g.ast+' ast — ':''}${g.userScore}-${g.oppScore}</span></div>
+      <div class="feed-main"><span class="feed-name">${g.userWon?'W':'L'} vs ${g.opponent.name} ${teamBadgeHTML(g.opponent.abbr)} - ${g.pts} pts${g.careerHigh?' <span class="team-tag" style="background:var(--gold);color:#2a1a00;">🔥 Career High</span>':''}</span>
+        <span class="feed-meta">${g.careerHigh?g.pts+' pts, '+g.reb+' reb, '+g.ast+' ast - ':''}${g.userScore}-${g.oppScore}</span></div>
     </div>`).join('');
   const bracketBlock = r.playoffs ? `<div class="field"><label>Playoff Bracket</label>
       <div class="bracket-scroll"><div class="bracket-tree">${bracketColumnsHTML(r.playoffs.confBracket)}</div></div></div>` : '';
@@ -5512,11 +5515,11 @@ function renderCareerSeasonResult(){
   ${won?confettiHTML():''}
   <div class="topbar">
     <div class="logo"><div class="mark">🏀</div>
-      <div><h1>All-Time Draft</h1><div class="sub">${p.n} — Season ${C.yearIdx}</div></div></div>
+      <div><h1>All-Time Draft</h1><div class="sub">${p.n} - Season ${C.yearIdx}</div></div></div>
     <div class="topbar-btns">${C.history.length>1 ? '<button class="ghost-btn" id="careerHistoryBtn">History</button>' : ''}${themeToggleHTML()}</div>
   </div>
-  ${S.careerBreakthrough ? `<div class="event-recap"><div class="event-recap-choice">⚡ Breakthrough Season</div><div class="event-recap-outcome">You found another gear nobody saw coming — a real leap forward that raises what you're capable of, not just what you've already built.</div></div>` : ''}
-  ${L.investment ? `<div class="event-recap"><div class="event-recap-choice">🤝 Front Office Move</div><div class="event-recap-outcome">The ${TEAM_NAMES[C.teamAbbr]} traded away ${L.investment.out} and brought in ${L.investment.in} — building around their franchise player.</div></div>` : ''}
+  ${S.careerBreakthrough ? `<div class="event-recap"><div class="event-recap-choice">⚡ Breakthrough Season</div><div class="event-recap-outcome">You found another gear nobody saw coming - a real leap forward that raises what you're capable of, not just what you've already built.</div></div>` : ''}
+  ${L.investment ? `<div class="event-recap"><div class="event-recap-choice">🤝 Front Office Move</div><div class="event-recap-outcome">The ${TEAM_NAMES[C.teamAbbr]} traded away ${L.investment.out} and brought in ${L.investment.in} - building around their franchise player.</div></div>` : ''}
   <div class="result-hero">
     <div class="champ-label">Season ${C.yearIdx} · ${roleLabel} for the ${TEAM_NAMES[C.teamAbbr]}</div>
     <div class="champ-name">${r.wins}-${r.losses}</div>
@@ -5588,7 +5591,7 @@ function renderCareerEvent(){
   app.innerHTML = `
   <div class="topbar">
     <div class="logo"><div class="mark">🏀</div>
-      <div><h1>All-Time Draft</h1><div class="sub">${C.player.n} — Off-Season</div></div></div>
+      <div><h1>All-Time Draft</h1><div class="sub">${C.player.n} - Off-Season</div></div></div>
     <div class="topbar-btns">${themeToggleHTML()}</div>
   </div>
   <div class="result-hero" style="padding:24px 0 8px;">
@@ -5638,7 +5641,7 @@ function renderCareerLegacy(){
   const bestSeason = history.reduce((best,y)=>!best||y.rating>best.rating?y:best, null);
   const peakRating = bestSeason ? bestSeason.rating : C.rating;
   const isHOF = mvps>=1 || allStars>=5 || allNba>=3 || titles>=2 || dpoys>=2;
-  const subtitle = C.forcedRetirement ? 'Career Ended — Nobody Called' : 'Career Complete';
+  const subtitle = C.forcedRetirement ? 'Career Ended - Nobody Called' : 'Career Complete';
 
   // Exact career totals — same real-game-log summation already built for
   // milestone tracking, reused here rather than estimating from averages.
@@ -5663,17 +5666,17 @@ function renderCareerLegacy(){
   else if(legacyScore>=45){ legacyTier='Hall of Fame Caliber'; legacyDesc='A career that gets a real look for enshrinement.'; }
   else if(legacyScore>=20 && hasRealAccolade){ legacyTier='Perennial All-Star'; legacyDesc='A name fans around the league knew and respected.'; }
   else if(legacyScore>=8){ legacyTier='Solid NBA Starter'; legacyDesc='A dependable pro who did real winning basketball things.'; }
-  else { legacyTier='Journeyman'; legacyDesc='Made it. Stuck around. Not every career is a legendary one — most are not, and that is alright.'; }
+  else { legacyTier='Journeyman'; legacyDesc='Made it. Stuck around. Not every career is a legendary one - most are not, and that is alright.'; }
 
   const yearRows = history.map(y=>`<div class="slot-row"><span class="slot-name">Year ${y.yearIdx} (age ${21+y.yearIdx}): ${y.seasonResult.wins}-${y.seasonResult.losses}, ${y.seasonStats.pts} ppg${y.awards.length?' · '+y.awards.join(', '):''}</span></div>`).join('');
 
   app.innerHTML = `
   <div class="topbar">
     <div class="logo"><div class="mark">🏀</div>
-      <div><h1>All-Time Draft</h1><div class="sub">${p.n} — ${subtitle}</div></div></div>
+      <div><h1>All-Time Draft</h1><div class="sub">${p.n} - ${subtitle}</div></div></div>
     <div class="topbar-btns">${themeToggleHTML()}<button class="ghost-btn" id="newCareerBtn">New Career</button></div>
   </div>
-  ${C.forcedRetirement ? `<div class="hint">After getting released, no team was willing to sign you. Sometimes that's just how it ends — the league moves on faster than any one career.</div>` : ''}
+  ${C.forcedRetirement ? `<div class="hint">After getting released, no team was willing to sign you. Sometimes that's just how it ends - the league moves on faster than any one career.</div>` : ''}
   <div class="result-hero">
     <div class="champ-label" style="font-size:15px;">${yearsPlayed}-Year Career${isHOF?' 🏛️ HALL OF FAME':''}</div>
     <div class="champ-name">${peakRating.toFixed(1)} Peak OVR</div>
@@ -5746,13 +5749,13 @@ function renderCareerOffseason(){
   if(S.careerJustTraded){
     tradeSection = `<div class="event-recap"><div class="event-recap-choice">🔄 Trade Approved</div><div class="event-recap-outcome">You're headed to the ${TEAM_NAMES[C.teamAbbr]} ${teamBadgeHTML(C.teamAbbr)}. New team, new chance to win.</div></div>`;
   } else if(S.careerTradeStayed){
-    tradeSection = `<div class="event-recap"><div class="event-recap-choice">🤝 Deal Reached</div><div class="event-recap-outcome">You'll stay with the ${TEAM_NAMES[C.teamAbbr]} — for the right price.</div><div class="event-recap-effect">📈 +${S.careerTradeStayed} off-season points</div></div>`;
+    tradeSection = `<div class="event-recap"><div class="event-recap-choice">🤝 Deal Reached</div><div class="event-recap-outcome">You'll stay with the ${TEAM_NAMES[C.teamAbbr]} - for the right price.</div><div class="event-recap-effect">📈 +${S.careerTradeStayed} off-season points</div></div>`;
   } else if(S.careerTradeDenied){
-    tradeSection = `<div class="event-recap"><div class="event-recap-choice">🚫 Request Denied</div><div class="event-recap-outcome">The front office won't move you — no compensation, no choice in it. Nothing to do but keep playing.</div></div>`;
+    tradeSection = `<div class="event-recap"><div class="event-recap-choice">🚫 Request Denied</div><div class="event-recap-outcome">The front office won't move you - no compensation, no choice in it. Nothing to do but keep playing.</div></div>`;
   } else if(TO && TO.type==='choice'){
     tradeSection = `<div class="field">
       <label>Two Teams Want You</label>
-      <div class="hint">The front office found real interest — you get to pick where you go.</div>
+      <div class="hint">The front office found real interest - you get to pick where you go.</div>
       <div class="player-list">
         <button class="event-choice-btn" data-tradechoice="0"><span class="event-choice-arrow">→</span><span>${TEAM_NAMES[TO.teams[0]]} ${teamBadgeHTML(TO.teams[0])}</span></button>
         <button class="event-choice-btn" data-tradechoice="1"><span class="event-choice-arrow">→</span><span>${TEAM_NAMES[TO.teams[1]]} ${teamBadgeHTML(TO.teams[1])}</span></button>
@@ -5761,7 +5764,7 @@ function renderCareerOffseason(){
   } else if(TO && TO.type==='counter'){
     tradeSection = `<div class="field">
       <label>They Want You to Stay</label>
-      <div class="hint">The ${TEAM_NAMES[C.teamAbbr]} won't grant the trade — instead, they're offering ${TO.pointsOffer} extra off-season points to keep you happy. Take the deal, or hold out and insist on the move anyway (risky — they might just say no).</div>
+      <div class="hint">The ${TEAM_NAMES[C.teamAbbr]} won't grant the trade - instead, they're offering ${TO.pointsOffer} extra off-season points to keep you happy. Take the deal, or hold out and insist on the move anyway (risky - they might just say no).</div>
       <div class="auc-actions">
         <button class="big-btn" id="acceptCounterBtn">Accept, Stay for ${TO.pointsOffer} Points</button>
         <button class="ghost-btn" id="holdOutBtn" style="border-color:var(--loss);color:var(--loss);">Hold Out, Insist on the Trade</button>
@@ -5770,9 +5773,9 @@ function renderCareerOffseason(){
   } else if(canDemand){
     tradeSection = `<div class="field">
     <label>Frustrated with Losing?</label>
-    <div class="hint">You're a ${C.lastSeason.role} on a team that went ${C.lastSeason.seasonResult.wins}-${C.lastSeason.seasonResult.losses}. You could demand a trade somewhere with a real chance to win — though you might have to accept a smaller role to get it.</div>
+    <div class="hint">You're a ${C.lastSeason.role} on a team that went ${C.lastSeason.seasonResult.wins}-${C.lastSeason.seasonResult.losses}. You could demand a trade somewhere with a real chance to win - though you might have to accept a smaller role to get it.</div>
     ${S.careerShowTradeConfirm ? `
-      <div class="warn">This is permanent for this career — you'll leave the ${TEAM_NAMES[C.teamAbbr]} for good. Sure?</div>
+      <div class="warn">This is permanent for this career - you'll leave the ${TEAM_NAMES[C.teamAbbr]} for good. Sure?</div>
       <div class="auc-actions">
         <button class="big-btn" id="confirmTradeBtn" style="background:linear-gradient(135deg,var(--loss),#7a1a1a);">Yes, Demand the Trade</button>
         <button class="ghost-btn" id="cancelTradeBtn">Never Mind</button>
@@ -5785,20 +5788,20 @@ function renderCareerOffseason(){
   app.innerHTML = `
   <div class="topbar">
     <div class="logo"><div class="mark">🏀</div>
-      <div><h1>All-Time Draft</h1><div class="sub">${p.n} — Off-Season</div></div></div>
+      <div><h1>All-Time Draft</h1><div class="sub">${p.n} - Off-Season</div></div></div>
     <div class="topbar-btns">${themeToggleHTML()}</div>
   </div>
-  <p class="hero-sub">A season in the books. Put in the work — spend every point you earned to keep developing.</p>
+  <p class="hero-sub">A season in the books. Put in the work - spend every point you earned to keep developing.</p>
   ${S.careerJustSigned ? `<div class="event-recap"><div class="event-recap-choice">✍️ Signed by the ${S.careerJustSigned}</div><div class="event-recap-outcome">A fresh start. Make it count.</div></div>` : ''}
   ${S.careerEventOutcome ? `<div class="event-recap">
-    <div class="event-recap-cat">${S.careerEventOutcome.category} — Your Call</div>
+    <div class="event-recap-cat">${S.careerEventOutcome.category} - Your Call</div>
     <div class="event-recap-choice">"${S.careerEventOutcome.chosenLabel}"</div>
     <div class="event-recap-outcome">${S.careerEventOutcome.outcome}</div>
-    ${S.careerEventOutcome.effectLabel ? `<div class="event-recap-effect" style="${S.careerEventOutcome.effectGood?'':'color:var(--loss);'}">${S.careerEventOutcome.effectGood?'📈':'📉'} ${S.careerEventOutcome.effectLabel}</div>` : `<div class="event-recap-effect" style="color:var(--chalk-dimmer);">No mechanical effect — just how this season goes down.</div>`}
+    ${S.careerEventOutcome.effectLabel ? `<div class="event-recap-effect" style="${S.careerEventOutcome.effectGood?'':'color:var(--loss);'}">${S.careerEventOutcome.effectGood?'📈':'📉'} ${S.careerEventOutcome.effectLabel}</div>` : `<div class="event-recap-effect" style="color:var(--chalk-dimmer);">No mechanical effect - just how this season goes down.</div>`}
   </div>` : ''}
   <div class="field">
     <label>Skills <span class="mono" style="color:${remaining===0||plateaued?'var(--win)':'var(--accent)'};font-weight:700;">${plateaued?'Maxed out':remaining+' points left'}</span></label>
-    <div class="hint">${plateaued ? `You've hit your ceiling in every skill — there's nothing left to develop. The extra points go to waste, but that's the cost of a career that's plateaued.` : `Earned ${pool} points this off-season based on your role, awards, and team success. Must spend them all.`}</div>
+    <div class="hint">${plateaued ? `You've hit your ceiling in every skill - there's nothing left to develop. The extra points go to waste, but that's the cost of a career that's plateaued.` : `Earned ${pool} points this off-season based on your role, awards, and team success. Must spend them all.`}</div>
     ${statRows}
   </div>
   <div class="field">
@@ -5903,7 +5906,7 @@ function renderCareerDraftResult(){
   ${S._playConfetti ? confettiHTML() : ''}
   <div class="topbar">
     <div class="logo"><div class="mark">🏀</div>
-      <div><h1>All-Time Draft</h1><div class="sub">Career Mode — Draft Night</div></div></div>
+      <div><h1>All-Time Draft</h1><div class="sub">Career Mode - Draft Night</div></div></div>
     <div class="topbar-btns">${themeToggleHTML()}</div>
   </div>
   <div class="result-hero">
@@ -5946,12 +5949,12 @@ function renderDynastySetup(){
   <div class="setup-grid">
     <div class="field">
       <label>Team Name</label>
-      <div class="hint">Optional — makes it yours. Shows up throughout the dynasty and in your final legacy.</div>
+      <div class="hint">Optional - makes it yours. Shows up throughout the dynasty and in your final legacy.</div>
       <input class="search" id="dynastyTeamName" placeholder="e.g. Portland Legacy" value="${S.dynastyTeamName||''}" maxlength="30">
     </div>
     <div class="field">
       <label>Dynasty Length</label>
-      <div class="hint">How many years to run — a defined arc with a finish line, not an endless mode. "I want to threepeat within 10 years" is the kind of goal this sets up.</div>
+      <div class="hint">How many years to run - a defined arc with a finish line, not an endless mode. "I want to threepeat within 10 years" is the kind of goal this sets up.</div>
       <div class="assign-row">
         <div class="stepper"><button data-dy="-1">–</button><span class="val mono">${years}</span><button data-dy="1">+</button></div>
         <span>${years} year${years>1?'s':''}</span>
@@ -5959,7 +5962,7 @@ function renderDynastySetup(){
     </div>
     <div class="field">
       <label>Conference</label>
-      <div class="hint">Sets your schedule weighting each season — more games against your own conference, like the real NBA.</div>
+      <div class="hint">Sets your schedule weighting each season - more games against your own conference, like the real NBA.</div>
       <div class="seg">
         <button class="${S.seasonConf==='East'?'on':''}" data-conf="East">Eastern</button>
         <button class="${S.seasonConf==='West'?'on':''}" data-conf="West">Western</button>
@@ -5967,7 +5970,7 @@ function renderDynastySetup(){
     </div>
     <div class="field">
       <label>Roster Size</label>
-      <div class="hint">Your starting players: five starters (PG/SG/SF/PF/C) plus reserves. This also sets your roster cap for the whole dynasty — a bigger start means more room to carry through the years.</div>
+      <div class="hint">Your starting players: five starters (PG/SG/SF/PF/C) plus reserves. This also sets your roster cap for the whole dynasty - a bigger start means more room to carry through the years.</div>
       <div class="assign-row">
         <div class="stepper"><button data-rs="-1">–</button><span class="val mono">${S.rosterSize}</span><button data-rs="1">+</button></div>
         <span>cap will be ${dynastyRosterCap(S.rosterSize)} players</span>
@@ -5975,13 +5978,13 @@ function renderDynastySetup(){
     </div>
     <div class="field">
       <label>Era</label>
-      <div class="hint">Which players you can draft from — real Modern teams are always your opponents either way.</div>
+      <div class="hint">Which players you can draft from - real Modern teams are always your opponents either way.</div>
       <div class="seg">${themeButtonsHTML()}</div>
       <div class="theme-desc" id="themeDesc">${themeById(S.theme).desc}</div>
     </div>
     <div class="field">
       <label>Salary Cap</label>
-      <div class="hint">Optional, and only for your starting draft — once the dynasty begins, the cap doesn't carry forward. Off means straight talent, no budget.</div>
+      <div class="hint">Optional, and only for your starting draft - once the dynasty begins, the cap doesn't carry forward. Off means straight talent, no budget.</div>
       <div class="seg">
         <button class="${!capOn?'on':''}" data-seasoncap="0">Off</button>
         <button class="${capOn?'on':''}" data-seasoncap="1">On</button>
@@ -6041,7 +6044,7 @@ function renderDynastySetup(){
     if(S.mode==='cap'){
       const uF=capFeasible(S.theme, S.rosterSize, userBudget());
       if(!uF.ok){
-        document.getElementById('setupWarn').textContent = `Your budget is too low for "${themeById(S.theme).name}" — needs at least ${uF.minCost} points for a ${S.rosterSize}-man roster.`;
+        document.getElementById('setupWarn').textContent = `Your budget is too low for "${themeById(S.theme).name}" - needs at least ${uF.minCost} points for a ${S.rosterSize}-man roster.`;
         return;
       }
     }
@@ -6062,11 +6065,11 @@ function renderSeasonSetup(){
       <div><h1>All-Time Draft</h1><div class="sub">Season Mode</div></div></div>
     <div class="topbar-btns">${themeToggleHTML()}<button class="ghost-btn" id="backBtn">← Mode</button></div>
   </div>
-  <p class="hero-sub">Draft one team, then play a full 82-game season against all 30 real Modern rosters. Real players you draft stay on their actual current team for scheduling — your team is an added 31st franchise, not a replacement.</p>
+  <p class="hero-sub">Draft one team, then play a full 82-game season against all 30 real Modern rosters. Real players you draft stay on their actual current team for scheduling - your team is an added 31st franchise, not a replacement.</p>
   <div class="setup-grid">
     <div class="field">
       <label>Conference</label>
-      <div class="hint">Sets your schedule weighting — more games against your own conference, like the real NBA.</div>
+      <div class="hint">Sets your schedule weighting - more games against your own conference, like the real NBA.</div>
       <div class="seg">
         <button class="${S.seasonConf==='East'?'on':''}" data-conf="East">Eastern</button>
         <button class="${S.seasonConf==='West'?'on':''}" data-conf="West">Western</button>
@@ -6082,13 +6085,13 @@ function renderSeasonSetup(){
     </div>
     <div class="field">
       <label>Era</label>
-      <div class="hint">Which players you can draft from — real Modern teams are always your opponents either way.</div>
+      <div class="hint">Which players you can draft from - real Modern teams are always your opponents either way.</div>
       <div class="seg">${themeButtonsHTML()}</div>
       <div class="theme-desc" id="themeDesc">${themeById(S.theme).desc}</div>
     </div>
     <div class="field">
       <label>Salary Cap</label>
-      <div class="hint">Optional. Off means straight talent, no budget — the purest version. On means a real budget squeeze.</div>
+      <div class="hint">Optional. Off means straight talent, no budget - the purest version. On means a real budget squeeze.</div>
       <div class="seg">
         <button class="${!capOn?'on':''}" data-seasoncap="0">Off</button>
         <button class="${capOn?'on':''}" data-seasoncap="1">On</button>
@@ -6142,7 +6145,7 @@ function renderSeasonSetup(){
     if(S.mode==='cap'){
       const uF=capFeasible(S.theme, S.rosterSize, userBudget());
       if(!uF.ok){
-        document.getElementById('setupWarn').textContent = `Your budget is too low for "${themeById(S.theme).name}" — needs at least ${uF.minCost} points for a ${S.rosterSize}-man roster.`;
+        document.getElementById('setupWarn').textContent = `Your budget is too low for "${themeById(S.theme).name}" - needs at least ${uF.minCost} points for a ${S.rosterSize}-man roster.`;
         return;
       }
     }
@@ -6158,7 +6161,7 @@ function renderSeasonSetup(){
 // Rating Detail selector: what Simple vs Complex mean.
 function complexityDesc(mode){
   return mode==='complex'
-    ? "Every player is broken into 9 sub-ratings — Scoring, Shooting, Playmaking, Perimeter D, Interior D, Rebounding, Athleticism, IQ, Versatility — plus an archetype tag (e.g. Floor General, Interior Force). Team Fit factors spacing, shot creation, defensive identity, lineup versatility, and shared archetypes into final grades and bracket odds."
+    ? "Every player is broken into 9 sub-ratings - Scoring, Shooting, Playmaking, Perimeter D, Interior D, Rebounding, Athleticism, IQ, Versatility - plus an archetype tag (e.g. Floor General, Interior Force). Team Fit factors spacing, shot creation, defensive identity, lineup versatility, and shared archetypes into final grades and bracket odds."
     : "The tuned default. One clean overall rating per player, built for fast, no-fuss drafting.";
 }
 
@@ -6178,7 +6181,7 @@ function coachingFieldHTML(){
     <div class="coach-card" id="coachCard">${coachCardHTML(S.coachStyle)}</div>` : '';
   return `<div class="field">
     <label>Coaching Style</label>
-    <div class="hint">Optional — small Team Fit nudges per team philosophy, never touches a player's rating. Everything else in Complex Mode works the same either way.</div>
+    <div class="hint">Optional - small Team Fit nudges per team philosophy, never touches a player's rating. Everything else in Complex Mode works the same either way.</div>
     <div class="seg">
       <button class="${!S.coachingEnabled?'on':''}" data-coaching="0">Off</button>
       <button class="${S.coachingEnabled?'on':''}" data-coaching="1">On</button>
@@ -6238,7 +6241,7 @@ function seasonCapSliderHTML(){
   const sMin=Math.round(BUDGET_PP_MIN*S.rosterSize), sMax=Math.round(BUDGET_PP_MAX*S.rosterSize);
   return `<div class="field">
     <label>Salary Cap Budget</label>
-    <div class="hint">Total points to spend on ${S.rosterSize} players. Lower = harder — a great team takes real drafting, not just talent.</div>
+    <div class="hint">Total points to spend on ${S.rosterSize} players. Lower = harder - a great team takes real drafting, not just talent.</div>
     <div class="slider-block">
       <div class="slider-top"><span>Your budget</span>
         <span class="slider-val mono" id="userBudgetVal">${ubTotal} · <b class="diff-${budgetLabel(ubTotal,S.rosterSize).toLowerCase()}">${budgetLabel(ubTotal,S.rosterSize)}</b></span></div>
@@ -6297,19 +6300,19 @@ function fitBreakdownHTML(st, detail){
   if(d.nonShooters>=2) notes.push(pick(1, [
     `${d.nonShooters} non-shooting starters clog the paint`,
     `${d.nonShooters} starters give defenses no reason to respect the arc`,
-    `The floor's crowded — ${d.nonShooters} starters can't stretch it`,
+    `The floor's crowded - ${d.nonShooters} starters can't stretch it`,
     `${d.nonShooters} non-shooters make spacing a real problem`,
   ]));
   if(d.dominanceClash<0) notes.push(pick(2, [
     'Too many ball-dominant scorers stepping on each other',
     'More shot-hunters here than shots to go around',
-    "Everybody wants the ball — that's a real problem",
+    "Everybody wants the ball - that's a real problem",
     'Too many players who need heavy volume to be effective',
   ]));
   if(d.roleDiversityBonus>0.1) notes.push(pick(3, [
     'Five distinct roles on the floor',
     'Every starter brings something different',
-    'No redundancy here — five real archetypes',
+    'No redundancy here - five real archetypes',
     'This lineup covers all its bases',
   ]));
   if(d.complementBonus>0) notes.push(pick(4, [
@@ -6340,7 +6343,7 @@ function teamCardHTML(t, isActive){
       ${p?`<span class="slot-name">${p.n}${p.team?' '+teamBadgeHTML(p.team):''}</span>${costTag}<span class="slot-yr mono">${p.yr}</span>`
          :`<span class="slot-name vacant">Vacant</span>`}</div>`;
   }
-  const ratingTxt = t._rating>0 ? t._rating.toFixed(1) : '—';
+  const ratingTxt = t._rating>0 ? t._rating.toFixed(1) : '-';
   let fitTag='', fitBreakdown='';
   if(S.complexity==='complex'){
     const st=['PG','SG','SF','PF','C'].map(s=>t.slots[s]).filter(Boolean);
@@ -6393,7 +6396,7 @@ function renderAuction(){
       const usable = S.available.filter(p=>S.teams.some(t=>bestSlotFor(t,p)!==null));
       const rows = filteredPlayerRows(usable, true);
       mainCard = `<div class="pick-panel">
-        <h4>Your Turn — Nominate a Player</h4>
+        <h4>Your Turn - Nominate a Player</h4>
         <div class="hint">Anyone can bid once they're up, including you. Nominate a name you want, or bait the field with someone else's target.</div>
         <div class="pos-filter">${posFilterButtonsHTML()}</div>
         <input class="search" id="searchBox" placeholder="Search players…" value="${S.search}">
@@ -6477,7 +6480,7 @@ function renderAuction(){
     const idx = S.teams.findIndex(t=>t.isUser);
     const nextBid = (S.auction.currentBid||0)+1;
     if(!canAffordBid(S.teams[idx], nextBid, S.auction.nominee)){
-      S.affordWarn="Can't afford to go that high — you need to leave enough for your other open slots.";
+      S.affordWarn="Can't afford to go that high - you need to leave enough for your other open slots.";
       renderAuction();
       return;
     }
@@ -6510,7 +6513,7 @@ function renderDraft(){
 
   // run banner
   const run=recentRun();
-  const runHTML = run ? `<div class="run-banner">🔥 <b>${run}</b> run — ${S.pickLog.slice(-4).filter(p=>p.slot===run).length} taken recently. They're drying up.</div>` : '';
+  const runHTML = run ? `<div class="run-banner">🔥 <b>${run}</b> run - ${S.pickLog.slice(-4).filter(p=>p.slot===run).length} taken recently. They're drying up.</div>` : '';
 
   // pick feed (most recent first)
   const feedGrew = S.pickLog.length !== S._lastFeedLen;
@@ -6554,7 +6557,7 @@ function renderDraft(){
       <div class="feed-list">${feedRows}</div>
     </div>
   </div>
-  <div class="footer-note">Positions are enforced — players can only be slotted where they actually played.</div>`;
+  <div class="footer-note">Positions are enforced - players can only be slotted where they actually played.</div>`;
 
   const rb=document.getElementById('restartBtn');
   if(rb) rb.onclick=()=>{ if(confirm('Restart the draft? Current progress will be lost.')){ S.screen='setup'; render(); } };
@@ -6623,7 +6626,7 @@ function renderPickPanel(t){
       ? `<div class="flag">${p.n} plays ${p.elig.join('/')}, but those starting spots are filled and no reserve slot is open. Pick another player.</div>` : '';
     const costNote = cap_?` · costs <b>${costOf(p)}</b>`:'';
     selBlock=`<div class="last-pick" style="border-color:var(--wood)">
-      <b>${p.n}</b> — plays ${p.elig.join('/')}${costNote}. Choose a slot:
+      <b>${p.n}</b> - plays ${p.elig.join('/')}${costNote}. Choose a slot:
       <div class="slot-choice">${opts.join('')}<button class="cancel" data-place="cancel">Cancel</button></div>
       ${flagMsg}</div>`;
   }
@@ -6676,7 +6679,7 @@ function renderPickPanel(t){
   const affordWarnHTML = (cap_ && S.affordWarn) ? `<div class="afford-warn">${S.affordWarn}</div>` : '';
 
   return `<div class="pick-panel">
-    <h4>${t.name} — Make Your Pick</h4>
+    <h4>${t.name} - Make Your Pick</h4>
     <div class="slot-overview">${slotOverview}</div>
     ${budgetHeader}
     ${affordWarnHTML}
@@ -6696,7 +6699,7 @@ function attachPickHandlers(t){
     const p=S.available.find(x=>x.n===b.dataset.pick);
     if(!p) return;
     if(S.mode==='cap' && !canAfford(t, p, S.available)){
-      S.affordWarn = "Can't afford this — you need to leave enough for your other open slots.";
+      S.affordWarn = "Can't afford this - you need to leave enough for your other open slots.";
       renderDraft();
       return;
     }
@@ -6712,7 +6715,7 @@ function attachPickHandlers(t){
     const v=b.dataset.place;
     if(v==='cancel'){ S.selected=null; renderDraft(); return; }
     if(S.mode==='cap' && S.selected && !canAfford(t, S.selected, S.available)){
-      S.affordWarn = "Can't afford this — you need to leave enough for your other open slots.";
+      S.affordWarn = "Can't afford this - you need to leave enough for your other open slots.";
       renderDraft();
       return;
     }
@@ -6916,7 +6919,7 @@ function renderSeasonResults(){
     else if(r.playoffs.wonConf){ heroIcon='🥈'; heroLabel='Lost the NBA Finals'; heroDetail=`#${r.playoffs.seed} seed · fell to the ${r.playoffs.finals.winner.name}`; }
     else {
       const roundLabel = roundName(r.playoffs.eliminatedRound-1, r.playoffs.confBracket.rounds.length);
-      heroIcon='🏀'; heroLabel=`Eliminated — ${roundLabel}`; heroDetail=`#${r.playoffs.seed} seed in the ${r.conf}`;
+      heroIcon='🏀'; heroLabel=`Eliminated - ${roundLabel}`; heroDetail=`#${r.playoffs.seed} seed in the ${r.conf}`;
     }
   }
 
@@ -6927,12 +6930,12 @@ function renderSeasonResults(){
       <span class="seed">${i+1}</span>
       <span class="stand-name">${e.team.name}${e.isUser?' <span class="team-tag tag-you" style="margin-left:6px">You</span>':''}</span>
       <span class="mono">${e.wins}-${e.losses}</span>
-    </div>${i===7?'<div class="playoff-cutoff">— playoff cutoff —</div>':''}`;
+    </div>${i===7?'<div class="playoff-cutoff">- playoff cutoff -</div>':''}`;
   }).join('');
 
   const playoffBracketHTML = r.playoffs ? `
     <div class="field">
-      <label>Playoff Bracket — ${r.conf}ern Conference</label>
+      <label>Playoff Bracket - ${r.conf}ern Conference</label>
       <div class="hint">Seeded by your conference standings, best-of-seven each round.</div>
       <div class="bracket-scroll"><div class="bracket-tree">${bracketColumnsHTML(r.playoffs.confBracket)}</div></div>
       ${r.playoffs.finals ? `<div class="milestone-badge">🏆 <span>NBA Finals<i>${r.playoffs.wonTitle?'You':r.playoffs.finals.winner.name} defeated ${r.playoffs.wonTitle?r.playoffs.finals.loser.name:'you'} ${Math.max(r.playoffs.finals.wA,r.playoffs.finals.wB)}-${Math.min(r.playoffs.finals.wA,r.playoffs.finals.wB)}</i></span></div>` : ''}
@@ -6967,7 +6970,7 @@ function renderSeasonResults(){
   app.innerHTML = `
   <div class="topbar">
     <div class="logo"><div class="mark">🏀</div>
-      <div><h1>All-Time Draft</h1><div class="sub">Season Result — ${r.conf}ern Conference</div></div></div>
+      <div><h1>All-Time Draft</h1><div class="sub">Season Result - ${r.conf}ern Conference</div></div></div>
     <div class="topbar-btns">${themeToggleHTML()}<button class="ghost-btn" id="againBtn">New Season</button></div>
   </div>
   ${confettiOnce}
@@ -7002,7 +7005,7 @@ function renderSeasonResults(){
     <div class="hint">All 82 games, in play order.</div>
     <div class="feed-list">${logRows}</div>
   </div>
-  <div class="footer-note">Other teams' standings are simulated the same way your season is — a plausible proxy, not a fully cross-consistent league.</div>`;
+  <div class="footer-note">Other teams' standings are simulated the same way your season is - a plausible proxy, not a fully cross-consistent league.</div>`;
   document.getElementById('againBtn').onclick=()=>{ S.screen='modepick'; S.teams=[]; S.seasonResults=null; render(); };
 }
 
@@ -7018,7 +7021,7 @@ function recapModalHTML(){
   const rows=['PG','SG','SF','PF','C'].map(pos=>{
     const p=showTeam.slots[pos];
     const c=cap_&&p?`<span class="rc-cost mono">${costOf(p)}</span>`:'';
-    return `<div class="rc-row"><span class="rc-pos">${pos}</span><span class="rc-name">${p?p.n:'—'}</span>${c}</div>`;
+    return `<div class="rc-row"><span class="rc-pos">${pos}</span><span class="rc-name">${p?p.n:'-'}</span>${c}</div>`;
   }).join('');
   const resRows=showTeam.slots.RES.map(p=>{
     const c=cap_?`<span class="rc-cost mono">${costOf(p)}</span>`:'';
