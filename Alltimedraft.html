@@ -59,6 +59,12 @@ html[data-mode-accent="career"]{ --accent: var(--emerald); --accent-dim: var(--e
   --glow1:rgba(22,48,90,.05); --glow2:rgba(6,182,212,.06);
 }
 *{box-sizing:border-box;}
+/* Mobile: prevents rapid taps on buttons (like the stat +/- steppers)
+   from being misread as a double-tap-to-zoom gesture. touch-action only
+   affects touch input, so this has no effect on desktop mouse/keyboard
+   use, and doesn't disable intentional pinch-zoom anywhere else on the
+   page. */
+button{touch-action:manipulation;}
 html,body{margin:0;padding:0;}
 html{background:var(--ink);min-height:100%;}
 body{
@@ -513,6 +519,8 @@ button.p-row{font:inherit;color:inherit;}
 .howto-title{font-family:'Libre Franklin';letter-spacing:2px;text-transform:uppercase;font-size:12px;
   color:var(--cyan);margin-bottom:16px;font-weight:600;}
 .howto-steps{display:grid;gap:16px;}
+.howto-more-link{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--chalk-dimmer);line-height:1.5;}
+.howto-more-link b{color:var(--accent);}
 .howto-steps > div{display:flex;align-items:flex-start;gap:12px;font-size:14px;color:var(--chalk-dim);line-height:1.55;}
 .hs-num{flex:0 0 auto;width:24px;height:24px;border-radius:50%;
   background:transparent;border:1.5px solid var(--gold);color:var(--gold);
@@ -548,7 +556,21 @@ button.p-row{font:inherit;color:inherit;}
 .mc-icon-wood{background:radial-gradient(circle at 35% 30%,var(--gold),var(--cost) 85%);}
 .mc-icon-crimson{background:radial-gradient(circle at 35% 30%,var(--crimson),var(--crimson-dim) 85%);}
 .mc-icon-emerald{background:radial-gradient(circle at 35% 30%,var(--emerald),var(--emerald-dim) 85%);}
-.mode-card h3{font-size:21px;letter-spacing:.5px;margin-bottom:7px;color:var(--chalk);}
+.mode-card h3{font-size:21px;letter-spacing:.5px;margin-bottom:7px;color:var(--chalk);display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;}
+.mc-time-tag{font-family:'Libre Franklin';font-size:10.5px;font-weight:600;letter-spacing:.3px;color:var(--chalk-dimmer);
+  background:var(--ink2);border:1px solid var(--line);border-radius:20px;padding:3px 9px;}
+.howto-card{width:100%;max-width:640px;max-height:85vh;overflow-y:auto;background:var(--panel);color:var(--chalk);
+  border:1.5px solid var(--accent);border-radius:16px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.5);position:relative;}
+.howto-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--line);}
+.howto-section{margin-bottom:22px;}
+.howto-section:last-child{margin-bottom:0;}
+.howto-section h3{font-family:'Libre Franklin';font-size:15px;font-weight:800;color:var(--accent);margin-bottom:10px;letter-spacing:.3px;}
+.howto-section p{font-size:13px;line-height:1.65;color:var(--chalk-dim);margin-bottom:10px;}
+.howto-section p:last-child{margin-bottom:0;}
+.howto-section p b{color:var(--chalk);}
+.howto-mode-block{background:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px;font-size:13px;line-height:1.55;color:var(--chalk-dim);}
+.howto-mode-block:last-child{margin-bottom:0;}
+.howto-mode-block b{color:var(--chalk);}
 .mode-card p{font-size:13.5px;color:var(--chalk-dim);line-height:1.5;margin:0;}
 
 /* live pulse dot on the Modern era button */
@@ -1473,6 +1495,9 @@ function buildCareerPlayer(name, pos, heightIn, alloc){
   const stats = statsFromAdv(adv, ROOKIE_ENTRY_CAPS);
   const intg = Math.round(45 + adv.iq*0.35);
   const potentialTier = rollCareerPotentialTier();
+  const agingProfile = rollCareerAgingProfile();
+  const retireRange = CAREER_AGING_PROFILES[agingProfile].retireRange;
+  const retireAge = retireRange[0] + Math.floor(Math.random()*(retireRange[1]-retireRange[0]+1));
   return {
     id: 'CAREER_'+Math.random().toString(36).slice(2,10),
     n: name, yr:'Rookie', pos, team:null, elig:[pos],
@@ -1483,6 +1508,8 @@ function buildCareerPlayer(name, pos, heightIn, alloc){
     _careerYear: 0, // years of pro experience — grows intg over a career
     _potentialTier: potentialTier,
     _potentialCeiling: CAREER_POTENTIAL_TIERS[potentialTier].ceiling,
+    _agingProfile: agingProfile,
+    _retireAge: retireAge,
   };
 }
 
@@ -1521,12 +1548,35 @@ function careerCanDemandTrade(role, lastSeasonWins){
 // outcomes land on genuinely better teams without guaranteeing the single
 // best team in the league every time; real trade demands don't always get
 // you exactly where you'd pick.
-function careerTradeDemandTeam(currentTeamAbbr){
-  const candidates = CURRENT_TEAMS.filter(ab=>ab!==currentTeamAbbr)
+function careerTradeDemandTeam(currentTeamAbbr, exclude){
+  const candidates = CURRENT_TEAMS.filter(ab=>ab!==currentTeamAbbr && ab!==exclude)
     .map(ab=>{ const rt=realTeamRoster(ab); return {ab, rating:teamRating(rt).rating}; })
     .sort((a,b)=>b.rating-a.rating); // best first
   const idx = Math.max(0, Math.min(candidates.length-1, Math.floor(Math.random()*Math.random()*candidates.length)));
   return candidates[idx].ab;
+}
+// A trade demand doesn't always just work — real front offices push back,
+// counter-offer, or sometimes hand you a real choice instead of one
+// team. Rolled once when the demand is made.
+function careerTradeDemandOutcome(currentTeamAbbr){
+  const roll = Math.random();
+  if(roll < 0.40){
+    return { type:'single', team: careerTradeDemandTeam(currentTeamAbbr) };
+  } else if(roll < 0.60){
+    const t1 = careerTradeDemandTeam(currentTeamAbbr);
+    const t2 = careerTradeDemandTeam(currentTeamAbbr, t1);
+    return { type:'choice', teams:[t1,t2] };
+  } else if(roll < 0.85){
+    return { type:'counter', pointsOffer: 2+Math.floor(Math.random()*4) };
+  }
+  return { type:'denied' };
+}
+// Holding out instead of taking the front office's counter-offer is a
+// real gamble — it can still get you moved, but there's a real chance it
+// just leaves you stuck with nothing.
+function careerHoldOutOutcome(currentTeamAbbr){
+  if(Math.random() < 0.5) return { type:'single', team: careerTradeDemandTeam(currentTeamAbbr) };
+  return { type:'denied' };
 }
 
 // Off-season random events — real narrative texture between seasons, in
@@ -2229,9 +2279,13 @@ function careerAwardsThisYear(player, role, seasonStats, teamWins, madePlayoffs,
   if(valueScore>=68) awards.push('All-Star');
 
   // Defensive Player of the Year — rewards real defensive investment
-  // (pdef/idef) on its own terms, completely independent of scoring.
+  // (pdef/idef) on its own terms, completely independent of scoring. The
+  // real NBA record for DPOYs in a career is four (Gobert, Wallace,
+  // Mutombo) — this should be a rare, elite honor even for a player who
+  // builds around defense, not something a strong defensive stat line
+  // wins nearly every season.
   const defScore = (player.adv.pdef*0.55 + player.adv.idef*0.45) + (madePlayoffs?2:0) + Math.max(0,teamWins-45)*0.08 + (Math.random()-0.5)*10;
-  if(defScore>=80) awards.push('Defensive Player of the Year');
+  if(defScore>=102) awards.push('Defensive Player of the Year');
 
   // Sixth Man of the Year — the one honor a rotation-role player can
   // actually chase; real 6MOY voting specifically goes to bench standouts,
@@ -2327,13 +2381,39 @@ function applyCareerYearlyAllocation(player, alloc){
 // deliberate point spending. Physical tools erode a little past a certain
 // age even if you keep investing elsewhere, the same real tension real NBA
 // careers have: skill can offset decline, but it can't fully stop it.
+// Real NBA careers don't all age the same way — some guys fall off a
+// cliff at 32, some are still elite at 38. Rolled once at creation and
+// kept hidden (same spirit as the potential tier), so the actual aging
+// curve is discovered through play, not known in advance. declineStart is
+// the age decline begins, declineRate scales how hard it hits, and
+// retireRange is the window the mandatory retirement age gets rolled
+// from — some bodies just give out earlier, some play the game longer
+// than anyone expected.
+const CAREER_AGING_PROFILES = {
+  fragile: { label:'Injury-Prone Body', weight:15, declineStart:28, declineRate:1.35, retireRange:[36,39] },
+  normal:  { label:'Normal Aging Curve', weight:45, declineStart:31, declineRate:1.0,  retireRange:[39,42] },
+  durable: { label:'Built to Last',      weight:28, declineStart:33, declineRate:0.65, retireRange:[41,44] },
+  ageless: { label:'Ageless Wonder',     weight:12, declineStart:36, declineRate:0.35, retireRange:[43,48] },
+};
+function rollCareerAgingProfile(){
+  const entries = Object.entries(CAREER_AGING_PROFILES);
+  const total = entries.reduce((s,[,p])=>s+p.weight,0);
+  let roll = Math.random()*total;
+  for(const [key,prof] of entries){
+    if(roll < prof.weight) return key;
+    roll -= prof.weight;
+  }
+  return entries[entries.length-1][0];
+}
 function careerAgeDecline(player, age){
-  if(age < 31) return;
-  const athDecline = Math.min(8, (age-30)*0.9);
+  const prof = CAREER_AGING_PROFILES[player._agingProfile] || CAREER_AGING_PROFILES.normal;
+  if(age < prof.declineStart) return;
+  const yearsIn = age - (prof.declineStart-1);
+  const athDecline = Math.min(8, yearsIn*0.9) * prof.declineRate;
   player.adv.ath = Math.round(Math.max(15, player.adv.ath - athDecline));
   player.adv.reb = Math.round(Math.max(15, player.adv.reb - athDecline*0.5));
-  if(age >= 35){
-    const lateDecline = Math.min(6, (age-34)*0.7);
+  if(age >= prof.declineStart+4){
+    const lateDecline = Math.min(6, (age-(prof.declineStart+3))*0.7) * prof.declineRate;
     player.adv.sco = Math.round(Math.max(15, player.adv.sco - lateDecline*0.5));
     player.adv.ply = Math.round(Math.max(15, player.adv.ply - lateDecline*0.4));
     player.adv.pdef = Math.round(Math.max(15, player.adv.pdef - lateDecline*0.6));
@@ -3557,9 +3637,13 @@ function renderDynastyYear(){
   if(S.dynastyPendingOffer){
     const o = S.dynastyPendingOffer;
     const timingLabel = S.dynastyPendingOfferTiming==='preseasonTrade' ? 'Preseason' : 'Postseason';
-    mainCard = `<div class="pick-panel">
-      <h4>${timingLabel} Trade Offer — ${teamBadgeHTML(o.partnerAbbr)} ${o.partnerName}</h4>
-      <div class="hint">${o.partnerName.split(' ').pop()} are ${o.reason}. No negotiating — take it or leave it.</div>
+    mainCard = `<div class="result-hero" style="padding:24px 0 8px;">
+      <div class="champ-trophy-ico" style="font-size:40px;">🔄</div>
+      <div class="champ-label">${timingLabel} Trade Offer</div>
+      <div class="champ-name" style="font-size:28px;">${o.partnerName}</div>
+    </div>
+    <div class="pick-panel">
+      <div class="event-story-text">${o.partnerName.split(' ').pop()} are ${o.reason}. No negotiating — take it or leave it.</div>
       <div class="trade-columns">
         <div class="trade-col"><div class="trade-col-label">They give you</div>
           ${o.theyGiveYou.map(a=>`<div class="slot-row"><span class="slot-name">${tradePieceLabel(a)}</span></div>`).join('')}
@@ -3585,11 +3669,11 @@ function renderDynastyYear(){
       <div class="field">
         <label>Playoff Bracket</label>
         <div class="bracket-scroll"><div class="bracket-tree">${bracketColumnsHTML(r.playoffs.confBracket)}</div></div>
-        ${r.playoffs.finals ? `<div class="season-supers">🏆 NBA Finals: ${r.playoffs.wonTitle?'You':r.playoffs.finals.winner.name} defeated ${r.playoffs.wonTitle?r.playoffs.finals.loser.name:'you'} ${Math.max(r.playoffs.finals.wA,r.playoffs.finals.wB)}-${Math.min(r.playoffs.finals.wA,r.playoffs.finals.wB)}</div>` : ''}
+        ${r.playoffs.finals ? `<div class="milestone-badge">🏆 <span>NBA Finals<i>${r.playoffs.wonTitle?'You':r.playoffs.finals.winner.name} defeated ${r.playoffs.wonTitle?r.playoffs.finals.loser.name:'you'} ${Math.max(r.playoffs.finals.wA,r.playoffs.finals.wB)}-${Math.min(r.playoffs.finals.wA,r.playoffs.finals.wB)}</i></span></div>` : ''}
       </div>` : '';
     const mvp = S.dynastyYearLog.mvp;
     const delta = S.dynastyYearLog.ratingDelta;
-    const trendNote = delta!=null ? `<div class="season-supers">${delta>=0?'📈':'📉'} Team rating ${delta>=0?'+':''}${delta.toFixed(1)} from last year (now ${team._rating.toFixed(1)})</div>` : '';
+    const trendNote = delta!=null ? `<div class="milestone-badge" style="${delta>=0?'':'background:linear-gradient(135deg,rgba(239,77,94,.14),rgba(239,77,94,.05));border-color:rgba(239,77,94,.4);color:var(--loss);'}">${delta>=0?'📈':'📉'} <span>Team Rating ${delta>=0?'+':''}${delta.toFixed(1)}<i>Now ${team._rating.toFixed(1)} overall, ${delta>=0?'up':'down'} from last year.</i></span></div>` : '';
     const logRows = r.log.map((g,i)=>{
       const oppBadge = teamBadgeHTML(g.opponent.abbr);
       return `<div class="feed-row ${g.userWon?'feed-you':''}">
@@ -3607,7 +3691,7 @@ function renderDynastyYear(){
     <div class="field">
       <label>Season Averages</label>
       <div class="season-stats-row">${statChips}</div>
-      ${mvp ? `<div class="season-supers">🌟 Team MVP: <b>${mvp.name}</b> (${mvp.rating.toFixed(1)} ovr)</div>` : ''}
+      ${mvp ? `<div class="award-badges"><span class="award-badge">🌟 Team MVP: ${mvp.name} (${mvp.rating.toFixed(1)} ovr)</span></div>` : ''}
       ${trendNote}
     </div>
     <div class="field">
@@ -3621,14 +3705,15 @@ function renderDynastyYear(){
     const retired = S.dynastyYearLog.retired;
     const riser = S.dynastyYearLog.riser;
     const decliner = S.dynastyYearLog.decliner;
-    const lines = [];
-    if(riser) lines.push(`<div class="slot-row">📈 <span class="slot-name"><b>${riser.name}</b> took a real leap this offseason (+${riser.delta.toFixed(1)}).</span></div>`);
-    if(decliner) lines.push(`<div class="slot-row">📉 <span class="slot-name"><b>${decliner.name}</b> is starting to show his age (${decliner.delta.toFixed(1)}).</span></div>`);
-    retired.forEach(r=>lines.push(`<div class="slot-row">🎉 <span class="slot-name"><b>${r.name}</b> hangs it up (${r.finalRating.toFixed(0)} ovr)${r.arc?' — '+r.arc:''}.</span></div>`));
-    mainCard = `<div class="field">
-      <label>Offseason</label>
-      ${lines.length ? lines.join('') : '<div class="hint">A quiet offseason — the whole roster returns unchanged.</div>'}
+    const cards = [];
+    if(riser) cards.push(`<div class="event-recap"><div class="event-recap-choice">📈 ${riser.name}</div><div class="event-recap-outcome">Took a real leap this offseason — up ${riser.delta.toFixed(1)} overall.</div></div>`);
+    if(decliner) cards.push(`<div class="event-recap" style="border-left-color:var(--loss);"><div class="event-recap-choice">📉 ${decliner.name}</div><div class="event-recap-outcome">Starting to show his age — down ${Math.abs(decliner.delta).toFixed(1)} overall.</div></div>`);
+    retired.forEach(r=>cards.push(`<div class="event-recap" style="border-left-color:var(--gold);"><div class="event-recap-choice">🎉 ${r.name} Hangs It Up</div><div class="event-recap-outcome">Retires at ${r.finalRating.toFixed(0)} overall.${r.arc?' '+r.arc:''}</div></div>`));
+    mainCard = `<div class="result-hero" style="padding:20px 0 6px;">
+      <div class="champ-trophy-ico" style="font-size:36px;">🗓️</div>
+      <div class="champ-label">Offseason</div>
     </div>
+    ${cards.length ? cards.join('') : '<div class="field"><div class="hint">A quiet offseason — the whole roster returns unchanged.</div></div>'}
     <button class="big-btn" id="dynContinueBtn">Continue</button>`;
   } else if(S.dynastyPhase==='rookieDraftPick' && S.dynastyPendingPool){
     const roundOrdinal = S.dynastyPendingRound===1?'Round 1':'Round 2';
@@ -3674,21 +3759,25 @@ function renderDynastyYear(){
   } else if(S.dynastyPhase==='yearEndSummary'){
     const log = S.dynastyYearLog;
     const isFinal = D.yearIdx>=D.totalYears;
-    mainCard = `<div class="field">
-      <label>${yearLabel} — Complete</label>
-      <div class="slot-row"><span class="slot-name">Record: <b>${log.seasonResult.wins}-${log.seasonResult.losses}</b></span></div>
-      ${log.mvp ? `<div class="slot-row"><span class="slot-name">Team MVP: <b>${log.mvp.name}</b></span></div>` : ''}
-      ${log.trades.length ? log.trades.map(t=>{
-        const partner = t.offer.partnerName || 'a team';
-        if(!t.accepted) return `<div class="slot-row"><span class="slot-name">❌ Passed on a trade with the ${partner}</span></div>`;
-        const gave = t.offer.wantsFromYou.map(a=>a.type==='player'?a.player.n:(a.round+(a.round===1?'st':'nd')+' round pick')).join(', ');
-        const got = t.offer.theyGiveYou.map(a=>a.type==='player'?a.player.n:(a.round+(a.round===1?'st':'nd')+' round pick')).join(', ');
-        return `<div class="slot-row"><span class="slot-name">✅ Traded ${gave} to the ${partner} for ${got}</span></div>`;
-      }).join('') : ''}
-      ${log.draftPicks.length ? log.draftPicks.map(p=>`<div class="slot-row"><span class="slot-name">Drafted ${p.name} (Round ${p.round})</span></div>`).join('') : ''}
-      ${log.cutsMade.length ? log.cutsMade.map(n=>`<div class="slot-row"><span class="slot-name">Cut ${n}</span></div>`).join('') : ''}
-      ${log.retired.length ? log.retired.map(r=>`<div class="slot-row"><span class="slot-name">${r.name} retired (${r.finalRating.toFixed(0)} ovr)</span></div>`).join('') : ''}
+    const tradeRows = log.trades.map(t=>{
+      const partner = t.offer.partnerName || 'a team';
+      if(!t.accepted) return `<div class="slot-row"><span class="slot-name">❌ Passed on a trade with the ${partner}</span></div>`;
+      const gave = t.offer.wantsFromYou.map(a=>a.type==='player'?a.player.n:(a.round+(a.round===1?'st':'nd')+' round pick')).join(', ');
+      const got = t.offer.theyGiveYou.map(a=>a.type==='player'?a.player.n:(a.round+(a.round===1?'st':'nd')+' round pick')).join(', ');
+      return `<div class="slot-row"><span class="slot-name">✅ Traded ${gave} to the ${partner} for ${got}</span></div>`;
+    }).join('');
+    const rosterMoveRows = [
+      ...log.draftPicks.map(p=>`<div class="slot-row"><span class="slot-name">📋 Drafted ${p.name} (Round ${p.round})</span></div>`),
+      ...log.cutsMade.map(n=>`<div class="slot-row"><span class="slot-name">✂️ Cut ${n}</span></div>`),
+      ...log.retired.map(r=>`<div class="slot-row"><span class="slot-name">👋 ${r.name} retired (${r.finalRating.toFixed(0)} ovr)</span></div>`),
+    ].join('');
+    mainCard = `<div class="result-hero" style="padding:20px 0 6px;">
+      <div class="champ-label">${yearLabel} — Complete</div>
+      <div class="champ-name" style="font-size:32px;">${log.seasonResult.wins}-${log.seasonResult.losses}</div>
+      ${log.mvp ? `<div class="award-badges"><span class="award-badge">🌟 Team MVP: ${log.mvp.name}</span></div>` : ''}
     </div>
+    ${tradeRows ? `<div class="field"><label>Trades</label>${tradeRows}</div>` : ''}
+    ${rosterMoveRows ? `<div class="field"><label>Roster Moves</label>${rosterMoveRows}</div>` : ''}
     <button class="big-btn" id="dynYearEndBtn">${isFinal?'See Your Legacy':'Start Year '+(D.yearIdx+1)}</button>`;
   }
 
@@ -3824,6 +3913,20 @@ function renderDynastyLegacy(){
   const totalTradesDeclined = D.history.reduce((s,y)=>s+y.trades.filter(t=>!t.accepted).length,0);
   const totalDrafted = D.history.reduce((s,y)=>s+y.draftPicks.length,0);
   const totalRetired = D.history.reduce((s,y)=>s+y.retired.length,0);
+  const winPct = totalWins/(totalWins+totalLosses||1);
+
+  // Dynasty Tier — same spirit as Career Mode's All-Time Legacy ranking:
+  // blends sustained team success (titles, win rate) rather than any one
+  // player's stats, since a dynasty's legacy is about the franchise, not
+  // an individual.
+  const dynastyScore = championships*22 + Math.max(0,winPct-0.5)*80 + Math.min(D.totalYears,20)*0.5;
+  let dynastyTier, dynastyDesc;
+  if(dynastyScore>=120 && championships>=4){ dynastyTier='Dynasty of the Ages'; dynastyDesc='The kind of run leagues get named after.'; }
+  else if(dynastyScore>=75 && championships>=2){ dynastyTier='True Dynasty'; dynastyDesc='Sustained, unmistakable championship-level success.'; }
+  else if(dynastyScore>=45){ dynastyTier='Contender Era'; dynastyDesc='A real window of legitimate title contention.'; }
+  else if(dynastyScore>=25){ dynastyTier='Playoff Mainstay'; dynastyDesc='Consistently competitive, a team nobody wanted to face.'; }
+  else if(dynastyScore>=10){ dynastyTier='Building Something'; dynastyDesc='Real progress, even if the banners never came.'; }
+  else { dynastyTier='Rebuilding Years'; dynastyDesc='Every dynasty starts somewhere — this was the foundation.'; }
 
   app.innerHTML = `
   <div class="topbar">
@@ -3836,15 +3939,20 @@ function renderDynastyLegacy(){
     <div class="champ-name">${championships} Title${championships===1?'':'s'}</div>
     <div class="champ-meta"><span class="champ-rating mono">${totalWins}-${totalLosses} all-time · best season ${bestRecord.wins}-${bestRecord.losses}</span></div>
   </div>
-  ${topMvp ? `<div class="field">
-    <label>Franchise Legend</label>
-    <div class="hint"><b>${topMvp[0]}</b> was your team MVP ${topMvp[1]} time${topMvp[1]>1?'s':''} across the run — the face of the dynasty.</div>
-  </div>` : ''}
+  <div class="field" style="background:linear-gradient(135deg,rgba(234,179,8,.14),rgba(234,179,8,.03));border-color:rgba(234,179,8,.4);">
+    <label style="color:var(--gold);">Dynasty Tier</label>
+    <div style="font-size:26px;font-weight:800;color:var(--gold);margin:4px 0 2px;">${dynastyTier}</div>
+    <div style="font-size:13.5px;color:var(--chalk-dim);">${dynastyDesc}</div>
+  </div>
+  ${topMvp ? `<div class="event-recap"><div class="event-recap-choice">🌟 Franchise Legend</div><div class="event-recap-outcome"><b>${topMvp[0]}</b> was your team MVP ${topMvp[1]} time${topMvp[1]>1?'s':''} across the run — the face of the dynasty.</div></div>` : ''}
   <div class="field">
     <label>Front Office</label>
-    <div class="slot-row"><span class="slot-name">Trades made: <b>${totalTradesAccepted}</b> accepted, ${totalTradesDeclined} passed on</span></div>
-    <div class="slot-row"><span class="slot-name">Rookies drafted: <b>${totalDrafted}</b></span></div>
-    <div class="slot-row"><span class="slot-name">Players retired: <b>${totalRetired}</b></span></div>
+    <div class="trophy-grid">
+      <div class="trophy-item"><span class="trophy-icon">🏆</span><b>${championships}</b><i>Titles</i></div>
+      <div class="trophy-item"><span class="trophy-icon">🔄</span><b>${totalTradesAccepted}</b><i>Trades</i></div>
+      <div class="trophy-item"><span class="trophy-icon">📋</span><b>${totalDrafted}</b><i>Draft Picks</i></div>
+      <div class="trophy-item"><span class="trophy-icon">👋</span><b>${totalRetired}</b><i>Retired</i></div>
+    </div>
   </div>
   <div class="field">
     <label>Year by Year</label>
@@ -4367,11 +4475,16 @@ const S = {
   careerShowHistory:false,    // whether the mid-career "History" modal is open
   careerShowTradeConfirm:false, // whether the trade-demand confirmation step is showing
   careerJustTraded:false,       // whether a trade demand was just approved this off-season
+  careerTradeOutcome:null,      // the rolled outcome awaiting resolution (choice or counter-offer)
+  careerTradeStayed:null,       // points accepted to stay this off-season, shown once
+  careerTradeDenied:false,      // whether the trade demand was denied outright this off-season
   careerPendingEvent:null,      // the random event currently being shown, if any
   careerEventOutcome:null,      // the outcome text of the most recently resolved event, shown once on the next screen
   careerJustSigned:null,        // team name just signed with after a release, shown once
   careerBreakthrough:null,      // ceiling raise from a breakthrough moment, shown once on the next season result
   theme:'all',      // draft theme id
+  showHowToPlay:false, // whether the "How It Works" reference modal is open
+  _lastScreenKey:null,  // tracks the last rendered screen+phase, for scroll-reset on real transitions
   numTeams:4,
   rosterSize:6,
   userTeams:[0,2],
@@ -4801,6 +4914,18 @@ function confettiHTML(){
 // ---------- RENDERERS ----------
 function render(){
   applyAppearance();
+  // Scroll to top on a genuine screen change so mobile users aren't stuck
+  // scrolled to the bottom of the previous screen (where its "Continue"
+  // button lived) when the next screen's content starts at the top.
+  // Dynasty's year loop reuses one S.screen value across several distinct
+  // phases, so the key includes the phase too — but deliberately NOT any
+  // state that changes from clicking within the same screen (like stat
+  // point allocation), so that stays scroll-stable.
+  const screenKey = S.screen + (S.screen==='dynastyYear' ? ':'+S.dynastyPhase+(S.dynastyPendingOffer?':offer':'') : '');
+  if(screenKey !== S._lastScreenKey){
+    window.scrollTo(0,0);
+    S._lastScreenKey = screenKey;
+  }
   if(S.screen==='modepick') renderModePick();
   else if(S.screen==='setup') renderSetup();
   else if(S.screen==='seasonSetup') renderSeasonSetup();
@@ -4872,46 +4997,48 @@ function renderModePick(){
   app.innerHTML=`
   <div class="topbar">
     <div class="logo"><div class="mark">🏀</div>
-      <div><h1>All-Time Draft</h1><div class="sub">Build a franchise from NBA history</div></div></div>
-    ${themeToggleHTML()}
+      <div><h1>All-Time Draft</h1><div class="sub">Draft, build, and play NBA history your way</div></div></div>
+    <div class="topbar-btns"><button class="ghost-btn" id="howToPlayBtn">❓ How It Works</button>${themeToggleHTML()}</div>
   </div>
   <p class="hero-sub">Draft a dream roster from NBA history, run a franchise for years, or build a player from scratch and live out an entire career — five ways to play. Pick a format to begin.</p>
   <div class="mode-cards mode-cards-5">
     <button class="mode-card mode-card-1" data-mode="career">
       <div class="mc-icon mc-icon-emerald">🎽</div>
-      <h3>Career</h3>
+      <h3>Career <span class="mc-time-tag">Long-term · solo</span></h3>
       <p>Build a player from scratch — name, position, height, and a points budget to spend across your skills. Get drafted, grow every year, and see how far you go.</p>
     </button>
     <button class="mode-card mode-card-2" data-mode="dynasty">
       <div class="mc-icon mc-icon-crimson">🏛️</div>
-      <h3>Dynasty</h3>
+      <h3>Dynasty <span class="mc-time-tag">Long-term · franchise</span></h3>
       <p>Draft a team, then run it for years. Play seasons, draft rookies, watch legends age out and retire, and weigh trade offers — build something that lasts.</p>
     </button>
     <button class="mode-card mode-card-3" data-mode="draft">
       <div class="mc-icon mc-icon-wood">🗳️</div>
-      <h3>Draft</h3>
+      <h3>Draft <span class="mc-time-tag">Quick session</span></h3>
       <p>Take turns picking against the computer. Play it straight with pure talent, or flip on a salary cap for a real budget squeeze — your call, right in setup.</p>
     </button>
     <button class="mode-card mode-card-4" data-mode="auction">
       <div class="mc-icon mc-icon-gold">🔨</div>
-      <h3>Auction</h3>
+      <h3>Auction <span class="mc-time-tag">Quick session</span></h3>
       <p>Everyone shares one pool of players. Nominate names, bid against the computer in real time, and win the bidding war for the roster you actually want.</p>
     </button>
     <button class="mode-card mode-card-5" data-mode="season">
       <div class="mc-icon mc-icon-purple">📅</div>
-      <h3>Season</h3>
+      <h3>Season <span class="mc-time-tag">One season</span></h3>
       <p>Draft one team, then play a full 82-game season against the real Modern rosters. Get a record, season averages, and a game log.</p>
     </button>
   </div>
   <div class="howto-blurb">
-    <div class="howto-title">How it works</div>
+    <div class="howto-title">Quick Start</div>
     <div class="howto-steps">
       <div><span class="hs-num hs-num-1">1</span>Pick a format — draft a team, run a franchise, or build a player of your own.</div>
       <div><span class="hs-num hs-num-2">2</span>Make it yours — teams and rules if you're drafting, or name, position, and skills if you're playing.</div>
       <div><span class="hs-num hs-num-3">3</span>Every mode ends with something real to show for it — a champion, a franchise legacy, or a full career.</div>
     </div>
+    <div class="howto-more-link">Want the full rundown on how ratings, aging, and each mode actually work? Tap <b>How It Works</b> up top.</div>
   </div>
-  <div class="footer-note">Independent fan project · not affiliated with the NBA.<br>Stats are approximate peak-season averages; ratings blend production with hand-set intangibles. For fun, not prediction.</div>`;
+  <div class="footer-note">Independent fan project · not affiliated with the NBA.<br>Stats are approximate peak-season averages; ratings blend production with hand-set intangibles. For fun, not prediction.</div>
+  ${S.showHowToPlay ? howToPlayModalHTML() : ''}`;
   app.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{
     S.userTeamsHidden=false;
     if(b.dataset.mode==='season'){ S.gameMode='season'; S.mode='classic'; S.screen='seasonSetup'; }
@@ -4921,6 +5048,59 @@ function renderModePick(){
     else { S.gameMode='draft'; S.mode='classic'; S.screen='setup'; }
     render();
   });
+  document.getElementById('howToPlayBtn').onclick=()=>{ S.showHowToPlay=true; render(); };
+  const closeHowTo = document.getElementById('closeHowToPlay');
+  if(closeHowTo) closeHowTo.onclick=()=>{ S.showHowToPlay=false; render(); };
+  const howToOverlay = document.getElementById('howToPlayOverlay');
+  if(howToOverlay) howToOverlay.onclick=(e)=>{ if(e.target===howToOverlay){ S.showHowToPlay=false; render(); } };
+}
+
+// "How It Works" reference modal — explains each mode and the systems
+// underneath them (ratings, aging, potential, variance) in plain terms.
+// Not a full mechanical spec, just enough context that outcomes feel
+// explainable rather than arbitrary.
+function howToPlayModalHTML(){
+  return `<div class="recap-overlay" id="howToPlayOverlay">
+    <div class="howto-card">
+      <div class="howto-header">
+        <div class="rc-logo"><div class="rc-mark">AT</div><div><div class="rc-title">How It Works</div>
+          <div class="rc-sub">A quick reference for every mode</div></div></div>
+        <button class="ghost-btn" id="closeHowToPlay">Close</button>
+      </div>
+
+      <div class="howto-section">
+        <h3>The Five Modes</h3>
+        <div class="howto-mode-block"><b>Career</b> — Build your own player from scratch and live out an entire career: get drafted, grow every offseason, chase awards, and see how far one player can go.</div>
+        <div class="howto-mode-block"><b>Dynasty</b> — Draft a team, then run it across multiple years. Rookies enter the draft, legends age and retire, and AI-run trade offers come in — take it or leave it, no negotiating.</div>
+        <div class="howto-mode-block"><b>Draft</b> — Turn-based picks against CPU teams, then a playoff bracket crowns a champion. Toggle a salary cap for a budget-management challenge instead of pure talent.</div>
+        <div class="howto-mode-block"><b>Auction</b> — One shared player pool. Everyone (you and the CPU teams) bids in real time; win the bidding war for the roster you actually want.</div>
+        <div class="howto-mode-block"><b>Season</b> — Draft one team, then simulate a full 82-game season and playoffs against the real Modern-era rosters. You get a record, averages, and a full game log.</div>
+      </div>
+
+      <div class="howto-section">
+        <h3>How Ratings Work</h3>
+        <p>Every player's overall rating blends their box-score production (points, rebounds, assists, steals, blocks, threes) with hand-set intangibles like leadership and basketball IQ. It's a consistent way to compare players across eras and modes — not a precise statistical model, and not meant to be one.</p>
+      </div>
+
+      <div class="howto-section">
+        <h3>Career Mode: What's Actually Happening Under the Hood</h3>
+        <p><b>Skill points:</b> You get a fixed budget to spend across 9 skills. Spread evenly and you're a jack-of-all-trades; specialize hard and you're elite at a few things, genuinely weak everywhere else. A "usage tax" also caps how much scoring, rebounding, and playmaking can all be maxed at once — real teams only have so many possessions to go around, so no build can dominate every category simultaneously.</p>
+        <p><b>Potential tier:</b> Rolled once at creation and kept hidden. It quietly caps how far your skills can ever grow, from Limited Upside up to Rare Talent. You find out through how the career actually plays out, not up front — same as a real prospect.</p>
+        <p><b>Aging profile:</b> Also hidden, and independent of potential. Some careers decline hard and early, some barely age at all and can still be playing into their mid-40s. There's no single "normal" curve on purpose.</p>
+        <p><b>Breakthroughs:</b> If you cap out your potential mid-career, there's a real (not guaranteed) chance of a late breakthrough that raises your ceiling. Plateauing doesn't have to be permanent.</p>
+      </div>
+
+      <div class="howto-section">
+        <h3>Dynasty Mode: What's Actually Happening Under the Hood</h3>
+        <p>Rookies are freshly generated each draft class with their own hidden potential — a high pick can bust, a late pick can surprise you. Every player on your roster, rookies and legends alike, ages realistically over the run, and that aging affects real output, not just a cosmetic number.</p>
+      </div>
+
+      <div class="howto-section">
+        <h3>Why Outcomes Vary So Much</h3>
+        <p>A lot of what happens in this app is intentionally randomized within realistic bounds — award voting, aging curves, trade demands, rookie potential, and more. Two identical builds can have very different careers. That's deliberate: it's built to feel like real basketball, where outcomes are never fully predictable, rather than a spreadsheet where the same inputs always produce the same result.</p>
+      </div>
+    </div>
+  </div>`;
 }
 
 function renderSetup(){
@@ -5377,6 +5557,11 @@ function startCareerOffseason(skipCutCheck){
   S.careerYearlyPointsPool = earned;
   S.careerYearlyAlloc = newCareerYearlyAllocation(C.player);
   S.careerEventOutcome = null;
+  S.careerJustTraded = false;
+  S.careerTradeOutcome = null;
+  S.careerTradeStayed = null;
+  S.careerTradeDenied = false;
+  S.careerShowTradeConfirm = false;
   if(Math.random() < 0.7){
     C.seenEventIds = C.seenEventIds || [];
     S.careerPendingEvent = pickCareerEvent(C.seenEventIds);
@@ -5555,8 +5740,35 @@ function renderCareerOffseason(){
     </div>`;
   }).join('');
 
-  const canDemand = C.lastSeason && !S.careerJustTraded && careerCanDemandTrade(C.lastSeason.role, C.lastSeason.seasonResult.wins);
-  const tradeSection = S.careerJustTraded ? `<div class="event-recap"><div class="event-recap-choice">🔄 Trade Approved</div><div class="event-recap-outcome">You're headed to the ${TEAM_NAMES[C.teamAbbr]} ${teamBadgeHTML(C.teamAbbr)}. New team, new chance to win.</div></div>` : canDemand ? `<div class="field">
+  const canDemand = C.lastSeason && !S.careerJustTraded && !S.careerTradeDenied && careerCanDemandTrade(C.lastSeason.role, C.lastSeason.seasonResult.wins);
+  const TO = S.careerTradeOutcome;
+  let tradeSection;
+  if(S.careerJustTraded){
+    tradeSection = `<div class="event-recap"><div class="event-recap-choice">🔄 Trade Approved</div><div class="event-recap-outcome">You're headed to the ${TEAM_NAMES[C.teamAbbr]} ${teamBadgeHTML(C.teamAbbr)}. New team, new chance to win.</div></div>`;
+  } else if(S.careerTradeStayed){
+    tradeSection = `<div class="event-recap"><div class="event-recap-choice">🤝 Deal Reached</div><div class="event-recap-outcome">You'll stay with the ${TEAM_NAMES[C.teamAbbr]} — for the right price.</div><div class="event-recap-effect">📈 +${S.careerTradeStayed} off-season points</div></div>`;
+  } else if(S.careerTradeDenied){
+    tradeSection = `<div class="event-recap"><div class="event-recap-choice">🚫 Request Denied</div><div class="event-recap-outcome">The front office won't move you — no compensation, no choice in it. Nothing to do but keep playing.</div></div>`;
+  } else if(TO && TO.type==='choice'){
+    tradeSection = `<div class="field">
+      <label>Two Teams Want You</label>
+      <div class="hint">The front office found real interest — you get to pick where you go.</div>
+      <div class="player-list">
+        <button class="event-choice-btn" data-tradechoice="0"><span class="event-choice-arrow">→</span><span>${TEAM_NAMES[TO.teams[0]]} ${teamBadgeHTML(TO.teams[0])}</span></button>
+        <button class="event-choice-btn" data-tradechoice="1"><span class="event-choice-arrow">→</span><span>${TEAM_NAMES[TO.teams[1]]} ${teamBadgeHTML(TO.teams[1])}</span></button>
+      </div>
+    </div>`;
+  } else if(TO && TO.type==='counter'){
+    tradeSection = `<div class="field">
+      <label>They Want You to Stay</label>
+      <div class="hint">The ${TEAM_NAMES[C.teamAbbr]} won't grant the trade — instead, they're offering ${TO.pointsOffer} extra off-season points to keep you happy. Take the deal, or hold out and insist on the move anyway (risky — they might just say no).</div>
+      <div class="auc-actions">
+        <button class="big-btn" id="acceptCounterBtn">Accept, Stay for ${TO.pointsOffer} Points</button>
+        <button class="ghost-btn" id="holdOutBtn" style="border-color:var(--loss);color:var(--loss);">Hold Out, Insist on the Trade</button>
+      </div>
+    </div>`;
+  } else if(canDemand){
+    tradeSection = `<div class="field">
     <label>Frustrated with Losing?</label>
     <div class="hint">You're a ${C.lastSeason.role} on a team that went ${C.lastSeason.seasonResult.wins}-${C.lastSeason.seasonResult.losses}. You could demand a trade somewhere with a real chance to win — though you might have to accept a smaller role to get it.</div>
     ${S.careerShowTradeConfirm ? `
@@ -5565,7 +5777,10 @@ function renderCareerOffseason(){
         <button class="big-btn" id="confirmTradeBtn" style="background:linear-gradient(135deg,var(--loss),#7a1a1a);">Yes, Demand the Trade</button>
         <button class="ghost-btn" id="cancelTradeBtn">Never Mind</button>
       </div>` : `<button class="ghost-btn" id="demandTradeBtn" style="width:100%;">Demand a Trade</button>`}
-  </div>` : '';
+  </div>`;
+  } else {
+    tradeSection = '';
+  }
 
   app.innerHTML = `
   <div class="topbar">
@@ -5596,7 +5811,7 @@ function renderCareerOffseason(){
     </div>
   </div>
   ${tradeSection}
-  ${C.age>=41 ? `<div class="hint">At ${C.age}, the league doesn't have another season in you. Time to call it a career.</div>
+  ${C.age>=(p._retireAge||41) ? `<div class="event-recap" style="border-left-color:var(--loss);border-color:rgba(239,77,94,.35);"><div class="event-recap-choice">At ${C.age}, your body just doesn't have another season left in it.</div><div class="event-recap-outcome">Time to call it a career.</div></div>
   <button class="big-btn" id="retireBtn">Retire</button>` : `
   <button class="big-btn" id="confirmOffseasonBtn" ${(remaining!==0 && !plateaued)?'disabled':''}>Start Season ${C.yearIdx+1}</button>
   ${C.yearIdx>=2 ? `<button class="ghost-btn" id="retireBtn" style="width:100%;margin-top:10px;">Retire Instead</button>` : ''}`}`;
@@ -5615,6 +5830,9 @@ function renderCareerOffseason(){
     S.careerYearlyAlloc = null;
     S.careerJustTraded = false;
     S.careerJustSigned = null;
+    S.careerTradeOutcome = null;
+    S.careerTradeStayed = null;
+    S.careerTradeDenied = false;
     if(plateaued){
       const raise = careerBreakthroughCheck(p);
       S.careerBreakthrough = raise>0 ? raise : null;
@@ -5631,10 +5849,42 @@ function renderCareerOffseason(){
   if(cancelTradeBtn) cancelTradeBtn.onclick=()=>{ S.careerShowTradeConfirm=false; render(); };
   const confirmTradeBtn = document.getElementById('confirmTradeBtn');
   if(confirmTradeBtn) confirmTradeBtn.onclick=()=>{
-    const newTeam = careerTradeDemandTeam(C.teamAbbr);
-    C.teamAbbr = newTeam;
     S.careerShowTradeConfirm = false;
+    const outcome = careerTradeDemandOutcome(C.teamAbbr);
+    if(outcome.type==='single'){
+      C.teamAbbr = outcome.team;
+      S.careerJustTraded = true;
+    } else if(outcome.type==='denied'){
+      S.careerTradeDenied = true;
+    } else {
+      S.careerTradeOutcome = outcome;
+    }
+    render();
+  };
+  app.querySelectorAll('[data-tradechoice]').forEach(b=>b.onclick=()=>{
+    const team = S.careerTradeOutcome.teams[+b.dataset.tradechoice];
+    C.teamAbbr = team;
+    S.careerTradeOutcome = null;
     S.careerJustTraded = true;
+    render();
+  });
+  const acceptCounterBtn = document.getElementById('acceptCounterBtn');
+  if(acceptCounterBtn) acceptCounterBtn.onclick=()=>{
+    S.careerYearlyPointsPool += S.careerTradeOutcome.pointsOffer;
+    S.careerTradeStayed = S.careerTradeOutcome.pointsOffer;
+    S.careerTradeOutcome = null;
+    render();
+  };
+  const holdOutBtn = document.getElementById('holdOutBtn');
+  if(holdOutBtn) holdOutBtn.onclick=()=>{
+    const outcome = careerHoldOutOutcome(C.teamAbbr);
+    if(outcome.type==='single'){
+      C.teamAbbr = outcome.team;
+      S.careerJustTraded = true;
+    } else {
+      S.careerTradeDenied = true;
+    }
+    S.careerTradeOutcome = null;
     render();
   };
 }
@@ -6685,7 +6935,7 @@ function renderSeasonResults(){
       <label>Playoff Bracket — ${r.conf}ern Conference</label>
       <div class="hint">Seeded by your conference standings, best-of-seven each round.</div>
       <div class="bracket-scroll"><div class="bracket-tree">${bracketColumnsHTML(r.playoffs.confBracket)}</div></div>
-      ${r.playoffs.finals ? `<div class="season-supers">🏆 NBA Finals: ${r.playoffs.wonTitle?'You':r.playoffs.finals.winner.name} defeated ${r.playoffs.wonTitle?r.playoffs.finals.loser.name:'you'} ${Math.max(r.playoffs.finals.wA,r.playoffs.finals.wB)}-${Math.min(r.playoffs.finals.wA,r.playoffs.finals.wB)}</div>` : ''}
+      ${r.playoffs.finals ? `<div class="milestone-badge">🏆 <span>NBA Finals<i>${r.playoffs.wonTitle?'You':r.playoffs.finals.winner.name} defeated ${r.playoffs.wonTitle?r.playoffs.finals.loser.name:'you'} ${Math.max(r.playoffs.finals.wA,r.playoffs.finals.wB)}-${Math.min(r.playoffs.finals.wA,r.playoffs.finals.wB)}</i></span></div>` : ''}
     </div>` : '';
 
   // Recap: your actual roster, with each pick's rating (color-tiered, same as
@@ -6708,11 +6958,11 @@ function renderSeasonResults(){
       </div>`;
     }).join('');
   const supers = draftSuperlatives(S.pickLog, S.mode==='cap');
-  const superLines = [];
-  if(supers && supers.steal) superLines.push(`💎 Best value: <b>${supers.steal.player.n}</b> — pick ${supers.steal.overall}, way outperformed the slot`);
+  const superBadges = [];
+  if(supers && supers.steal) superBadges.push(`<span class="award-badge">💎 Best Value: ${supers.steal.player.n} (pick ${supers.steal.overall})</span>`);
   if(supers && supers.reach && supers.reach.player.n !== (supers.steal&&supers.steal.player.n))
-    superLines.push(`📈 Biggest reach: <b>${supers.reach.player.n}</b> — pick ${supers.reach.overall}, taken earlier than the rating justified`);
-  const superHTML = superLines.length ? `<div class="season-supers">${superLines.map(s=>`<div>${s}</div>`).join('')}</div>` : '';
+    superBadges.push(`<span class="award-badge">📈 Biggest Reach: ${supers.reach.player.n} (pick ${supers.reach.overall})</span>`);
+  const superHTML = superBadges.length ? `<div class="award-badges">${superBadges.join('')}</div>` : '';
 
   app.innerHTML = `
   <div class="topbar">
