@@ -388,6 +388,32 @@ button.p-row{font:inherit;color:inherit;}
 .feed-header{font-family:'Libre Franklin';letter-spacing:2px;text-transform:uppercase;font-size:12px;color:var(--cyan);
   padding:12px 14px;border-bottom:1px solid var(--line);background:var(--ink2);}
 .feed-list{max-height:420px;overflow-y:auto;}
+.screen-fade{animation:screenIn .22s ease both;}
+@keyframes screenIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+/* Draft night: staged podium-announcement reveal — label, then name, then team */
+.draft-reveal .champ-label{animation:feedIn .5s ease .15s both;}
+.draft-reveal .champ-name{animation:feedIn .6s ease 1.1s both;}
+.draft-reveal .champ-meta{animation:feedIn .5s ease 1.9s both;}
+/* Awards land one at a time with a small pop, a mini ceremony instead of a static row */
+.award-badge{animation:awardPop .4s cubic-bezier(.34,1.56,.64,1) both;}
+.award-badge:nth-child(2){animation-delay:.18s;}
+.award-badge:nth-child(3){animation-delay:.36s;}
+.award-badge:nth-child(4){animation-delay:.54s;}
+.award-badge:nth-child(5){animation-delay:.72s;}
+@keyframes awardPop{from{opacity:0;transform:scale(.75);}to{opacity:1;transform:scale(1);}}
+.season-strip{display:flex;gap:1.5px;margin:2px 0 10px;height:26px;align-items:flex-end;}
+.ms-progress{margin-top:12px;}
+.ms-progress-head{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:var(--chalk-dim);margin-bottom:6px;}
+.ms-progress-head b{color:var(--cyan);}
+.ms-track{height:8px;background:var(--ink2);border:1px solid var(--line);border-radius:5px;overflow:hidden;}
+.ms-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--accent));border-radius:5px;transition:width .5s ease;}
+.ovr-delta{margin-top:10px;font-family:'Libre Franklin';font-size:15px;font-weight:700;text-align:center;}
+.ovr-delta.ovr-up{color:var(--win);}
+.ovr-delta.ovr-down{color:var(--loss);}
+.ovr-arrow{color:var(--chalk-dimmer);font-weight:400;}
+.ss-bar{flex:1 1 auto;min-width:2px;border-radius:1.5px;}
+.ss-w{background:var(--win);height:100%;}
+.ss-l{background:var(--loss);height:58%;opacity:.75;}
 .season-stats-row{display:flex;gap:10px;flex-wrap:wrap;}
 .season-stat{flex:1 1 auto;min-width:64px;text-align:center;background:var(--ink2);border:1px solid var(--line);
   border-radius:8px;padding:12px 8px;}
@@ -492,6 +518,7 @@ button.p-row{font:inherit;color:inherit;}
 /* ===== MOBILE PASS ===== */
 @media(max-width:560px){
   .wrap{padding:16px 12px 70px;}
+  #app > .big-btn:last-child{position:sticky;bottom:10px;z-index:6;box-shadow:0 6px 24px rgba(0,0,0,.45);}
   .logo h1{font-size:21px;}
   .mode-card{padding:18px 16px;}
   .clock-team{font-size:20px;}
@@ -552,7 +579,23 @@ button.p-row{font:inherit;color:inherit;}
 .mode-card-1{animation-delay:0s;}
 .mode-card-2{animation-delay:.08s;}
 .mode-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--gold),var(--cost));opacity:.7;}
-.mode-card:hover{border-color:var(--cyan);transform:translateY(-2px);box-shadow:0 12px 34px rgba(0,0,0,.35);}
+/* Each card carries its own mode identity: stripe, hover border, and glow
+   all in that mode's color instead of one shared accent for all five. */
+.mode-card[data-mode="career"]::before{background:linear-gradient(180deg,var(--emerald),var(--emerald-dim));}
+.mode-card[data-mode="dynasty"]::before{background:linear-gradient(180deg,var(--crimson),var(--crimson-dim));}
+.mode-card[data-mode="auction"]::before{background:linear-gradient(180deg,var(--gold),#b45309);}
+.mode-card[data-mode="season"]::before{background:linear-gradient(180deg,var(--purple),#6d28d9);}
+.mode-card:hover{transform:translateY(-2px);}
+.mode-card[data-mode="career"]:hover{border-color:var(--emerald);box-shadow:0 12px 34px rgba(16,185,129,.22);}
+.mode-card[data-mode="dynasty"]:hover{border-color:var(--crimson);box-shadow:0 12px 34px rgba(220,60,80,.22);}
+.mode-card[data-mode="draft"]:hover{border-color:var(--cost);box-shadow:0 12px 34px rgba(249,115,22,.22);}
+.mode-card[data-mode="auction"]:hover{border-color:var(--gold);box-shadow:0 12px 34px rgba(234,179,8,.22);}
+.mode-card[data-mode="season"]:hover{border-color:var(--purple);box-shadow:0 12px 34px rgba(139,92,246,.22);}
+.mode-card:hover .mc-icon{transform:scale(1.08);}
+.mode-card .mc-icon{transition:transform .18s ease;}
+/* Faint half-court lines behind the index hero — decoration, not content */
+.court-deco{position:absolute;top:-30px;right:-40px;width:340px;opacity:.05;pointer-events:none;z-index:0;}
+.hero-wrap{position:relative;}
 .mode-card:active{transform:translateY(0) scale(.98);}
 .mode-card .mc-icon{font-size:26px;margin-bottom:10px;width:48px;height:48px;border-radius:50%;
   display:grid;place-items:center;}
@@ -667,6 +710,28 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
 .coach-str span{color:var(--win);}
 .coach-weak span{color:var(--loss);}
 .coach-req{margin-top:8px;font-size:11px;color:var(--gold);font-style:italic;}
+.feed-row.feed-injured{opacity:.55;}
+.feed-row.feed-injured .feed-name{color:var(--chalk-dimmer);font-style:italic;}
+/* Team accent: a career's hero sections carry a soft wash of the current
+   team's real color behind the existing styling — identity without
+   fighting the mode-accent system. */
+.team-tinted .result-hero{background-image:radial-gradient(ellipse 90% 70% at 50% 0%, color-mix(in srgb, var(--team) 16%, transparent), transparent 70%);}
+.team-tinted .champ-meta .champ-rating{border-bottom:2px solid color-mix(in srgb, var(--team) 55%, transparent);padding-bottom:2px;}
+@supports not (color: color-mix(in srgb, red 50%, blue)){
+  .team-tinted .result-hero{background-image:none;}
+  .team-tinted .champ-meta .champ-rating{border-bottom:none;}
+}
+/* Auction drama */
+.bid-pop{animation:bidPop .35s cubic-bezier(.34,1.56,.64,1);}
+@keyframes bidPop{0%{transform:scale(1.35);color:var(--gold);}100%{transform:scale(1);}}
+.auc-bidders-left{font-size:11.5px;color:var(--chalk-dimmer);margin-top:4px;letter-spacing:.5px;}
+.auc-tension{font-size:13px;font-weight:700;color:var(--loss);margin-top:6px;animation:feedIn .3s ease both;}
+.sold-banner{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);
+  border-radius:10px;padding:11px 15px;margin-bottom:14px;font-size:14px;animation:feedIn .35s ease both;}
+.sold-banner.sold-you{border-left-color:var(--win);background:linear-gradient(135deg,rgba(34,197,94,.10),transparent);}
+.sold-hammer{font-size:18px;}
+.sold-text b{color:var(--gold);}
+.sold-banner.sold-you .sold-text b{color:var(--win);}
 
 </style>
 </head>
@@ -1512,6 +1577,7 @@ function buildCareerPlayer(name, pos, heightIn, alloc){
     _potentialTier: potentialTier,
     _potentialCeiling: CAREER_POTENTIAL_TIERS[potentialTier].ceiling,
     _agingProfile: agingProfile,
+    _rookieAdv: {...adv},
     _retireAge: retireAge,
   };
 }
@@ -2985,7 +3051,6 @@ function generateTradeOffer(team, retiredIds, dynastyState){
   if(draftsRemain && Math.random()<0.25) wantsFromYou.push(pickAsset());
   const wantValue = tradePackageValue(wantsFromYou);
   const askedPlayer = wantsFromYou.find(a=>a.type==='player').player;
-  const partnerAbbr = CURRENT_TEAMS[Math.floor(Math.random()*CURRENT_TEAMS.length)];
 
   const targetGiveValue = wantValue*targetRatio;
 
@@ -2998,6 +3063,9 @@ function generateTradeOffer(team, retiredIds, dynastyState){
   const byCloseness = [...outside].sort((a,b)=>Math.abs(playerRating(a)-targetGiveValue)-Math.abs(playerRating(b)-targetGiveValue));
   const candidatePool = byCloseness.slice(0, Math.min(10, byCloseness.length));
   const offerPlayer = candidatePool[Math.floor(Math.random()*candidatePool.length)];
+  // The offering franchise is whoever this player actually plays for —
+  // a random partner produced offers like "the Suns offer you Trae Young".
+  const partnerAbbr = offerPlayer.team && TEAM_NAMES[offerPlayer.team] ? offerPlayer.team : CURRENT_TEAMS[Math.floor(Math.random()*CURRENT_TEAMS.length)];
   const theyGiveYou = [{type:'player', player: offerPlayer}];
   const gap = targetGiveValue - playerRating(offerPlayer);
   if(draftsRemain && (gap>25 || Math.random()<0.2)) theyGiveYou.push(pickAsset());
@@ -3616,6 +3684,7 @@ function advanceDynasty(){
   }
 }
 function dynastyAdvanceToNextYearOrLegacy(){
+  S.dynastyJustDrafted = null;
   const D = S.dynasty;
   if(D.yearIdx >= D.totalYears){
     S.screen = 'dynastyLegacy';
@@ -3677,6 +3746,8 @@ function renderDynastyYear(){
     const mvp = S.dynastyYearLog.mvp;
     const delta = S.dynastyYearLog.ratingDelta;
     const trendNote = delta!=null ? `<div class="milestone-badge" style="${delta>=0?'':'background:linear-gradient(135deg,rgba(239,77,94,.14),rgba(239,77,94,.05));border-color:rgba(239,77,94,.4);color:var(--loss);'}">${delta>=0?'📈':'📉'} <span>Team Rating ${delta>=0?'+':''}${delta.toFixed(1)}<i>Now ${team._rating.toFixed(1)} overall, ${delta>=0?'up':'down'} from last year.</i></span></div>` : '';
+    const prevBest = D.history.length ? Math.max(...D.history.map(y=>y.seasonResult.wins)) : 0;
+    const recordNote = (D.history.length>=1 && r.wins > prevBest) ? `<div class="milestone-badge" style="background:linear-gradient(135deg,rgba(234,179,8,.14),rgba(234,179,8,.05));border-color:rgba(234,179,8,.4);color:var(--gold);">🏅 <span>Franchise Record<i>${r.wins} wins - the best season of the entire run so far.</i></span></div>` : '';
     const logRows = r.log.map((g,i)=>{
       const oppBadge = teamBadgeHTML(g.opponent.abbr);
       return `<div class="feed-row ${g.userWon?'feed-you':''}">
@@ -3695,10 +3766,12 @@ function renderDynastyYear(){
       <label>Season Averages</label>
       <div class="season-stats-row">${statChips}</div>
       ${mvp ? `<div class="award-badges"><span class="award-badge">🌟 Team MVP: ${mvp.name} (${mvp.rating.toFixed(1)} ovr)</span></div>` : ''}
+      ${recordNote}
       ${trendNote}
     </div>
     <div class="field">
       <label>Game Log</label>
+      ${seasonStripHTML(r.log)}
       <div class="hint">All 82 games, in play order.</div>
       <div class="feed-list">${logRows}</div>
     </div>
@@ -3737,7 +3810,7 @@ function renderDynastyYear(){
         <div class="p-stats"><b>${p.pts}</b> pts · ${p.reb} reb<br>${p.ast} ast · <b class="ovr-num ${rb.tier}">${rb.num}</b> ovr</div>
       </div>`;
     }).join('');
-    mainCard = `<div class="pick-panel">
+    mainCard = `${S.dynastyJustDrafted ? `<div class="event-recap"><div class="event-recap-cat">Welcome to the Franchise</div><div class="event-recap-choice">📋 ${S.dynastyJustDrafted.n} <span class="mono" style="font-size:13px;">(${S.dynastyJustDrafted.rating.toFixed(0)} ovr)</span></div><div class="event-recap-outcome">Round ${S.dynastyJustDrafted.round} pick. ${S.dynastyJustDrafted.blurb}</div></div>` : ''}<div class="pick-panel">
       <h4>Rookie Draft - ${roundOrdinal}</h4>
       <div class="hint">Potential is a real signal, not a promise - even a Rare Talent can bust, even a Bust Risk guy can surprise you.</div>
       <div class="player-list">${rows}</div>
@@ -3774,7 +3847,7 @@ function renderDynastyYear(){
       ...log.cutsMade.map(n=>`<div class="slot-row"><span class="slot-name">✂️ Cut ${n}</span></div>`),
       ...log.retired.map(r=>`<div class="slot-row"><span class="slot-name">👋 ${r.name} retired (${r.finalRating.toFixed(0)} ovr)</span></div>`),
     ].join('');
-    mainCard = `<div class="result-hero" style="padding:20px 0 6px;">
+    mainCard = `${S.dynastyJustDrafted ? `<div class="event-recap"><div class="event-recap-cat">Welcome to the Franchise</div><div class="event-recap-choice">📋 ${S.dynastyJustDrafted.n} <span class="mono" style="font-size:13px;">(${S.dynastyJustDrafted.rating.toFixed(0)} ovr)</span></div><div class="event-recap-outcome">Round ${S.dynastyJustDrafted.round} pick. ${S.dynastyJustDrafted.blurb}</div></div>` : ''}<div class="result-hero" style="padding:20px 0 6px;">
       <div class="champ-label">${yearLabel} - Complete</div>
       <div class="champ-name" style="font-size:32px;">${log.seasonResult.wins}-${log.seasonResult.losses}</div>
       ${log.mvp ? `<div class="award-badges"><span class="award-badge">🌟 Team MVP: ${log.mvp.name}</span></div>` : ''}
@@ -3845,6 +3918,7 @@ function renderDynastyYear(){
     if(!chosen) return;
     const picked = S.dynastyPickQueue.shift();
     S.dynastyYearLog.draftPicks.push({round:picked.round, name:chosen.n});
+    S.dynastyJustDrafted = {n:chosen.n, round:picked.round, blurb:scoutingBlurbFor(chosen), rating:playerRating(chosen)};
     const overflow = addPlayersToDynastyRoster(team, [chosen], D.rosterCap);
     S.dynastyPendingPool = null;
     if(overflow>0){ S.dynastyCutsNeeded=overflow; S.dynastyPhase='cutRequired'; render(); }
@@ -3948,6 +4022,15 @@ function renderDynastyLegacy(){
     <div style="font-size:13.5px;color:var(--chalk-dim);">${dynastyDesc}</div>
   </div>
   ${topMvp ? `<div class="event-recap"><div class="event-recap-choice">🌟 Franchise Legend</div><div class="event-recap-outcome"><b>${topMvp[0]}</b> was your team MVP ${topMvp[1]} time${topMvp[1]>1?'s':''} across the run - the face of the dynasty.</div></div>` : ''}
+  ${D.history.length>=2 ? `<div class="field">
+    <label>Franchise Arc</label>
+    ${arcChartSVG(D.history.map(y=>({
+      label:'Y'+y.yearIdx,
+      value:y.seasonResult.wins,
+      markers: y.seasonResult.outcome==='CHAMPION' ? ['🏆'] : [],
+    })), {yLabel:'Wins per season'})}
+    <div class="hint" style="margin:8px 0 0;">Wins per season · 🏆 championship</div>
+  </div>` : ''}
   <div class="field">
     <label>Front Office</label>
     <div class="trophy-grid">
@@ -4803,6 +4886,7 @@ function resolveAuction(){
   const winner = S.teams[winnerIdx];
   const slot = bestSlotFor(winner, nominee);
   place(winner, nominee, slot, price);
+  S.auctionLastSold = { name:nominee.n, price, teamName:winner.name, isUser:!!winner.isUser };
   resetBiddingRound();
 }
 // Main driver — same setTimeout-recursion pattern as runCpuPicks(), pausing
@@ -4915,6 +4999,36 @@ function confettiHTML(){
 }
 
 // ---------- RENDERERS ----------
+// Animates the big hero number (.champ-name) counting up from zero on
+// screen reveals — a 58-24 record, an 89.6 peak rating, a title count all
+// tick up over ~0.6s instead of just appearing. Number-shaped tokens in
+// the text animate; everything else (words, emoji) is left untouched. The
+// final DOM state is always the exact original string, so nothing can be
+// left subtly wrong if interrupted.
+function runCountUps(){
+  if(typeof requestAnimationFrame !== 'function') return; // graceful no-animation fallback
+  const el = document.querySelector('.result-hero .champ-name');
+  if(!el) return;
+  const finalText = el.textContent;
+  if(!/\d/.test(finalText)) return;
+  const t0 = performance.now(), dur = 600;
+  function frame(t){
+    // if a re-render replaced the element, stop silently
+    const cur = document.querySelector('.result-hero .champ-name');
+    if(cur !== el) return;
+    const f = Math.min(1, (t-t0)/dur);
+    const ease = 1-Math.pow(1-f,3);
+    el.textContent = finalText.replace(/\d+(?:\.\d+)?/g, m=>{
+      const target = parseFloat(m);
+      const v = target*ease;
+      return m.includes('.') ? v.toFixed(m.split('.')[1].length) : Math.round(v).toString();
+    });
+    if(f<1) requestAnimationFrame(frame);
+    else el.textContent = finalText;
+  }
+  requestAnimationFrame(frame);
+}
+
 function render(){
   applyAppearance();
   // Scroll to top on a genuine screen change so mobile users aren't stuck
@@ -4925,9 +5039,25 @@ function render(){
   // state that changes from clicking within the same screen (like stat
   // point allocation), so that stays scroll-stable.
   const screenKey = S.screen + (S.screen==='dynastyYear' ? ':'+S.dynastyPhase+(S.dynastyPendingOffer?':offer':'') : '');
+  // Team accent: careers subtly carry your current team's real color on
+  // hero sections via a CSS variable; cleared outside Career Mode so no
+  // other mode is affected.
+  if(S.career && S.career.teamAbbr && TEAM_COLORS[S.career.teamAbbr] && S.screen && S.screen.startsWith('career')){
+    app.style.setProperty('--team', TEAM_COLORS[S.career.teamAbbr]);
+    app.classList.add('team-tinted');
+  } else {
+    app.classList.remove('team-tinted');
+  }
   if(screenKey !== S._lastScreenKey){
     window.scrollTo(0,0);
     S._lastScreenKey = screenKey;
+    // restart the fade-in animation for the new screen (removing and
+    // re-adding the class forces the animation to replay); skipped for
+    // in-place re-renders so stat clicks etc. never flicker
+    app.classList.remove('screen-fade');
+    void app.offsetWidth; // reflow to reset the animation
+    app.classList.add('screen-fade');
+    runCountUps();
   }
   if(S.screen==='modepick') renderModePick();
   else if(S.screen==='setup') renderSetup();
@@ -5003,7 +5133,17 @@ function renderModePick(){
       <div><h1>All-Time Draft</h1><div class="sub">Draft, build, and play NBA history your way</div></div></div>
     <div class="topbar-btns"><button class="ghost-btn" id="howToPlayBtn">❓ How It Works</button>${themeToggleHTML()}</div>
   </div>
+  <div class="hero-wrap">
+  <svg class="court-deco" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <circle cx="150" cy="0" r="60" fill="none" stroke="currentColor" stroke-width="2"/>
+    <circle cx="150" cy="0" r="20" fill="none" stroke="currentColor" stroke-width="2"/>
+    <line x1="0" y1="0" x2="300" y2="0" stroke="currentColor" stroke-width="2"/>
+    <path d="M 30 0 A 140 140 0 0 0 270 0" fill="none" stroke="currentColor" stroke-width="2"/>
+    <rect x="105" y="0" width="90" height="58" fill="none" stroke="currentColor" stroke-width="2"/>
+    <path d="M 105 58 A 45 45 0 0 0 195 58" fill="none" stroke="currentColor" stroke-width="2"/>
+  </svg>
   <p class="hero-sub">Draft a dream roster from NBA history, run a franchise for years, or build a player from scratch and live out an entire career - five ways to play. Pick a format to begin.</p>
+  </div>
   <div class="mode-cards mode-cards-5">
     <button class="mode-card mode-card-1" data-mode="career">
       <div class="mc-icon mc-icon-emerald">🎽</div>
@@ -5368,6 +5508,7 @@ function renderCareerCreate(){
       <div class="career-preview-stat"><b class="${ratingTierClass(rating)}">${rating.toFixed(1)}</b><i>OVR</i></div>
     </div>
     ${arch ? `<div style="margin-top:12px;font-size:14px;">Projects as a <b style="color:var(--accent);">${arch.primary}</b> (${arch.secondary} secondary) · likely drafted around pick <b>${pick}</b> of 60</div>` : ''}
+    <div style="margin-top:14px;">${radarChartSVG(preview.adv, {size:250})}</div>
   </div>
   <div class="warn" id="careerWarn"></div>
   <button class="big-btn" id="enterDraftBtn" ${remaining!==0?'disabled':''}>Enter the Draft</button>`;
@@ -5407,6 +5548,7 @@ function startCareerDraft(){
     rating,
     yearIdx: 1,
     age: 22,
+    rival: createCareerRival(pick, rating, teamAbbr),
   };
   S.screen = 'careerDraftResult';
   S._playConfetti = pick<=14; // lottery pick gets the celebration treatment
@@ -5438,6 +5580,87 @@ function careerMilestonesCrossed(beforeHistory, afterHistory){
   });
   return crossed;
 }
+// Playoff splits: a separate per-game line for the postseason run. Stars
+// shoulder more usage in the playoffs (slight scoring bump), everyone gets
+// real variance — some runs are legendary, some are duds. Games estimated
+// from rounds survived (best-of-7 each).
+function careerPlayoffLine(seasonStats, role, playoffs){
+  const roundsPlayed = playoffs.wonTitle ? (playoffs.confBracket.rounds.length+1)
+    : playoffs.wonConf ? (playoffs.confBracket.rounds.length+1)
+    : playoffs.eliminatedRound;
+  const games = Array.from({length:roundsPlayed}, ()=>4+Math.floor(Math.random()*4)).reduce((a,b)=>a+b,0);
+  const usageBump = role==='star' ? 1.08 : role==='starter' ? 1.02 : 0.95;
+  const variance = 0.88 + Math.random()*0.24; // 0.88–1.12: hot runs and cold ones
+  const f = v => Math.round(v*usageBump*variance*10)/10;
+  return { games, pts:f(seasonStats.pts), reb:f(seasonStats.reb), ast:f(seasonStats.ast) };
+}
+// Where the season's scoring landed against the whole legend pool — real
+// context for a big year ("3rd in the league" hits different than a number).
+function careerScoringRank(pts){
+  return 1 + PLAYERS.filter(pl=>pl.pts>pts).length;
+}
+
+// Injuries — designed to sting without becoming a chore. Deliberate
+// constraints: (1) rare — base ~14%/season, scaled by the hidden aging
+// profile so durable/ageless bodies rarely feel it at all; (2) NEVER two
+// seasons in a row — a hard recency guard, not a probability tweak;
+// (3) games missed are real (8–28) and prorate the season's counting
+// totals, plus a small same-season rust dip on return; (4) zero permanent
+// stat damage — the aging system already owns decline, injuries cost you
+// this season, not your career.
+const CAREER_INJURIES = [
+  { name:'Sprained Ankle',      games:[8,14]  },
+  { name:'Hamstring Strain',    games:[10,18] },
+  { name:'Wrist Fracture',      games:[14,22] },
+  { name:'Knee Sprain (MCL)',   games:[16,26] },
+  { name:'Back Spasms',         games:[8,16]  },
+  { name:'Foot Stress Reaction',games:[18,28] },
+];
+function rollCareerInjury(player, wasInjuredLastSeason){
+  if(wasInjuredLastSeason) return null; // hard guard: never back-to-back
+  const profileScale = {fragile:1.6, normal:1.0, durable:0.7, ageless:0.5}[player._agingProfile] || 1.0;
+  if(Math.random() >= 0.14*profileScale) return null;
+  const inj = CAREER_INJURIES[Math.floor(Math.random()*CAREER_INJURIES.length)];
+  const gamesMissed = inj.games[0] + Math.floor(Math.random()*(inj.games[1]-inj.games[0]+1));
+  return { name:inj.name, gamesMissed };
+}
+
+// The rival: a player drafted right around you on draft night who shadows
+// your whole career — their rating follows its own growth/plateau/decline
+// arc, they rack up their own accolades, and they retire on their own
+// schedule. Deliberately lightweight (no roster simulation), but
+// persistent: the same name is there every season, which is what makes a
+// rivalry feel real.
+function createCareerRival(yourPick, yourRating, yourTeamAbbr){
+  const offset = (Math.random()<0.5?-1:1) * (1+Math.floor(Math.random()*3));
+  const pick = Math.max(1, Math.min(60, yourPick + offset));
+  const teams = CURRENT_TEAMS.filter(ab=>ab!==yourTeamAbbr);
+  return {
+    name: generateRookieName(),
+    pick,
+    teamAbbr: teams[Math.floor(Math.random()*teams.length)],
+    rating: Math.max(45, Math.min(90, yourRating + (Math.random()*6-3))),
+    peakRating: 0, titles:0, mvps:0, allStars:0, retired:false, retiredYear:null,
+  };
+}
+// One season of the rival's arc. age mirrors yours (same draft class).
+function advanceCareerRival(rival, age){
+  if(rival.retired) return null;
+  if(age < 27) rival.rating += Math.random()*2.5;
+  else if(age <= 30) rival.rating += Math.random()*2 - 1;
+  else rival.rating -= 0.5 + Math.random()*2;
+  rival.rating = Math.max(40, Math.min(98, rival.rating));
+  rival.peakRating = Math.max(rival.peakRating, rival.rating);
+  const line = { pts: Math.round((rival.rating*0.33 - 4 + Math.random()*4)*10)/10 };
+  const events = [];
+  if(rival.rating>=93 && Math.random()<0.22){ rival.mvps++; events.push('won MVP'); }
+  else if(rival.rating>=80 && Math.random()<0.65){ rival.allStars++; events.push('made the All-Star team'); }
+  if(rival.rating>=84 && Math.random()<0.09){ rival.titles++; events.push('won a ring'); }
+  let retiredNow = false;
+  if(age>=34 && (rival.rating<58 || (age>=37 && Math.random()<0.4))){ rival.retired=true; rival.retiredYear=age; retiredNow=true; }
+  return { line, events, retiredNow };
+}
+
 function playCareerSeason(){
   const C = S.career;
   const fold = careerFoldIntoRoster(C.player, C.teamAbbr);
@@ -5446,6 +5669,25 @@ function playCareerSeason(){
   const conf = careerTeamConf(C.teamAbbr);
   const seasonResult = simSeasonWithPlayoffs(fold.team, conf);
   const gameLog = careerGameLog(seasonStats, seasonResult.log);
+  // Injury: strike the missed games from the personal log and recompute
+  // the season line from games actually played. Awards read the reduced
+  // line, so a lost half-season naturally costs award chances too.
+  const injury = rollCareerInjury(C.player, !!C.injuredLastSeason);
+  C.injuredLastSeason = !!injury;
+  if(injury){
+    const start = 5 + Math.floor(Math.random()*(gameLog.length - injury.gamesMissed - 10));
+    for(let gi=start; gi<start+injury.gamesMissed; gi++){
+      gameLog[gi].pts=0; gameLog[gi].reb=0; gameLog[gi].ast=0; gameLog[gi].injured=true; gameLog[gi].careerHigh=false;
+    }
+    for(let gi=start+injury.gamesMissed; gi<Math.min(gameLog.length, start+injury.gamesMissed+5); gi++){
+      gameLog[gi].pts=Math.round(gameLog[gi].pts*0.8); gameLog[gi].reb=Math.round(gameLog[gi].reb*0.85); gameLog[gi].ast=Math.round(gameLog[gi].ast*0.85);
+    }
+    const played = gameLog.filter(g=>!g.injured);
+    seasonStats.pts = Math.round(played.reduce((s,g)=>s+g.pts,0)/played.length*10)/10;
+    seasonStats.reb = Math.round(played.reduce((s,g)=>s+g.reb,0)/played.length*10)/10;
+    seasonStats.ast = Math.round(played.reduce((s,g)=>s+g.ast,0)/played.length*10)/10;
+    injury.gamesPlayed = played.length;
+  }
   const highResult = markCareerHighs(gameLog, C.careerBestGameScore || 0, C.careerGameCount || 0);
   C.careerBestGameScore = highResult.best;
   C.careerGameCount = highResult.count;
@@ -5453,7 +5695,16 @@ function playCareerSeason(){
   const beforeHistory = C.history || [];
   const priorRating = beforeHistory.length ? beforeHistory[beforeHistory.length-1].rating : rating;
   const awards = careerAwardsThisYear(C.player, fold.role, seasonStats, seasonResult.wins, seasonResult.madePlayoffs, C.yearIdx, priorRating);
-  const thisSeason = { yearIdx: C.yearIdx, role: fold.role, seasonStats, seasonResult, gameLog, awards, rating, investment };
+  let playoffLine = null;
+  if(seasonResult.playoffs){
+    playoffLine = careerPlayoffLine(seasonStats, fold.role, seasonResult.playoffs);
+    if(seasonResult.playoffs.wonTitle){
+      const fmvpChance = fold.role==='star' ? 0.85 : fold.role==='starter' ? 0.35 : 0.05;
+      if(Math.random() < fmvpChance) awards.push('Finals MVP');
+    }
+  }
+  const rivalReport = C.rival ? advanceCareerRival(C.rival, C.age) : null;
+  const thisSeason = { yearIdx: C.yearIdx, role: fold.role, teamAbbr: C.teamAbbr, seasonStats, seasonResult, gameLog, awards, rating, investment, playoffLine, injury, rivalReport };
   const milestones = careerMilestonesCrossed(beforeHistory, [...beforeHistory, thisSeason]);
   thisSeason.milestones = milestones;
   C.lastSeason = thisSeason;
@@ -5503,7 +5754,11 @@ function renderCareerSeasonResult(){
   const roleLabel = { star:'Star', starter:'Starter', rotation:'Rotation Piece', bench:'Bench' }[L.role];
   const statChips = [['PTS',L.seasonStats.pts],['REB',L.seasonStats.reb],['AST',L.seasonStats.ast],['STL',L.seasonStats.stl],['BLK',L.seasonStats.blk],['3PM',L.seasonStats.tpm]]
     .map(([label,val])=>`<div class="season-stat"><b>${val.toFixed(1)}</b><i>${label}</i></div>`).join('');
-  const logRows = L.gameLog.map((g,i)=>`<div class="feed-row ${g.userWon?'feed-you':''}">
+  const logRows = L.gameLog.map((g,i)=>g.injured?`<div class="feed-row feed-injured">
+      <span class="feed-pick mono">${i+1}</span>
+      <div class="feed-main"><span class="feed-name">🩹 ${g.userWon?'W':'L'} vs ${g.opponent.name} - did not play</span>
+        <span class="feed-meta">${g.userScore}-${g.oppScore}</span></div>
+    </div>`:`<div class="feed-row ${g.userWon?'feed-you':''}">
       <span class="feed-pick mono">${i+1}</span>
       <div class="feed-main"><span class="feed-name">${g.userWon?'W':'L'} vs ${g.opponent.name} ${teamBadgeHTML(g.opponent.abbr)} - ${g.pts} pts${g.careerHigh?' <span class="team-tag" style="background:var(--gold);color:#2a1a00;">🔥 Career High</span>':''}</span>
         <span class="feed-meta">${g.careerHigh?g.pts+' pts, '+g.reb+' reb, '+g.ast+' ast - ':''}${g.userScore}-${g.oppScore}</span></div>
@@ -5527,12 +5782,29 @@ function renderCareerSeasonResult(){
   </div>
   <div class="field">
     <label>Your Season</label>
+    ${L.injury ? `<div class="event-recap" style="border-left-color:var(--loss);border-color:rgba(239,77,94,.35);"><div class="event-recap-choice">🩹 ${L.injury.name}</div><div class="event-recap-outcome">Cost you ${L.injury.gamesMissed} games mid-season. You finished with ${L.injury.gamesPlayed} games played - the averages below are from the games you actually suited up for.</div></div>` : ''}
     <div class="season-stats-row">${statChips}</div>
-    ${L.awards.length ? `<div class="award-badges">${L.awards.map(a=>`<span class="award-badge">🏅 ${a}</span>`).join('')}</div>` : ''}
+    ${(function(){
+      const rank = careerScoringRank(L.seasonStats.pts);
+      if(rank>15) return '';
+      return `<div class="hint" style="margin:10px 0 0;color:var(--cyan);font-weight:600;">📊 Your ${L.seasonStats.pts} ppg ranked ${rank===1?'1st':rank===2?'2nd':rank===3?'3rd':rank+'th'} in the league this season.</div>`;
+    })()}
+    ${L.playoffLine ? `<div class="ms-progress" style="margin-top:12px;"><div class="ms-progress-head"><span><b style="color:var(--gold);">Playoff run</b> · ${L.playoffLine.games} games</span><span class="mono">${L.playoffLine.pts} pts · ${L.playoffLine.reb} reb · ${L.playoffLine.ast} ast</span></div></div>` : ''}
+    ${L.rivalReport ? `<div class="hint" style="margin:10px 0 0;"><b style="color:var(--loss);">🔥 Rival watch:</b> ${C.rival.name} averaged ${L.rivalReport.line.pts} ppg${L.rivalReport.events.length?' and '+L.rivalReport.events.join(', '):''}.${L.rivalReport.retiredNow ? ' And then he called it a career - the rivalry ends with you still standing.' : (L.rivalReport.line.pts > L.seasonStats.pts ? ' He outscored you this year.' : ' You outscored him this year.')}</div>` : ''}
+    ${L.awards.length ? `<div class="award-badges">${L.awards.map(a=>`<span class="award-badge">${a==='Finals MVP'?'🏆':'🏅'} ${a}</span>`).join('')}</div>` : ''}
     ${(L.milestones||[]).map(m=>`<div class="milestone-badge">🎯 <span>${m.threshold.toLocaleString()} career ${m.stat==='pts'?'points':m.stat==='reb'?'rebounds':'assists'}<i>A real career milestone.</i></span></div>`).join('')}
+    ${(function(){
+      const total = Math.round(careerCumulativeTotal(C.history, 'pts'));
+      const next = CAREER_MILESTONES.pts.find(t=>t>total);
+      if(!next) return '';
+      const pct = Math.min(100, total/next*100);
+      return `<div class="ms-progress"><div class="ms-progress-head"><span>Next milestone: <b>${next.toLocaleString()} career points</b></span><span class="mono">${total.toLocaleString()}</span></div>
+        <div class="ms-track"><div class="ms-fill" style="width:${pct.toFixed(1)}%"></div></div></div>`;
+    })()}
   </div>
   <div class="field">
     <label>Game Log</label>
+    ${seasonStripHTML(L.gameLog)}
     <div class="hint">All 82 games, in play order.</div>
     <div class="feed-list">${logRows}</div>
   </div>
@@ -5619,6 +5891,104 @@ function renderCareerEvent(){
   });
 }
 
+// Reusable inline-SVG trajectory chart — used for the Career legacy arc
+// (rating by year) and Dynasty's franchise arc (wins by year). Hand-rolled
+// so the app stays a single dependency-free file. points: [{x-label, value,
+// markers:[emoji...]}]. Marker emojis render above their point; a vertical
+// dashed line marks entries flagged changed:true (e.g. a trade).
+function arcChartSVG(points, opts){
+  if(!points || points.length<2) return '';
+  const o = Object.assign({height:220, yLabel:''}, opts||{});
+  const W=700, H=o.height, padL=44, padR=18, padT=34, padB=30;
+  const innerW = W-padL-padR, innerH = H-padT-padB;
+  const vals = points.map(p=>p.value);
+  let vMin = Math.min(...vals), vMax = Math.max(...vals);
+  const span = Math.max(4, vMax-vMin);
+  vMin = vMin - span*0.12; vMax = vMax + span*0.12;
+  const X = i => padL + (points.length===1?innerW/2:(i/(points.length-1))*innerW);
+  const Y = v => padT + innerH - ((v-vMin)/(vMax-vMin))*innerH;
+  const linePts = points.map((p,i)=>`${X(i).toFixed(1)},${Y(p.value).toFixed(1)}`).join(' ');
+  const areaPts = `${padL},${padT+innerH} ${linePts} ${(padL+innerW).toFixed(1)},${padT+innerH}`;
+  // y-axis gridlines at 3 clean levels
+  const gridLevels = [0.25,0.5,0.75].map(f=>vMin+(vMax-vMin)*f);
+  const grid = gridLevels.map(v=>`<line x1="${padL}" y1="${Y(v).toFixed(1)}" x2="${W-padR}" y2="${Y(v).toFixed(1)}" stroke="var(--line)" stroke-width="1" stroke-dasharray="3,4"/>
+    <text x="${padL-7}" y="${Y(v)+3.5}" text-anchor="end" font-size="10" fill="var(--chalk-dimmer)" font-family="Libre Franklin">${v.toFixed(0)}</text>`).join('');
+  const changes = points.map((p,i)=>p.changed?`<line x1="${X(i).toFixed(1)}" y1="${padT}" x2="${X(i).toFixed(1)}" y2="${padT+innerH}" stroke="var(--chalk-dimmer)" stroke-width="1" stroke-dasharray="2,4" opacity=".6"/>`:'').join('');
+  const dots = points.map((p,i)=>`<circle cx="${X(i).toFixed(1)}" cy="${Y(p.value).toFixed(1)}" r="3.2" fill="var(--accent)"/>`).join('');
+  const markers = points.map((p,i)=>{
+    if(!p.markers || !p.markers.length) return '';
+    return p.markers.map((m,mi)=>`<text x="${X(i).toFixed(1)}" y="${(Y(p.value)-10-mi*15).toFixed(1)}" text-anchor="middle" font-size="13">${m}</text>`).join('');
+  }).join('');
+  // x labels: first, last, and every ~5th
+  const xLabels = points.map((p,i)=>{
+    if(i!==0 && i!==points.length-1 && (i+1)%5!==0) return '';
+    return `<text x="${X(i).toFixed(1)}" y="${H-8}" text-anchor="middle" font-size="10" fill="var(--chalk-dimmer)" font-family="Libre Franklin">${p.label}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block;" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${o.yLabel} trajectory chart">
+    <defs><linearGradient id="arcFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--accent)" stop-opacity=".28"/>
+      <stop offset="100%" stop-color="var(--accent)" stop-opacity=".02"/>
+    </linearGradient></defs>
+    ${grid}${changes}
+    <polygon points="${areaPts}" fill="url(#arcFill)"/>
+    <polyline points="${linePts}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    ${dots}${markers}${xLabels}
+  </svg>`;
+}
+
+// 9-axis radar chart of a career player's skill build — a spiky specialist
+// and a balanced all-arounder read as visibly different shapes. Inline SVG,
+// same dependency-free approach as arcChartSVG. adv: the player's 9
+// sub-ratings keyed by CAREER_SUBSTATS.
+const RADAR_LABELS = {sco:'SCO', sho:'SHO', ply:'PLY', pdef:'PDF', idef:'IDF', reb:'REB', ath:'ATH', iq:'IQ', vers:'VRS'};
+function radarChartSVG(adv, opts){
+  if(!adv) return '';
+  const o = Object.assign({size:260}, opts||{});
+  const Wd=o.size, cx=Wd/2, cy=Wd/2, R=Wd/2-34;
+  const keys = CAREER_SUBSTATS;
+  const n = keys.length;
+  const angle = i => -Math.PI/2 + (i/n)*Math.PI*2;
+  const pt = (i, frac) => `${(cx+Math.cos(angle(i))*R*frac).toFixed(1)},${(cy+Math.sin(angle(i))*R*frac).toFixed(1)}`;
+  // rings at 33/66/100
+  const rings = [1/3,2/3,1].map(f=>`<polygon points="${keys.map((k,i)=>pt(i,f)).join(' ')}" fill="none" stroke="var(--line)" stroke-width="1"/>`).join('');
+  const spokes = keys.map((k,i)=>`<line x1="${cx}" y1="${cy}" x2="${pt(i,1).split(',')[0]}" y2="${pt(i,1).split(',')[1]}" stroke="var(--line)" stroke-width="1"/>`).join('');
+  const shape = keys.map((k,i)=>pt(i, Math.max(0.04,(adv[k]||15)/99))).join(' ');
+  const overlay = o.overlay ? `<polygon points="${keys.map((k,i)=>pt(i, Math.max(0.04,(o.overlay[k]||15)/99))).join(' ')}" fill="none" stroke="var(--chalk-dimmer)" stroke-width="1.5" stroke-dasharray="4,4" stroke-linejoin="round"/>` : '';
+  const labels = keys.map((k,i)=>{
+    const lx = cx+Math.cos(angle(i))*(R+18), ly = cy+Math.sin(angle(i))*(R+18);
+    return `<text x="${lx.toFixed(1)}" y="${(ly+3.5).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="700" fill="var(--chalk-dimmer)" font-family="Libre Franklin">${RADAR_LABELS[k]||k}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${Wd} ${Wd}" style="width:100%;max-width:${Wd}px;height:auto;display:block;margin:0 auto;" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Skill shape radar chart">
+    ${rings}${spokes}${overlay}
+    <polygon points="${shape}" fill="var(--accent)" fill-opacity=".22" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>
+    ${labels}
+  </svg>`;
+}
+
+// The whole 82-game season in one glance: a strip of tiny bars, green for
+// wins and red for losses, in play order — hot streaks and slumps become
+// visible shapes instead of 82 rows of text. games: [{userWon}].
+function seasonStripHTML(games){
+  if(!games || !games.length) return '';
+  return `<div class="season-strip" role="img" aria-label="Win-loss strip for the season">${games.map(g=>`<span class="ss-bar ${g.userWon?'ss-w':'ss-l'}"></span>`).join('')}</div>`;
+}
+
+// Finds the real player whose statistical profile most resembles the
+// career's per-game line — normalized distance across all six box stats so
+// no single category dominates (raw points would otherwise swamp blocks).
+// Pool stats are peak-season averages, so this reads as "whose game yours
+// resembled", a fun mirror rather than a precise historical ranking.
+function careerStatTwin(avg){
+  const norm = {pts:30, reb:15, ast:12, stl:2.5, blk:3, tpm:4};
+  let best=null, bestD=Infinity;
+  PLAYERS.forEach(pl=>{
+    let d=0;
+    Object.keys(norm).forEach(k=>{ const diff=(avg[k]-(pl[k]||0))/norm[k]; d+=diff*diff; });
+    if(d<bestD){ bestD=d; best=pl; }
+  });
+  return best;
+}
+
 function renderCareerLegacy(){
   const C = S.career;
   const p = C.player;
@@ -5637,6 +6007,7 @@ function renderCareerLegacy(){
   const roys = allAwards.filter(a=>a==='Rookie of the Year').length;
   const mips = allAwards.filter(a=>a==='Most Improved Player').length;
   const clutches = allAwards.filter(a=>a==='Clutch Player of the Year').length;
+  const fmvps = allAwards.filter(a=>a==='Finals MVP').length;
   const careerAvg = k => yearsPlayed ? (history.reduce((s,y)=>s+y.seasonStats[k],0)/yearsPlayed) : 0;
   const bestSeason = history.reduce((best,y)=>!best||y.rating>best.rating?y:best, null);
   const peakRating = bestSeason ? bestSeason.rating : C.rating;
@@ -5687,6 +6058,50 @@ function renderCareerLegacy(){
     <div style="font-size:26px;font-weight:800;color:var(--gold);margin:4px 0 2px;">${legacyTier}</div>
     <div style="font-size:13.5px;color:var(--chalk-dim);">${legacyDesc}</div>
   </div>
+  ${history.length>=2 ? `<div class="field">
+    <label>Career Arc</label>
+    ${arcChartSVG(history.map((y,i)=>({
+      label:'Y'+y.yearIdx,
+      value:y.rating,
+      markers:[
+        ...(y.seasonResult.playoffs && y.seasonResult.playoffs.wonTitle ? ['🏆'] : []),
+        ...(y.awards.includes('MVP') ? ['👑'] : []),
+      ],
+      changed: i>0 && y.teamAbbr && history[i-1].teamAbbr && y.teamAbbr!==history[i-1].teamAbbr,
+    })), {yLabel:'Overall rating'})}
+    <div class="hint" style="margin:8px 0 0;">🏆 title · 👑 MVP · dashed line = changed teams</div>
+  </div>` : ''}
+  <div class="field">
+    <label>Final Skill Shape</label>
+    ${radarChartSVG(p.adv, {size:240, overlay:p._rookieAdv})}
+    <div class="hint" style="margin:6px 0 0;text-align:center;">Solid: where your game ended up. Dashed: the rookie who arrived ${yearsPlayed} years ago.</div>
+  </div>
+  ${(function(){
+    const avg = {pts:careerAvg('pts'), reb:careerAvg('reb'), ast:careerAvg('ast'), stl:careerAvg('stl'), blk:careerAvg('blk'), tpm:careerAvg('tpm')};
+    const twin = careerStatTwin(avg);
+    if(!twin) return '';
+    return `<div class="event-recap" style="border-left-color:var(--cyan);border-color:rgba(6,182,212,.35);">
+      <div class="event-recap-cat" style="color:var(--cyan);">Statistical Twin</div>
+      <div class="event-recap-choice">🪞 ${twin.n}</div>
+      <div class="event-recap-outcome">Of every legend in the pool, your game most resembled his: ${twin.pts} / ${twin.reb} / ${twin.ast} at his peak, next to your ${avg.pts.toFixed(1)} / ${avg.reb.toFixed(1)} / ${avg.ast.toFixed(1)} career line.</div>
+    </div>`;
+  })()}
+  ${(function(){
+    const R = C.rival;
+    if(!R) return '';
+    const youScore = mvps*3 + titles*2.5 + allStars*0.5 + peakRating*0.05;
+    const rivScore = R.mvps*3 + R.titles*2.5 + R.allStars*0.5 + R.peakRating*0.05;
+    const verdict = youScore > rivScore*1.15 ? 'History remembers you as the better player - and it is not close.'
+      : youScore > rivScore ? 'You edged him. Barely. The debates will outlive you both.'
+      : rivScore > youScore*1.15 ? 'He got the better of the rivalry - the one that stings to admit.'
+      : 'He edged you. Barely. The debates will outlive you both.';
+    return `<div class="event-recap" style="border-left-color:var(--loss);border-color:rgba(239,77,94,.3);">
+      <div class="event-recap-cat" style="color:var(--loss);">The Rivalry</div>
+      <div class="event-recap-choice">🔥 vs ${R.name}</div>
+      <div class="event-recap-outcome">Him: ${R.mvps} MVP${R.mvps===1?'':'s'}, ${R.titles} title${R.titles===1?'':'s'}, ${R.allStars} All-Star nod${R.allStars===1?'':'s'}, ${R.peakRating.toFixed(1)} peak. You: ${mvps} MVP${mvps===1?'':'s'}, ${titles} title${titles===1?'':'s'}, ${allStars} All-Star nod${allStars===1?'':'s'}, ${peakRating.toFixed(1)} peak.</div>
+      <div class="event-recap-effect" style="color:var(--chalk);">${verdict}</div>
+    </div>`;
+  })()}
   <div class="field">
     <label>Career Stats</label>
     <div class="season-stats-row">
@@ -5709,6 +6124,7 @@ function renderCareerLegacy(){
       ${sixthMans ? `<div class="trophy-item"><span class="trophy-icon">🎯</span><b>${sixthMans}</b><i>6th Man</i></div>` : ''}
       ${roys ? `<div class="trophy-item"><span class="trophy-icon">🌟</span><b>${roys}</b><i>ROY</i></div>` : ''}
       ${mips ? `<div class="trophy-item"><span class="trophy-icon">📈</span><b>${mips}</b><i>MIP</i></div>` : ''}
+      ${fmvps ? `<div class="trophy-item"><span class="trophy-icon">🏆</span><b>${fmvps}</b><i>Finals MVP</i></div>` : ''}
       ${clutches ? `<div class="trophy-item"><span class="trophy-icon">🔥</span><b>${clutches}</b><i>Clutch</i></div>` : ''}
     </div>
   </div>
@@ -5812,6 +6228,12 @@ function renderCareerOffseason(){
       <div class="career-preview-stat"><b>${previewStats.ast}</b><i>AST</i></div>
       <div class="career-preview-stat"><b class="${ratingTierClass(previewRating)}">${previewRating.toFixed(1)}</b><i>OVR</i></div>
     </div>
+    ${(function(){
+      const cur = C.rating;
+      const delta = previewRating - cur;
+      if(Math.abs(delta) < 0.05) return '';
+      return `<div class="ovr-delta ${delta>0?'ovr-up':'ovr-down'}">${cur.toFixed(1)} <span class="ovr-arrow">→</span> ${previewRating.toFixed(1)} <b>(${delta>0?'+':''}${delta.toFixed(1)})</b></div>`;
+    })()}
   </div>
   ${tradeSection}
   ${C.age>=(p._retireAge||41) ? `<div class="event-recap" style="border-left-color:var(--loss);border-color:rgba(239,77,94,.35);"><div class="event-recap-choice">At ${C.age}, your body just doesn't have another season left in it.</div><div class="event-recap-outcome">Time to call it a career.</div></div>
@@ -5909,10 +6331,10 @@ function renderCareerDraftResult(){
       <div><h1>All-Time Draft</h1><div class="sub">Career Mode - Draft Night</div></div></div>
     <div class="topbar-btns">${themeToggleHTML()}</div>
   </div>
-  <div class="result-hero">
-    <div class="champ-label">Pick #${C.pick} · Round ${C.round}</div>
+  <div class="result-hero draft-reveal">
+    <div class="champ-label">With pick #${C.pick} in Round ${C.round}, the ${TEAM_NAMES[C.teamAbbr]} select...</div>
     <div class="champ-name">${p.n}</div>
-    <div class="champ-meta"><span class="champ-rating mono">Drafted by the ${TEAM_NAMES[C.teamAbbr]} ${teamBadgeHTML(C.teamAbbr)}</span></div>
+    <div class="champ-meta"><span class="champ-rating mono">Welcome to the ${TEAM_NAMES[C.teamAbbr]} ${teamBadgeHTML(C.teamAbbr)}</span></div>
   </div>
   <div class="field">
     <label>Your Profile</label>
@@ -5927,6 +6349,7 @@ function renderCareerDraftResult(){
     </div>
     ${arch ? `<div style="margin-top:12px;font-size:13.5px;color:var(--chalk-dim);">A <b style="color:var(--chalk);">${arch.primary}</b> · ${heightLabel(p.heightIn)} ${p.pos} · ${TEAM_NAMES[C.teamAbbr]}</div>` : ''}
     <div class="event-recap" style="margin-top:10px;margin-bottom:0;"><div class="event-recap-choice">🔍 Scouts say: ${CAREER_POTENTIAL_TIERS[p._potentialTier].label}</div><div class="event-recap-outcome">Nobody really knows how far this game can take you yet.</div></div>
+    ${C.rival ? `<div class="event-recap" style="margin-top:10px;margin-bottom:0;border-left-color:var(--loss);border-color:rgba(239,77,94,.3);"><div class="event-recap-cat" style="color:var(--loss);">Your Rival</div><div class="event-recap-choice">🔥 ${C.rival.name}</div><div class="event-recap-outcome">Taken pick #${C.rival.pick} by the ${TEAM_NAMES[C.rival.teamAbbr]} ${teamBadgeHTML(C.rival.teamAbbr)} - the media has already linked your names. Every draft class has one matchup people track for twenty years. This is yours.</div></div>` : ''}
   </div>
   <div class="field">
     <label>Your Starting Lineup</label>
@@ -6420,8 +6843,10 @@ function renderAuction(){
         <div class="auc-nominee-meta">${nominee.yr||''} · ${nominee.elig.join('/')} · OVR <span class="ovr-num ${ratingTierClass(playerRating(nominee))}">${playerRating(nominee).toFixed(0)}</span></div>
       </div>
       <div class="auc-bid-display">
-        <div class="auc-bid-amount mono">${a.currentBid||0}</div>
+        <div class="auc-bid-amount mono ${S._lastBidShown!==a.currentBid?'bid-pop':''}">${a.currentBid||0}</div>
         <div class="auc-bid-leader">${leader ? (leader.isUser?'You lead':leader.name+' leads') : 'No bids yet'}</div>
+        ${a.activeBidders && a.activeBidders.length>0 ? `<div class="auc-bidders-left">${a.activeBidders.length} bidder${a.activeBidders.length===1?'':'s'} still in</div>` : ''}
+        ${a.activeBidders && a.activeBidders.length===2 && (a.currentBid||0)>=3 ? `<div class="auc-tension">🔥 Bidding war - somebody has to blink</div>` : ''}
       </div>
       ${affordWarnHTML}
       ${isHumanTurn ? `
@@ -6444,6 +6869,7 @@ function renderAuction(){
     </div>`;
   }).join('') || `<div class="feed-empty">Won players will appear here as the auction unfolds.</div>`;
   S._lastFeedLen = S.pickLog.length;
+  S._lastBidShown = S.auction ? S.auction.currentBid : null;
 
   app.innerHTML=`
   <div class="topbar">
@@ -6453,6 +6879,7 @@ function renderAuction(){
   </div>
   <div class="auc-budget-strip">${budgetStrip}</div>
   ${mainCard}
+  ${S.auctionLastSold ? `<div class="sold-banner ${S.auctionLastSold.isUser?'sold-you':''}"><span class="sold-hammer">🔨</span><span class="sold-text"><b>SOLD:</b> ${S.auctionLastSold.name} to ${S.auctionLastSold.isUser?'you':S.auctionLastSold.teamName} for <b class="mono">${S.auctionLastSold.price}</b></span></div>` : ''}
   <div class="field">
     <label>Auction Log</label>
     <div class="hint">Every player won so far, and for how much.</div>
@@ -7002,6 +7429,7 @@ function renderSeasonResults(){
   </div>
   <div class="field">
     <label>Game Log</label>
+    ${seasonStripHTML(r.log)}
     <div class="hint">All 82 games, in play order.</div>
     <div class="feed-list">${logRows}</div>
   </div>
